@@ -1,0 +1,145 @@
+/*/////////////////////////////////////////////////////////////////////////
+//                                                                       //
+//   Switchy! Chrome Proxy Manager and Switcher                          //
+//   Copyright (c) 2009 Mohammad Hejazi (mohammadhi at gmail d0t com)    //
+//   Dual licensed under the MIT and GPL licenses.                       //
+//                                                                       //
+/////////////////////////////////////////////////////////////////////////*/
+
+body {
+	margin: 0px;
+	color: #345;
+	font: menu;
+	-webkit-user-select: none;
+}
+
+#menu {
+	margin: 2px 0px;
+}
+
+#menu .templateItem {
+	display: none;
+}
+
+#menu .item {
+	padding: 4px 15px 4px 6px;
+	margin: 0px 2px;
+	white-space: nowrap;
+	font: menu;
+	cursor: pointer;
+}
+
+#menu .item:hover {
+	padding: 3px 14px 3px 5px;
+	border: solid 1px #abc;
+	border-radius: 3px;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f0f5fc), color-stop(1, #e0e9f4));
+}
+
+#menu .item img {
+	vertical-align: text-top;	
+}
+
+#menu .proxy[id*=":"] {
+	color: #458;
+}
+
+#menu .proxy img {
+	visibility: collapse;
+}
+
+#menu .checked img {
+	visibility: visible !important;
+}
+
+#menu .item span {
+	padding-left: 3px;
+}
+
+#menu .separator {
+	height: 0px;
+	margin: 3px 2px;
+	border: 0;
+	border-top: 1px solid #ccc;
+}
+
+#about {
+	padding: 10px;
+	display: none;
+}
+
+#about * {
+	color: #578;
+	cursor: default;
+}
+
+#about a {
+	cursor: pointer;
+}
+
+#about .header {
+	text-shadow: #ccc 1px 1px 3px;	
+}
+
+#about .header td {
+	padding: 0;
+	padding-right: 10px;
+}
+
+#about .header .title {
+	font-size: 24pt;
+	margin-top: -6px;
+}
+
+#about .header .version {
+	margin-top: -6px;
+	margin-left: 3px;
+	text-shadow: #ddd 1px 1px 2px;
+}
+
+#about .header .versionNumber {
+	font-weight: bold;
+	font-size: 80%;
+}
+
+#about .header img {
+	vertical-align: middle;
+}
+
+#about .body {
+	height: 62px;
+	padding: 10px 8px;
+}
+
+#about .body * {
+	color: #679;
+}
+
+#about .body span {
+	white-space: nowrap;
+}
+
+#about .footer {
+	height: 15px;
+	color: #789;
+	margin: 5px;
+	padding-top: 3px;
+	border-top: solid 1px #eef;
+	white-space: nowrap;
+}
+
+#about .close {
+	position: absolute;
+	right: 10px;
+}
+
+#about .close img {
+	cursor: pointer;
+}
+
+#about .important {
+	color: green;
+	padding: 20px 0px;
+	font-weight: bold;
+	font-size: 125%;
+}
