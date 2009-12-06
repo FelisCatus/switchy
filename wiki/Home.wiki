@@ -1,0 +1,5 @@
+#home page
+
+== Home ==
+
+Welcome to the Switchy- wiki!
