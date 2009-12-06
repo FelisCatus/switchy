@@ -1,0 +1,26 @@
+#summary Switchy Change Log
+#labels Featured
+
+===0.9.3===
+(2009-12-05)
+  * Options: Add more info to diagnostics log.
+
+===0.9.2===
+(2009-12-04)
+  * Options: Added option for bypassing local addresses.
+  * Options: Added buttons for diagnosing the extension.
+  * Options: Added Error Console to see logged errors and events.
+  * Options: Added confirmation messages for save and info tip bar.
+  * Options: Confirm the close of Options window if there're unsaved changes.
+  * Options: Reapply the current profile if it's info changed.
+  * Options: End edit mode for a field when pressing `<Enter>`.
+  * General: Open Options window automaticaly for first time users.
+  * General: Show the new version number as icon badge after update.
+  * General: Sets '8080' as the default port.
+  * General: Reapply last selected profile on start.
+  * General: Set up a web page for the extension (http://www.samabox.com/projects/chrome/switchy).
+  * Popup: Added icons and changed highlight color.
+
+===0.8.3===
+(2009-12-01)
+  * Initial release.
