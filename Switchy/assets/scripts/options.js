@@ -71,6 +71,7 @@ function saveOptions() {
 	InfoTip.showMessage("Options Saved..", InfoTip.success);
 	
 	loadOptions();
+	extension.setIconInfo();
 }
 
 function closeWindow() {
@@ -204,10 +205,10 @@ function initLogStuff() {
 		$("#logger").toggle();
 	});
 	
-//	if (extension.Logger.haveErrorEntries()) {
+	if (extension.Logger.haveErrorEntries()) {
 		loadLog();
 		$("#logger").show();
-//	}
+	}
 	
 //	$("#header img").css("cursor", "pointer").click(function() {
 //		$("#logger").toggle();

@@ -6,15 +6,17 @@
 //                                                                       //
 /////////////////////////////////////////////////////////////////////////*/
 
-var appName = "Switchy!";
-var appVersion = "0.9.3";
+var appName = "";
+var appVersion = "";
 var activeIconPath = "assets/images/active.png";
 var inactiveIconPath = "assets/images/inactive.png";
 var refreshInterval = 10000;
 var newVersion = false;
+var notifyOnNewVersion = false; //////TODO
 var plugin;
 
 function init() {
+	loadManifestInfo();
 	plugin = document.getElementById("plugin");
 	ProfileManager.loadProfiles();
 	applyOptions();
@@ -24,17 +26,32 @@ function init() {
 	diagnose();
 }
 
+function loadManifestInfo() {
+	var manifest = null;
+	var request = new XMLHttpRequest();
+	request.open("GET", chrome.extension.getURL("manifest.json"), false);
+	request.onreadystatechange = function() {
+		if (this.readyState == XMLHttpRequest.DONE) {
+			manifest = JSON.parse(this.responseText);
+		}
+	};
+	request.send();	
+	
+	appName = manifest.name;
+	appVersion = manifest.version;
+}
+
 function checkFirstTime() {
 	if (!Settings.keyExists("firstTime")) {
 		Settings.setValue("firstTime", ":]");
-		if (ProfileManager.profiles.length == 0) {
+		if (!ProfileManager.hasProfiles()) {
 			Settings.setValue("version", appVersion);
 			openOptions(true);
 			return;
 		}
 	}
 	
-	if (Settings.getValue("version") != appVersion) {
+	if (notifyOnNewVersion && Settings.getValue("version") != appVersion) {
 		setIconText("Updated to new version (" + appVersion + ")");
 		setIconBadge(appVersion);
 		newVersion = true;
@@ -65,7 +82,8 @@ function setIconBadge(text) {
 	if (text == undefined)
 		text = "";
 	
-	chrome.browserAction.setBadgeBackgroundColor({ color: [150, 180, 255, 255] });
+//	chrome.browserAction.setBadgeBackgroundColor({ color: [75, 125, 255, 255] });
+	chrome.browserAction.setBadgeBackgroundColor({ color: [0, 175, 0, 255] });
 	chrome.browserAction.setBadgeText({ text: text });
 }
 

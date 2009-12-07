@@ -138,8 +138,11 @@ body {
 }
 
 #about .important {
-	color: green;
-	padding: 20px 0px;
+	color: #080;
+	padding: 4px;
+	padding-left: 22px;
 	font-weight: bold;
-	font-size: 125%;
+	font-size: 115%;
+	border: solid 1px #abc;
+	background: #f0fdf0 url(/assets/images/accept.png) 3px center no-repeat;
 }
