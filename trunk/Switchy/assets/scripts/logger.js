@@ -22,7 +22,7 @@ Logger.entries = [];
 Logger.enabled = true;
 Logger.logToConsole = true;
 Logger.logAlert = false;
-Logger.logStackTrace = false;
+Logger.logStackTrace = true; //TODO
 Logger.maxCapacity = 10;
 Logger.listeners = [];
 
@@ -70,8 +70,11 @@ Logger.getStackTrace = function getStackTrace() {
 	var anonymous = "<anonymous>";
 	var functionRegex  = /function\s*([\w\-$]+)?\s*\(/i;
 	var stack = [];
+	var functions = [];
 	var currentFunction = arguments.callee.caller.caller;
 	while (currentFunction) {
+		functions.push(currentFunction);
+		
 		var fn = functionRegex.test(currentFunction.toString()) ? RegExp.$1 || anonymous : anonymous;
 		var args = stack.slice.call(currentFunction.arguments);
 		var i = args.length;
@@ -89,6 +92,10 @@ Logger.getStackTrace = function getStackTrace() {
 		
 	    stack[stack.length] = fn + '(' + args.join(", ") + ')';
 		currentFunction = currentFunction.caller;
+		if (functions.indexOf(currentFunction) >= 0) {
+			console.log("Recursion detected..");
+			break;
+		}
 	}
 	
 	return stack;

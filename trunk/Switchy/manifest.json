@@ -1,6 +1,6 @@
 {
 	"name": "Switchy!",
-	"version": "0.9.3",
+	"version": "0.9.4",
 	"description": "Switchy! is a proxy manager lets you manage and switch between multiple proxy profiles.",
 	"icons": { "128": "assets/images/icon-128.png" },
 	

@@ -120,13 +120,13 @@ function buildDirectConnectionMenuItem() {
 
 function checkNewVersionBadge() {
 	if (extension.newVersion) {
+		extension.newVersion = false;
 		extension.Settings.setValue("version", extension.appVersion);
 		extension.setIconBadge("");
-		extension.newVersion = false;
 		extension.setIconInfo();
 		
-		$(".body").height(30).addClass("important").css("text-align", "center");
-		$(".body").text("Updated to new version (" + extension.appVersion + ")");
+		$("#developer").height(30).addClass("important").css("text-align", "center");
+		$("#developer").text("Updated to a new version (" + extension.appVersion + ")");
 		$("#menu").hide();
 		$("#about").show();
 	}

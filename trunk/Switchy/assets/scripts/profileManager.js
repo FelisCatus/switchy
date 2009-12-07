@@ -90,3 +90,25 @@ ProfileManager.applyProfile = function applyProfile(profile) {
 ProfileManager.profileToString = function profileToString(profile) {
 	return "Profile: " + JSON.stringify(profile);
 };
+
+ProfileManager.hasProfiles = function hasProfiles() {
+	var result = false;
+	for (i in ProfileManager.profiles) {
+		result = true;
+		break;
+	}
+	
+	return result;
+};
+
+ProfileManager.equals = function equals(profile1, profile2) {
+	if (profile1.proxy != profile2.proxy || profile1.useSameProxy != profile2.useSameProxy)
+		return false;
+	
+	if (profile1.useSameProxy)
+		return true;
+	
+	return profile1.proxyHttps != profile2.proxyHttps
+		&& profile1.proxyFtp != profile2.proxyFtp
+		&& profile1.proxySocks != profile2.proxySocks;
+};
