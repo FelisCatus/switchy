@@ -23,24 +23,38 @@ ProfileManager.saveProfiles = function saveProfiles() {
 };
 
 ProfileManager.getProfiles = function getProfiles() {
-	return ProfileManager.profiles;
+	var profiles = {};
+	for (var i in ProfileManager.profiles) {
+		var profile = ProfileManager.profiles[i];
+		var emptyProfile = { proxy: "", useSameProxy: true, proxyHttps: "", proxyFtp: "", proxySocks: "" };
+		$.extend(emptyProfile, profile);
+		profiles[i] = emptyProfile;
+	}
+	
+	return profiles;
+};
+
+ProfileManager.setProfiles = function setProfiles(profiles) {
+	var profiles = $.extend(true, {}, profiles);
+	ProfileManager.profiles = profiles;
 };
 
 ProfileManager.getSortedProfileArray = function getSortedProfileArray() {
-	profiles = [];
-	for (var i in ProfileManager.profiles)
-		profiles[profiles.length] = ProfileManager.profiles[i];
+	var profiles = ProfileManager.getProfiles();
+	var profileArray = [];
+	for (var i in profiles)
+		profileArray[profileArray.length] = profiles[i];
 
-	profiles = profiles.sort(function(a, b) {
-		var name1 = a.name.toLowerCase();
-		var name2 = b.name.toLowerCase();
+	profileArray = profileArray.sort(function(profile1, profile2) {
+		var name1 = profile1.name.toLowerCase();
+		var name2 = profile2.name.toLowerCase();
 		if (name1.charCodeAt(0) != name2.charCodeAt(0))
 			return name1.charCodeAt(0) - name2.charCodeAt(0);
 		else if (name1.length > 1 && name2.length > 1)
 			return name1.charCodeAt(1) - name2.charCodeAt(1);
 	});
 	
-	return profiles;
+	return profileArray;
 };
 
 ProfileManager.getCurrentProfile = function getCurrentProfile() {	
@@ -60,10 +74,17 @@ ProfileManager.getCurrentProfile = function getCurrentProfile() {
 	if (proxyEnabled !== true && proxyEnabled !== "True" && proxyEnabled !== "true")
 		return ProfileManager.directConnectionProfile;
 	
-	if (ProfileManager.profiles[proxy])
-		return ProfileManager.profiles[proxy];
+	profile = ProfileManager.parseProxyString(proxy);
+	var emptyProfile = { proxy: "", useSameProxy: true, proxyHttps: "", proxyFtp: "", proxySocks: "" };
+	$.extend(emptyProfile, profile);
+	profile = emptyProfile;
 	
-	return { name: "", proxy: proxy, unknown: true };
+	var foundProfile = ProfileManager.contains(profile);
+	if (foundProfile)
+		return foundProfile;
+	
+	profile.unknown = true;
+	return profile;
 };
 
 ProfileManager.applyProfile = function applyProfile(profile) {
@@ -72,14 +93,14 @@ ProfileManager.applyProfile = function applyProfile(profile) {
 	
 	Settings.setObject("selectedProfile", profile);
 	
+	var proxy = ProfileManager.buildProxyString(profile);
 	try {
-		plugin.proxyEnabled = !direct;
 		if (!direct)
-			plugin.proxyServer = profile.proxy;
-		
-		if (profile.bypassLocal != undefined)
-			plugin.proxyBypassLocal = profile.pypassLocal;
-		
+			plugin.proxyServer = proxy;
+
+		plugin.proxyEnabled = !direct;	
+		plugin.proxyBypass = profile.bypassProxy;
+		plugin.proxyConfigUrl = profile.configUrl;
 		plugin.notifyIE(0);
 	} catch(ex) {
 		Logger.log("Plugin Error @ProfileManager.applyProfile(" + ProfileManager.profileToString(profile) + ") > " +
@@ -89,6 +110,57 @@ ProfileManager.applyProfile = function applyProfile(profile) {
 
 ProfileManager.profileToString = function profileToString(profile) {
 	return "Profile: " + JSON.stringify(profile);
+};
+
+ProfileManager.parseProxyString = function parseProxyString(proxyString) {
+	if (!proxyString)
+		return {};
+	
+	var profile;
+	if (proxyString.indexOf(";") > 0 || proxyString.indexOf("=") > 0) {
+		var proxyParts = proxyString.toLowerCase().split(";");
+		profile = { useSameProxy: false, proxy: "", proxyHttps: "", proxyFtp: "", proxySocks: "" };
+		for ( var i = 0; i < proxyParts.length; i++) {
+			var part = proxyParts[i];
+			if (part.indexOf("http=") == 0) {
+				profile.proxy = part.substring(5);
+			} else if (part.indexOf("https=") == 0) {
+				profile.proxyHttps = part.substring(6);
+			} else if (part.indexOf("ftp=") == 0) {
+				profile.proxyFtp = part.substring(4);
+			} else if (part.indexOf("socks=") == 0) {
+				profile.proxySocks = part.substring(6);
+			}
+		}
+	} else {
+		profile = { proxy: proxyString, useSameProxy: true };
+	}
+	
+	return profile;
+};
+
+ProfileManager.buildProxyString = function buildProxyString(profile) {
+	if (!profile)
+		return "";
+	
+	if (profile.useSameProxy)
+		return profile.proxy;
+	
+	var proxy = [];
+	if (profile.proxy)
+		proxy.push("http=" + profile.proxy);
+	
+	if (profile.proxyHttps)
+		proxy.push("https=" + profile.proxyHttps);
+	
+	if (profile.proxyFtp)
+		proxy.push("ftp=" + profile.proxyFtp);
+	
+	if (profile.proxySocks)
+		proxy.push("socks=" + profile.proxySocks);
+	
+	proxy = proxy.join(";");
+	return proxy;
 };
 
 ProfileManager.hasProfiles = function hasProfiles() {
@@ -108,7 +180,16 @@ ProfileManager.equals = function equals(profile1, profile2) {
 	if (profile1.useSameProxy)
 		return true;
 	
-	return profile1.proxyHttps != profile2.proxyHttps
-		&& profile1.proxyFtp != profile2.proxyFtp
-		&& profile1.proxySocks != profile2.proxySocks;
+	return profile1.proxyHttps == profile2.proxyHttps
+		&& profile1.proxyFtp == profile2.proxyFtp
+		&& profile1.proxySocks == profile2.proxySocks;
+};
+
+ProfileManager.contains = function contains(profile) {
+	var profiles = ProfileManager.getProfiles();
+	for (i in profiles) {
+		if (ProfileManager.equals(profiles[i], profile))
+			return profiles[i];
+	}
+	return undefined;
 };

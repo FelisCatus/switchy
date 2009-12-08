@@ -22,8 +22,8 @@ Logger.entries = [];
 Logger.enabled = true;
 Logger.logToConsole = true;
 Logger.logAlert = false;
-Logger.logStackTrace = true; //TODO
-Logger.maxCapacity = 10;
+Logger.logStackTrace = false;
+Logger.maxCapacity = 25;
 Logger.listeners = [];
 
 Logger.log = function log(message, type, logStackTrace) {

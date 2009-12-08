@@ -7,7 +7,7 @@
 /////////////////////////////////////////////////////////////////////////*/
 
 body {
-	padding: 0 20%;
+	padding: 0 18%;
 	color: #4e607d;
 	cursor: default;
 	background-color: #fafcff;
@@ -84,7 +84,7 @@ hr {
 #body {
 	height: 100%;
 	padding: 15px;
-	padding-left: 23px;
+	?padding-left: 23px;
 	border: solid 1px #d1dbdf;
 	border-radius: 6px;
 	background-color: #f8fafd;
@@ -93,7 +93,7 @@ hr {
 #body .title {
 	font-weight: bold;
 	margin-bottom: 8px;
-	margin-left: -8px;
+	?margin-left: -8px;
 	text-shadow: #eee 1px 1px 2px;
 }
 
@@ -117,12 +117,36 @@ hr {
 	height: 5px;
 }
 
+#proxyTable {
+	border-spacing: 0px;
+	border-collapse: collapse;
+}
+
+#proxyTable th, #proxyTable td {
+	padding: 0px;
+}
+
+#proxyTable th div {
+	vertical-align: middle;
+	padding: 6px;
+	font-size: 9pt;
+	font-weight: bold;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f2f7fe), color-stop(1, #e1eaf6));
+	border: solid 1px #d1dbdf;
+	border-radius: 3px 3px 0px 0px;
+}
+
+#proxyTable td {
+	vertical-align: top;
+}
+
 #proxyProfiles {
 	width: 100%;
+	height: 100%;
 	border: solid 1px #ccc;
 	border-spacing: 1px;
-	empty-cells: show;
 	margin-bottom: 10px;
+	padding: 1px;
 	table-layout: fixed;
 }
 
@@ -140,9 +164,30 @@ hr {
 
 #proxyProfiles td {
 	height: 28px;
-	border: solid 1px #e2e7e9;
-	background-color: #fcfdfe;
+	border: solid 1px #f0f4f6;
 	overflow: hidden;
+	vertical-align: middle;
+	cursor: pointer;
+	background-color: #fafcff;
+	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f8fbfe), color-stop(1, #eef3fd));
+}
+
+#proxyProfiles td:hover {
+	background-color: #f8fbfe;
+	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f8fbfe), color-stop(1, #f2f7fe));
+}
+
+#proxyProfiles .selected td {
+	border: solid 1px #bcd;
+	font-size: 9pt;
+	font-weight: bold;
+	background-color: #d5e5f3;
+	background-color: #e0e9ea;
+	background-color: #dae4ff;
+}
+
+#proxyProfiles td:first-child {
+	padding-left: 8px;
 }
 
 #proxyProfiles td:last-child {
@@ -179,27 +224,50 @@ hr {
 	background-color: #fbf9f4;
 }
 
-#proxyProfilesTitle {
+#profileDetails {
 	width: 100%;
-	border-collapse: collapse;
-	border-spacing: 0px;
+	height: 100%;
+	border: solid 1px #d1dadd;
+	border-spacing: 10px;
+	empty-cells: show;
+	padding: 6px;
+	background-color: #f4f8fa;
 }
 
-#proxyProfilesTitle img {
-	cursor: pointer;
+#profileDetails td {
+	vertical-align: middle;
+	white-space: nowrap;
+}
+
+#profileDetails td:first-child {
+	?text-align: right;
+}
+
+#profileDetails td:nth-child(2) {
+	width: 70%;
+}
+
+#profileDetails td:nth-child(4) {
+	width: 30%;
+	white-space: normal;
+}
+
+#profileDetails input[type="text"] {
+	width: 100%;
+}
+
+#profileDetails input {
+	margin: 0;
 	vertical-align: text-bottom;
+	font-size: 10pt;
 }
 
-#proxyProfilesImportExport {
-	width: 100%;
-	border-collapse: collapse;
-	border-spacing: 0px;
-	display: none;
+#profileDetails hr {
+	margin: 6px 0;
 }
 
-#proxyProfilesImportExport textarea {
-	width: 100%;
-	height: 140px;
+#profileDetails .disabled {
+	color: #888;
 }
 
 #proxyList {
@@ -232,12 +300,10 @@ hr {
 	border: solid 1px #d1dbdf;
 	border-radius: 6px;
 	background-color: #f8fafd;
-	display: none;
 }
 
 #console {
 	width: 100%;
-	height: 100px;
+	height: 400px;
 	margin-top: 10px;
-	/*display: none;*/
 }

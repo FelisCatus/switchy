@@ -32,91 +32,115 @@
 							</td>
 						</tr>
 					</table>
-					<!--img src="assets/images/icon-128.png" width="50" />
-					<span class="title">Switchy! Options</span>
-					<img src="assets/images/close.png" class="close" /-->
 				</div>
 			</td>
 		</tr>
 		<tr height="100%">
 			<td valign="top">				
 				<div id="body">
-					<!--table id="proxyProfilesTitle">
+					<table id="proxyTable">
 						<tr>
-							<td width="100%"><div class="title">Proxy Profiles</div></td>
-							<td nowrap="nowrap">
-								<img src="assets/images/load.png" title="Import" onclick="toggleImportExportArea();"> -
-								<img src="assets/images/save.png" title="Export" onclick="toggleImportExportArea();">
-							</td>
+							<th><div>Proxy Profiles</div></th>
+							<td></td>
+							<th><div>Profile Details</div></th>
 						</tr>
-					</table-->
-					<div class="title">Proxy Profiles</div>
-					<table id="proxyProfilesImportExport">
 						<tr>
+							<td width="32%">
+								<table id="proxyProfiles">
+									<tr class="templateRow">
+										<td width="100%">[Untitled Profile]</td>
+										<td width="30"><div class="delete" title="Delete Profile" onclick="deleteRow();"></td>
+									</tr>
+								</table>
+								<div class="button" onclick="newRow();">
+									<img src="assets/images/add.png"> New Profile
+								</div>
+							</td>
+							<td width="10"></td>
 							<td>
-								<textarea></textarea>
-								<br /><br />
+								<table id="profileDetails">
+									<tr>
+										<td><label>Profile Name</label></td>
+										<td colspan="3"><input id="profileName" type="text"></td>
+									</tr>
+									<tr>
+										<td colspan="4"><hr /></td>
+									</tr>
+									<tr id="httpRow">
+										<td><label>HTTP Proxy</label></td>
+										<td><input id="httpProxyServer" type="text"></td>
+										<td><label>Port</label></td>
+										<td><input id="httpProxyPort" type="text"></td>
+									</tr>
+									<tr>
+										<td></td>
+										<td colspan="3">
+											<label>
+												<input id="useSameProxy" type="checkbox">&nbsp;
+												<span>Use the same proxy server for all protocols</span>
+											</label>
+										</td>
+									</tr>
+									<tr id="httpsRow">
+										<td><label>HTTPS Proxy</label></td>
+										<td><input id="httpsProxyServer" type="text"></td>
+										<td><label>Port</label></td>
+										<td><input id="httpsProxyPort" type="text"></td>
+									</tr>
+									<tr id="ftpRow">
+										<td><label>FTP Proxy</label></td>
+										<td><input id="ftpProxyServer" type="text"></td>
+										<td><label>Port</label></td>
+										<td><input id="ftpProxyPort" type="text"></td>
+									</tr>
+									<tr id="socksRow">
+										<td><label>Socks Host</label></td>
+										<td><input id="socksProxyServer" type="text"></td>
+										<td><label>Port</label></td>
+										<td><input id="socksProxyPort" type="text"></td>
+									</tr>
+									<tr>
+										<td colspan="4"><hr /></td>
+									</tr>
+									<tr>
+										<td><label>No Proxy for</label></td>
+										<td colspan="3"><input id="bypassProxy" type="text"></td>
+									</tr>
+									<tr>
+										<td></td>
+										<td colspan="3">Use semicolons ( ; ) to seperate entries</td>
+									</tr>
+									<tr>
+										<td colspan="4"><hr /></td>
+									</tr>
+									<tr>
+										<td><label>Auto Config URL</label></td>
+										<td colspan="3"><input id="configUrl" type="text"></td>
+									</tr>
+								</table>
 							</td>
 						</tr>
 					</table>
-					<table id="proxyProfiles">
-						<tr class="tableHeader">
-							<th width="40%">Profile Name</th>
-							<th width="40%">Proxy Server</th>
-							<th width="20%">Proxy Port</th>
-							<th width="28"></th>
-						</tr>
-						<tr class="templateRow">
-							<td><div><span class="profileName">&#x0b;&#x20;</span><input type="text"></div></td>
-							<td><div><span class="profileProxyServer">&#x0b;&#x20;</span><input type="text"></div></td>
-							<td><div><span class="profileProxyPort">&#x0b;&#x20;</span><input type="text"></div></td>
-							<td><div class="delete" title="Delete Profile" onclick="deleteRow();"></td>
-						</tr>
-					</table>
-					<div class="button" onclick="newRow();"><img src="assets/images/add.png"> New</div>
 					
-					<!--div class="spacer25"></div>	
-									
-					<div class="title">Proxy List</div>
-					<table id="proxyList">
-						<tr>
-							<td>Proxy List URL</td>
-							<td><input id="txtProxyListURL" type="text"></td>
-						</tr>
-						<tr>
-							<td>Redownload List Every</td>
-							<td><input id="txtRedownloadInterval" type="text"> Seconds</td>
-						</tr>
-						<tr>
-							<td>Change Proxy Every</td>
-							<td><input id="txtProxyChangeInterval" type="text"> Seconds</td>
-						</tr>
-					</table-->
-					
-					<div class="spacer20"></div>
-					
-					<div class="title">General</div>
-					<label><input id="chkBypassLocal" type="checkbox"> Bypass proxy for local addresses</label>
-					
-					<div class="spacer25"></div>
 					<div class="spacer10"></div>
 					<hr />
 					
 					<div class="control">
-						<div class="button" onclick="saveOptions();">Save</div>&nbsp;
-						<div class="button" onclick="closeWindow();">Close</div>
+						<table>
+							<tr>
+								<td width="100%">
+									<div class="button" onclick="showLog();">Show Log</div>
+								</td>
+								<td>
+									<div class="button" onclick="saveOptions();">Save</div>
+								</td>
+								<td></td>
+								<td>
+									<div class="button" onclick="closeWindow();">Close</div>
+								</td>
+							</tr>
+						</table>
 					</div>
-				</div>
-			</td>
-		</tr>
-		<tr>
-			<td>
-				<div id="logger">
-					<!--<div id="btnViewLog" class="button">View Log</div>&nbsp;-->
-					<div id="btnClearLog" class="button" onclick="clearLog();">Clear Log</div>&nbsp;
-					<div id="btnDiagnose" class="button" onclick="diagnose();">Diagnose</div>
-					<br />
-					<textarea id="console"></textarea>
 				</div>
 			</td>
 		</tr>
