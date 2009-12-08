@@ -12,7 +12,7 @@ var activeIconPath = "assets/images/active.png";
 var inactiveIconPath = "assets/images/inactive.png";
 var refreshInterval = 10000;
 var newVersion = false;
-var notifyOnNewVersion = false; //////TODO
+var notifyOnNewVersion = true; //TODO
 var plugin;
 
 function init() {
@@ -51,7 +51,7 @@ function checkFirstTime() {
 		}
 	}
 	
-	if (notifyOnNewVersion && Settings.getValue("version") != appVersion) {
+	if (notifyOnNewVersion && Settings.getValue("version") != appVersion.substr(0, 5)) {
 		setIconText("Updated to new version (" + appVersion + ")");
 		setIconBadge(appVersion);
 		newVersion = true;
@@ -70,11 +70,11 @@ function openOptions(firstTime) {
 
 function applyOptions() {
 	var selectedProfile = Settings.getObject("selectedProfile");
-	var bypassLocal = Settings.getValue("bypassLocal");
 	
 	if (selectedProfile && selectedProfile.proxy) {
-		selectedProfile.bypassLocal = bypassLocal;
-		ProfileManager.applyProfile(selectedProfile);
+		var emptyProfile = { proxy: "", useSameProxy: true, proxyHttps: "", proxyFtp: "", proxySocks: "" };
+		$.extend(emptyProfile, selectedProfile);
+		ProfileManager.applyProfile(emptyProfile);
 	}
 }
 

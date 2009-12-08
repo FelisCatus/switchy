@@ -81,7 +81,7 @@ function buildProxyMenuItems() {
 		$("span", item).text(profile.name);
 		item.click(selectProxyItem);
 		item[0].profile = profile;
-		if (profile.proxy == currentProfile.proxy)
+		if (extension.ProfileManager.equals(profile, currentProfile))
 			item.addClass("checked");
 		
 		menu.append(item);
