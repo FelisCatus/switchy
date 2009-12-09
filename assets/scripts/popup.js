@@ -121,7 +121,7 @@ function buildDirectConnectionMenuItem() {
 function checkNewVersionBadge() {
 	if (extension.newVersion) {
 		extension.newVersion = false;
-		extension.Settings.setValue("version", extension.appVersion);
+		extension.Settings.setValue("version", extension.appVersion.substr(0, 5));
 		extension.setIconBadge("");
 		extension.setIconInfo();
 		

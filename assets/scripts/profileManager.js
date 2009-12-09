@@ -26,9 +26,8 @@ ProfileManager.getProfiles = function getProfiles() {
 	var profiles = {};
 	for (var i in ProfileManager.profiles) {
 		var profile = ProfileManager.profiles[i];
-		var emptyProfile = { proxy: "", useSameProxy: true, proxyHttps: "", proxyFtp: "", proxySocks: "" };
-		$.extend(emptyProfile, profile);
-		profiles[i] = emptyProfile;
+		profile = ProfileManager.normalizeProfile(profile);
+		profiles[i] = profile;
 	}
 	
 	return profiles;
@@ -74,10 +73,8 @@ ProfileManager.getCurrentProfile = function getCurrentProfile() {
 	if (proxyEnabled !== true && proxyEnabled !== "True" && proxyEnabled !== "true")
 		return ProfileManager.directConnectionProfile;
 	
-	profile = ProfileManager.parseProxyString(proxy);
-	var emptyProfile = { proxy: "", useSameProxy: true, proxyHttps: "", proxyFtp: "", proxySocks: "" };
-	$.extend(emptyProfile, profile);
-	profile = emptyProfile;
+	var profile = ProfileManager.parseProxyString(proxy);
+	profile = ProfileManager.normalizeProfile(profile);
 	
 	var foundProfile = ProfileManager.contains(profile);
 	if (foundProfile)
@@ -94,14 +91,18 @@ ProfileManager.applyProfile = function applyProfile(profile) {
 	Settings.setObject("selectedProfile", profile);
 	
 	var proxy = ProfileManager.buildProxyString(profile);
-	try {
-		if (!direct)
-			plugin.proxyServer = proxy;
-
-		plugin.proxyEnabled = !direct;	
-		plugin.proxyBypass = profile.bypassProxy;
-		plugin.proxyConfigUrl = profile.configUrl;
-		plugin.notifyIE(0);
+	try {		
+		var result;
+		if (direct) {
+			result = plugin.setDirect(0);
+		} else {
+			result = plugin.setProxy(proxy, profile.bypassProxy, profile.configUrl);
+		}
+		
+		if (result != 0 || result != "0")
+			throw "Error Code (" + result + ")";
+		
+		plugin.notifyChanges(0);
 	} catch(ex) {
 		Logger.log("Plugin Error @ProfileManager.applyProfile(" + ProfileManager.profileToString(profile) + ") > " +
 			ex.toString(), Logger.error);
@@ -163,6 +164,21 @@ ProfileManager.buildProxyString = function buildProxyString(profile) {
 	return proxy;
 };
 
+ProfileManager.normalizeProfile = function normalizeProfile(profile) {
+	var newProfile = {
+		name: "",
+		proxy : "",
+		useSameProxy : true,
+		proxyHttps : "",
+		proxyFtp : "",
+		proxySocks : "",
+		bypassProxy : "",
+		configUrl : ""
+	};
+	$.extend(newProfile, profile);
+	return newProfile;
+};
+
 ProfileManager.hasProfiles = function hasProfiles() {
 	var result = false;
 	for (i in ProfileManager.profiles) {
@@ -182,7 +198,7 @@ ProfileManager.equals = function equals(profile1, profile2) {
 	
 	return profile1.proxyHttps == profile2.proxyHttps
 		&& profile1.proxyFtp == profile2.proxyFtp
-		&& profile1.proxySocks == profile2.proxySocks;
+		&& profile1.proxySocks == profile2.proxySocks; //TODO compare all rest files
 };
 
 ProfileManager.contains = function contains(profile) {

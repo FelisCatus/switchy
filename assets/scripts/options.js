@@ -98,7 +98,7 @@ function showLog() {
 }
 
 function initUI() {
-	$("#profileName").keyup(function() {
+	$("#profileName").bind("keyup change", function() {
 		$("td:first", selectedRow).text($(this).val());
 		selectedRow[0].profile.name = $(this).val();
 		anyValueModified = true;
@@ -150,15 +150,15 @@ function newRow(profile) {
 	$("td:first", row).click(selectRow);
 	
 	if (profile) {
-		var emptyProfile = { proxy: "", useSameProxy: true, proxyHttps: "", proxyFtp: "", proxySocks: "" };
-		$.extend(emptyProfile, profile);
-		profile = emptyProfile;
+		profile = extension.ProfileManager.normalizeProfile(profile);
 		
 		var proxyInfo = parseProxy(profile.proxy);
 		$("td:first", row).text(profile.name);
 		row[0].profile = profile;
-		if (profile.unknown)
+		if (profile.unknown) {
+			delete profile.unknown;
 			row.addClass("unknown");
+		}
 	} else {
 		var profileName = $("#proxyProfiles .templateRow td:first").text();
 		row[0].profile = { name: profileName, proxy: "", useSameProxy: true, proxyHttps: "",
@@ -178,6 +178,11 @@ function deleteRow() {
 			selectRow({});
 		
 		$(row).remove();
+		
+		saveOptions();
+		loadOptions();
+		extension.setIconInfo();
+		InfoTip.showMessage("Profile Deleted..", InfoTip.note);
 	}
 }
 
