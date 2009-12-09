@@ -24,6 +24,9 @@ function init() {
 	setIconInfo();
 	monitorChanges();	
 	diagnose();
+	
+	
+	ProfileManager.getCurrentProfile();
 }
 
 function loadManifestInfo() {
@@ -45,7 +48,7 @@ function checkFirstTime() {
 	if (!Settings.keyExists("firstTime")) {
 		Settings.setValue("firstTime", ":]");
 		if (!ProfileManager.hasProfiles()) {
-			Settings.setValue("version", appVersion);
+			Settings.setValue("version", appVersion.substr(0, 5));
 			openOptions(true);
 			return;
 		}
@@ -53,7 +56,7 @@ function checkFirstTime() {
 	
 	if (notifyOnNewVersion && Settings.getValue("version") != appVersion.substr(0, 5)) {
 		setIconText("Updated to new version (" + appVersion + ")");
-		setIconBadge(appVersion);
+		setIconBadge(appVersion.substr(0, 5));
 		newVersion = true;
 	}
 }
@@ -72,9 +75,8 @@ function applyOptions() {
 	var selectedProfile = Settings.getObject("selectedProfile");
 	
 	if (selectedProfile && selectedProfile.proxy) {
-		var emptyProfile = { proxy: "", useSameProxy: true, proxyHttps: "", proxyFtp: "", proxySocks: "" };
-		$.extend(emptyProfile, selectedProfile);
-		ProfileManager.applyProfile(emptyProfile);
+		selectedProfile = ProfileManager.normalizeProfile(selectedProfile);
+		ProfileManager.applyProfile(selectedProfile);
 	}
 }
 
@@ -127,7 +129,7 @@ function diagnose() {
 		result = false;
 	}
 	
-	if (typeof plugin.notifyIE == "function" && typeof plugin.proxyEnabled == "string")
+	if (typeof plugin.setProxy == "function")
 		Logger.log("Plugin working properly..", Logger.success);
 	else {
 		Logger.log("Plugin not working properly!", Logger.error);
