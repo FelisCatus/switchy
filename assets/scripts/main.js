@@ -12,7 +12,7 @@ var activeIconPath = "assets/images/active.png";
 var inactiveIconPath = "assets/images/inactive.png";
 var refreshInterval = 10000;
 var newVersion = false;
-var notifyOnNewVersion = true; //TODO
+var notifyOnNewVersion = true;
 var plugin;
 
 function init() {
@@ -84,8 +84,8 @@ function setIconBadge(text) {
 	if (text == undefined)
 		text = "";
 	
-//	chrome.browserAction.setBadgeBackgroundColor({ color: [75, 125, 255, 255] });
-	chrome.browserAction.setBadgeBackgroundColor({ color: [0, 175, 0, 255] });
+	chrome.browserAction.setBadgeBackgroundColor({ color: [75, 125, 255, 255] });
+//	chrome.browserAction.setBadgeBackgroundColor({ color: [0, 175, 0, 255] });
 	chrome.browserAction.setBadgeText({ text: text });
 }
 
@@ -103,12 +103,13 @@ function setIconInfo(profile) {
 	if (!profile)
 		profile = ProfileManager.getCurrentProfile();
 	
-	var title = appName + "\n" + profile.name;	
+	var title = appName + "\n";	
 	if (profile.proxy == ProfileManager.directConnectionProfile.proxy) {
 		chrome.browserAction.setIcon({ path: inactiveIconPath });
+		title += profile.name;
 	} else {
 		chrome.browserAction.setIcon({ path: activeIconPath });
-		title += " (" + profile.proxy + ")";
+		title += ProfileManager.profileToString(profile, true);
 	}
 	chrome.browserAction.setTitle({ title: title });
 }

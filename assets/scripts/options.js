@@ -23,10 +23,14 @@ function loadOptions() {
 	extension.ProfileManager.loadProfiles();
 	var profiles = extension.ProfileManager.getSortedProfileArray();
 	var currentProfile = extension.ProfileManager.getCurrentProfile();
+	var lastSelectedProfile = selectedRow;
+	selectedRow = undefined;
 	for (var i in profiles) {
 		var profile = profiles[i];
 		var row = newRow(profile);
-		if (extension.ProfileManager.equals(profile, currentProfile))
+		
+//		if (extension.ProfileManager.equals(profile, currentProfile))
+		if (lastSelectedProfile && extension.ProfileManager.equals(profile, lastSelectedProfile[0].profile))
 			$("td:first", row).click();
 	}
 	if (currentProfile.unknown) {
@@ -34,11 +38,12 @@ function loadOptions() {
 		var row = newRow(currentProfile);
 		$("td:first", row).click();
 	} else if (profiles.length == 0) {
-		var row = newRow(); //TODO test this
+		var row = newRow();
 		$("td:first", row).click();
 	}
 	
-	//$("#proxyProfiles .tableRow td:first").click();	
+	if (!selectedRow)
+		$("#proxyProfiles .tableRow td:first").click();	
 }
 
 function saveOptions() {
@@ -48,13 +53,16 @@ function saveOptions() {
 	for (var i = 0; i < rows.length; i++) {
 		var row = rows[i];
 		var profile = row.profile;
-		if (!profile.proxy && profile.useSameProxy)
-			continue;
+//		if (!profile.proxy && profile.useSameProxy)
+//			continue;
 		
 		profile.proxy = fixProxyString(profile.proxy, "80");
 		profile.proxyHttps = fixProxyString(profile.proxyHttps, "443");
 		profile.proxyFtp = fixProxyString(profile.proxyFtp, "21");
 		profile.proxySocks = fixProxyString(profile.proxySocks, "80");
+		
+		if (profile.proxy == profile.proxyHttps == profile.proxyFtp == profile.proxySocks)
+			profile.useSameProxy = true;
 		
 		var profileId = profile.name;
 		if (profiles[profileId] != undefined) {

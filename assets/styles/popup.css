@@ -36,6 +36,13 @@ body {
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f0f5fc), color-stop(1, #e0e9f4));
 }
 
+#menu .item:active {
+	padding: 3px 14px 3px 5px;
+	border: solid 1px #abc;
+	border-radius: 3px;
+	background: #dde7f2 none;
+}
+
 #menu .item img {
 	vertical-align: text-top;	
 }
