@@ -1,0 +1,23 @@
+{
+	"name": "Switchy!",
+	"version": "0.9.4",
+	"description": "Switchy! is a proxy manager lets you manage and switch between multiple proxy profiles.",
+	"icons": { "128": "assets/images/icon-128.png" },
+	
+	"background_page": "main.html",
+	"options_page": "options.html",
+	
+	"permissions": [
+		"tabs"
+	],
+	"browser_action": {
+		"default_icon": "assets/images/active.png",
+		"default_title": "Switchy!",
+		"popup": "popup.html"
+	},
+	"plugins": [
+		{ "path": "plugins/npProxySwitchy.dll" }
+ 	],
+	
+	"update_url": "http://www.samabox.com/projects/chrome/switchy/update.xml"
+}
