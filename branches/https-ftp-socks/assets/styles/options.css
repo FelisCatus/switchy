@@ -30,6 +30,7 @@ hr {
 	width: 120px;
 	color: #567;
 	display: inline-block;
+	cursor: pointer;
 	text-align: center;
 	padding: 6px;
 	border: solid 1px #abc;

@@ -75,7 +75,7 @@ function buildProxyMenuItems() {
 		var item = templateItem.clone().attr({
 			"id": profile.proxy,
 			"name": profile.name,
-			"title": "Proxy (" + profile.proxy + ")",
+			"title": extension.ProfileManager.profileToString(profile, true),
 			"class": "item proxy"
 		});
 		$("span", item).text(profile.name);
@@ -91,10 +91,10 @@ function buildProxyMenuItems() {
 		var item = templateItem.clone().attr({
 			"id": currentProfile.proxy,
 			"name": currentProfile.name,
-			"title": "Proxy (" + currentProfile.proxy + ")",
+			"title": extension.ProfileManager.profileToString(currentProfile, true),
 			"class": "item proxy checked"
 		});
-		$("span", item).text(currentProfile.proxy);
+		$("span", item).text(currentProfile.name);
 		item.click(selectProxyItem);
 		item[0].profile = currentProfile;
 		

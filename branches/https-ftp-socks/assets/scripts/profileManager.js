@@ -59,10 +59,14 @@ ProfileManager.getSortedProfileArray = function getSortedProfileArray() {
 ProfileManager.getCurrentProfile = function getCurrentProfile() {	
 	var plugin = chrome.extension.getBackgroundPage().plugin;
 	var proxyEnabled;
-	var proxy;
+	var proxyString;
+	var bypassProxy;
+	var configUrl;
 	try {
 		proxyEnabled = plugin.proxyEnabled;
-		proxy = plugin.proxyServer;
+		proxyString = plugin.proxyServer;
+		bypassProxy = plugin.proxyExceptions;
+		configUrl = plugin.proxyConfigUrl;
 	} catch(ex) {
 		Logger.log("Plugin Error @ProfileManager.getCurrentProfile() > " +
 			ex.toString(), Logger.error);
@@ -73,7 +77,9 @@ ProfileManager.getCurrentProfile = function getCurrentProfile() {
 	if (proxyEnabled !== true && proxyEnabled !== "True" && proxyEnabled !== "true")
 		return ProfileManager.directConnectionProfile;
 	
-	var profile = ProfileManager.parseProxyString(proxy);
+	var profile = ProfileManager.parseProxyString(proxyString);
+	profile.bypassProxy = bypassProxy;
+	profile.configUrl = configUrl;
 	profile = ProfileManager.normalizeProfile(profile);
 	
 	var foundProfile = ProfileManager.contains(profile);
@@ -81,6 +87,7 @@ ProfileManager.getCurrentProfile = function getCurrentProfile() {
 		return foundProfile;
 	
 	profile.unknown = true;
+	profile.name = "<Current Profile>";
 	return profile;
 };
 
@@ -91,7 +98,7 @@ ProfileManager.applyProfile = function applyProfile(profile) {
 	Settings.setObject("selectedProfile", profile);
 	
 	var proxy = ProfileManager.buildProxyString(profile);
-	try {		
+	try {
 		var result;
 		if (direct) {
 			result = plugin.setDirect(0);
@@ -109,8 +116,32 @@ ProfileManager.applyProfile = function applyProfile(profile) {
 	}
 };
 
-ProfileManager.profileToString = function profileToString(profile) {
-	return "Profile: " + JSON.stringify(profile);
+ProfileManager.profileToString = function profileToString(profile, prettyPrint) {
+	if (!prettyPrint)
+		return "Profile: " + JSON.stringify(profile);
+	
+	var result = [];
+	if (profile.name != undefined)
+		result.push(profile.name); 
+	
+	if (profile.proxy != undefined && profile.proxy.trim().length > 0)
+		result.push("HTTP: " + profile.proxy); 
+	
+	if (!profile.useSameProxy) {
+		if (profile.proxyHttps != undefined && profile.proxyHttps.trim().length > 0)
+			result.push("HTTPS: " + profile.proxyHttps); 
+
+		if (profile.proxyFtp != undefined && profile.proxyFtp.trim().length > 0)
+			result.push("FTP: " + profile.proxyFtp); 
+
+		if (profile.proxySocks != undefined && profile.proxySocks.trim().length > 0)
+			result.push("Socks: " + profile.proxySocks); 
+	}
+
+	if (profile.configUrl != undefined && profile.configUrl.trim().length > 0)
+		result.push("Config Script: " + profile.configUrl);
+	
+	return result.join("\n");
 };
 
 ProfileManager.parseProxyString = function parseProxyString(proxyString) {
@@ -194,11 +225,12 @@ ProfileManager.equals = function equals(profile1, profile2) {
 		return false;
 	
 	if (profile1.useSameProxy)
-		return true;
+		return (profile1.configUrl == profile2.configUrl);
 	
-	return profile1.proxyHttps == profile2.proxyHttps
+	return (profile1.proxyHttps == profile2.proxyHttps
 		&& profile1.proxyFtp == profile2.proxyFtp
-		&& profile1.proxySocks == profile2.proxySocks; //TODO compare all rest files
+		&& profile1.proxySocks == profile2.proxySocks
+		&& profile1.configUrl == profile2.configUrl);
 };
 
 ProfileManager.contains = function contains(profile) {
