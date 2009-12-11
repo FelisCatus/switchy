@@ -1,9 +1,21 @@
 #summary Switchy Change Log
 #labels Featured
 
+===1.1.0===
+(2009-12-10)
+  * General: Major changes in the NPAPI plugin.
+  * General: Fixed the bug which prevented Switchy from changing proxy correctly sometimes.
+
+===1.0.0===
+(2009-12-08)
+  * Options: Added support for HTTPS, FTP, Socks proxies and auto config scripts.
+  * Options: Entirely redesigned.
+  * General: Fixed some bugs.
+  * General: Published on Chrome official extension gallery (https://chrome.google.com/extensions/detail/caehdcpeofiiigpdhbabniblemipncjj).
+
 ===0.9.3===
 (2009-12-05)
-  * Options: Add more info to diagnostics log.
+  * Options: Added more info to diagnostics log.
 
 ===0.9.2===
 (2009-12-04)
