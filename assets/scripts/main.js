@@ -12,7 +12,7 @@ var activeIconPath = "assets/images/active.png";
 var inactiveIconPath = "assets/images/inactive.png";
 var refreshInterval = 10000;
 var newVersion = false;
-var notifyOnNewVersion = true;
+var notifyOnNewVersion = false;
 var plugin;
 
 function init() {
