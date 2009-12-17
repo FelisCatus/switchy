@@ -17,7 +17,7 @@
 ===1.1.0===
 (2009-12-10)
   * General: Major changes in the NPAPI plugin.
-  * General: Fixed the bug which prevented Switchy from changing proxy correctly sometimes.
+  * General: Fixed the bug which prevented Switchy from changing proxy.
 
 ===1.0.0===
 (2009-12-08)
