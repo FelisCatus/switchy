@@ -7,8 +7,8 @@
   * New: Quick Switch mode option.
   * New: Colorful Profiles.
   * General: Proxy modes (Manual & Auto).
-  * General: Open Options tab next to current selected tab.
-  * General: Fixed some bugs.
+  * General: Open Options tab to the next of currently selected tab..
+  * General: Some bug fixes.
 
 ===1.1.1===
 (2009-12-13)
@@ -17,13 +17,13 @@
 ===1.1.0===
 (2009-12-10)
   * General: Major changes in the NPAPI plugin.
-  * General: Fixed the bug which prevented Switchy from changing proxy.
+  * General: Fixed the bug which prevents Switchy from changing proxy.
 
 ===1.0.0===
 (2009-12-08)
   * New: Added support for HTTPS, FTP, Socks proxies and auto config scripts.
   * Options: Entirely redesigned.
-  * General: Fixed some bugs.
+  * General: Some bug fixes.
   * General: Published on Chrome official extension gallery (https://chrome.google.com/extensions/detail/caehdcpeofiiigpdhbabniblemipncjj).
 
 ===0.9.3===
