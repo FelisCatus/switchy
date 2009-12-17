@@ -1,6 +1,19 @@
 #summary Switchy Change Log
 #labels Featured
 
+===1.2.0===
+(2009-12-18)
+  * New: Linux (Ubuntu) Support (experimental).
+  * New: Quick Switch mode option.
+  * New: Colorful Profiles.
+  * General: Proxy modes (Manual & Auto).
+  * General: Open Options tab next to current selected tab.
+  * General: Fixed some bugs.
+
+===1.1.1===
+(2009-12-13)
+  * General: Removed Google Analytics code.
+
 ===1.1.0===
 (2009-12-10)
   * General: Major changes in the NPAPI plugin.
@@ -8,7 +21,7 @@
 
 ===1.0.0===
 (2009-12-08)
-  * Options: Added support for HTTPS, FTP, Socks proxies and auto config scripts.
+  * New: Added support for HTTPS, FTP, Socks proxies and auto config scripts.
   * Options: Entirely redesigned.
   * General: Fixed some bugs.
   * General: Published on Chrome official extension gallery (https://chrome.google.com/extensions/detail/caehdcpeofiiigpdhbabniblemipncjj).
