@@ -10,6 +10,7 @@ body {
 	margin: 0px;
 	color: #345;
 	font: menu;
+	font-size: 10pt;
 	-webkit-user-select: none;
 }
 
@@ -25,7 +26,6 @@ body {
 	padding: 4px 15px 4px 6px;
 	margin: 0px 2px;
 	white-space: nowrap;
-	font: menu;
 	cursor: pointer;
 }
 
@@ -114,8 +114,8 @@ body {
 }
 
 #about .body {
-	height: 62px;
 	padding: 10px 8px;
+	white-space: nowrap;
 }
 
 #about .body * {
@@ -147,9 +147,30 @@ body {
 #about .important {
 	color: #080;
 	padding: 4px;
-	padding-left: 22px;
+	padding-left: 25px;
+	margin: 2px 0px;
 	font-weight: bold;
 	font-size: 115%;
 	border: solid 1px #abc;
-	background: #f0fdf0 url(/assets/images/accept.png) 3px center no-repeat;
+	background: #f0fdf0 url(/assets/images/accept.png) 5px center no-repeat;
+	white-space: nowrap;
+	text-align: left;
+}
+
+#developer {
+	padding-bottom: 12px;
+}
+
+#changeLog {
+	display: none;
+	padding: 5px;
+	padding-bottom: 12px;
+	margin: 8px 0px;
+	white-space: nowrap;
+	font-size: 105%;
+	border-bottom: solid 1px #eef;
+}
+
+#changeLog * {
+	color: #080 !important;
 }

@@ -7,29 +7,32 @@
 /////////////////////////////////////////////////////////////////////////*/
 
 var extension;
+var Logger;
 
 function init() {
 	extension = chrome.extension.getBackgroundPage();
+	Logger = extension.Logger;
+	
 	initLog();
 	loadLog();
 }
 
+function initLog() {
+	Logger.addEventListener(Logger.events.onLog, function(e) {
+		loadLog();
+	});
+}
+
 function loadLog() {
-	$("#console").text(extension.Logger.toString());
+	$("#console").text(Logger.toString());
 }
 
 function clearLog() {
-	extension.Logger.clear();
+	Logger.clear();
 	loadLog();
 }
 
 function diagnose() {
 	extension.diagnose();
 	loadLog();
-}
-
-function initLog() {
-	extension.Logger.addEventListener(extension.Logger.onLog, function(e) {
-		loadLog();
-	});
 }

@@ -9,11 +9,13 @@
 var InfoTip = {};
 
 ///// Message Types //////
-InfoTip.note = "note";
-InfoTip.info = "info";
-InfoTip.success = "success";
-InfoTip.warning = "warning";
-InfoTip.error = "error";
+InfoTip.types = {
+	note: "note",
+	info: "info",
+	success: "success",
+	warning: "warning",
+	error: "error"
+};
 
 InfoTip._timer;
 
