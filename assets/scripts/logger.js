@@ -9,14 +9,18 @@
 var Logger = {};
 
 ///// Log Types //////
-Logger.debug = "debug";
-Logger.info = "info";
-Logger.success = "success";
-Logger.warning = "warning";
-Logger.error = "error";
+Logger.types = {
+	debug: "debug",
+	info: "info",
+	success: "success",
+	warning: "warning",
+	error: "error"
+};
 
 ///// Event Types //////
-Logger.onLog = "log";
+Logger.events = {
+	onLog: "log"
+};
 
 Logger.entries = [];
 Logger.enabled = true;
@@ -31,7 +35,7 @@ Logger.log = function log(message, type, logStackTrace) {
 		return;
 	
 	if (!type)
-		type = Logger.debug;
+		type = Logger.types.debug;
 	
 	if (logStackTrace == undefined)
 		logStackTrace = Logger.logStackTrace;
@@ -44,9 +48,10 @@ Logger.log = function log(message, type, logStackTrace) {
 		formattedMessage += "\nStack Trace:\n" + stackTrace.join("\n");
 	}
 	
-	if (Logger.listeners[Logger.onLog]) {
-		for (var i in Logger.listeners[Logger.onLog]) {
-			var fn = Logger.listeners[Logger.onLog][i];
+	var onLogListeners = Logger.listeners[Logger.events.onLog];
+	if (onLogListeners != undefined) {
+		for (var i in onLogListeners) {
+			var fn = onLogListeners[i];
 			try {
 				fn({ message: message, type: type, formattedMessage: formattedMessage });
 			} 
@@ -54,8 +59,30 @@ Logger.log = function log(message, type, logStackTrace) {
 		}
 	}
 	
-	if (Logger.logToConsole)
-		console.log(formattedMessage);
+	if (Logger.logToConsole) {
+		switch (type) {
+		case Logger.types.debug:
+			console.debug(formattedMessage);
+			break;
+
+		case Logger.types.info:
+		case Logger.types.success:
+			console.info(formattedMessage);
+			break;
+
+		case Logger.types.warning:
+			console.warn(formattedMessage);
+			break;
+
+		case Logger.types.error:
+			console.error(formattedMessage);
+			break;
+
+		default:
+			console.log(formattedMessage);
+			break;
+		}
+	}
 	
 	if (Logger.logAlert)
 		alert(formattedMessage);
@@ -105,7 +132,7 @@ Logger.format = function format(message, type, time) {
 	if (!time)
 		time = new Date().toLocaleTimeString();
 	
-	if (type && type != Logger.debug)
+	if (type && type != Logger.types.debug)
 		message = "[" + type + "] - " + message;
 	
 	message = "[" + time + "] " + message;
@@ -139,7 +166,7 @@ Logger.haveEntryOfType = function haveEntryOfType(type) {
 };
 
 Logger.haveErrorEntries = function haveErrorEntries() {
-	return Logger.haveEntryOfType(Logger.error);
+	return Logger.haveEntryOfType(Logger.types.error);
 };
 
 Logger.addEventListener = function addEventListener(event, fn) {

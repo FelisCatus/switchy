@@ -1,6 +1,6 @@
 {
 	"name": "Switchy!",
-	"version": "1.1.1",
+	"version": "1.2.0",
 	"description": "Manage and switch between multiple proxy profiles quickly and easily.",
 	"icons": { "128": "assets/images/icon-128.png" },
 	
@@ -11,13 +11,14 @@
 		"tabs"
 	],
 	"browser_action": {
-		"default_icon": "assets/images/active.png",
+		"default_icon": "assets/images/icon-blue.png",
 		"default_title": "Switchy!",
 		"popup": "popup.html"
 	},
 	"plugins": [
-		{ "path": "plugins/npSwitchy.dll" }
- 	]
+		{ "path": "plugins/npSwitchy.dll" },
+		{ "path": "plugins/npSwitchy.so" }
+	]
 	
 	,"update_url": "http://www.samabox.com/projects/chrome/switchy/update.xml"
 }

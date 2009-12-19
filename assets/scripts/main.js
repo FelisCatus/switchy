@@ -8,25 +8,26 @@
 
 var appName = "";
 var appVersion = "";
-var activeIconPath = "assets/images/active.png";
-var inactiveIconPath = "assets/images/inactive.png";
+var iconDir = "assets/images/";
+var iconInactivePath = "assets/images/inactive.png";
 var refreshInterval = 10000;
 var newVersion = false;
-var notifyOnNewVersion = false;
+var notifyOnNewVersion = true;
 var plugin;
 
 function init() {
-	loadManifestInfo();
 	plugin = document.getElementById("plugin");
+	loadManifestInfo();
 	ProfileManager.loadProfiles();
-	applyOptions();
-	checkFirstTime();
+
+	applySavedOptions();
+
+	if (!checkFirstTime())
+		checkNewVersion();
+	
 	setIconInfo();
-	monitorChanges();	
+	monitorProxyChanges();	
 	diagnose();
-	
-	
-	ProfileManager.getCurrentProfile();
 }
 
 function loadManifestInfo() {
@@ -48,15 +49,18 @@ function checkFirstTime() {
 	if (!Settings.keyExists("firstTime")) {
 		Settings.setValue("firstTime", ":]");
 		if (!ProfileManager.hasProfiles()) {
-			Settings.setValue("version", appVersion.substr(0, 5));
+			Settings.setValue("version", appVersion);
 			openOptions(true);
-			return;
+			return true;
 		}
 	}
-	
-	if (notifyOnNewVersion && Settings.getValue("version") != appVersion.substr(0, 5)) {
-		setIconText("Updated to new version (" + appVersion + ")");
-		setIconBadge(appVersion.substr(0, 5));
+	return false;
+}
+
+function checkNewVersion() {
+	if (notifyOnNewVersion && Settings.getValue("version") != appVersion) {
+		setIconTitle("Updated to new version (" + appVersion + ")");
+		setIconBadge(appVersion);
 		newVersion = true;
 	}
 }
@@ -66,18 +70,35 @@ function openOptions(firstTime) {
 	if (firstTime)
 		url += "?firstTime=true";
 	
-	chrome.tabs.create({
-		url: url
+	var fullUrl = chrome.extension.getURL(url);
+	chrome.tabs.getAllInWindow(null, function(tabs) {
+		for (var i in tabs) {
+			var tab = tabs[i];
+			if (tab.url == fullUrl) {
+				chrome.tabs.update(tab.id, { selected: true });
+				return;
+			}
+		}
+		chrome.tabs.getSelected(null, function(tab) {
+			chrome.tabs.create({
+				url: url,
+				index: tab.index + 1
+			});
+		});
 	});
+	
+//	chrome.tabs.getSelected(null, function(tab) {
+//		chrome.tabs.create({
+//			url: url,
+//			index: tab.index + 1
+//		});
+//	});
 }
 
-function applyOptions() {
-	var selectedProfile = Settings.getObject("selectedProfile");
-	
-	if (selectedProfile && selectedProfile.proxy) {
-		selectedProfile = ProfileManager.normalizeProfile(selectedProfile);
+function applySavedOptions() {
+	var selectedProfile = ProfileManager.getSelectedProfile();
+	if (selectedProfile != undefined)
 		ProfileManager.applyProfile(selectedProfile);
-	}
 }
 
 function setIconBadge(text) {
@@ -85,15 +106,14 @@ function setIconBadge(text) {
 		text = "";
 	
 	chrome.browserAction.setBadgeBackgroundColor({ color: [75, 125, 255, 255] });
-//	chrome.browserAction.setBadgeBackgroundColor({ color: [0, 175, 0, 255] });
 	chrome.browserAction.setBadgeText({ text: text });
 }
 
-function setIconText(text) {
-	if (text == undefined)
-		text = "";
+function setIconTitle(title) {
+	if (title == undefined)
+		title = "";
 	
-	chrome.browserAction.setTitle({ title: text });
+	chrome.browserAction.setTitle({ title: title });
 }
 
 function setIconInfo(profile) {
@@ -104,50 +124,59 @@ function setIconInfo(profile) {
 		profile = ProfileManager.getCurrentProfile();
 	
 	var title = appName + "\n";	
-	if (profile.proxy == ProfileManager.directConnectionProfile.proxy) {
-		chrome.browserAction.setIcon({ path: inactiveIconPath });
+	if (profile.proxyMode == ProfileManager.proxyModes.direct) {
+		chrome.browserAction.setIcon({ path: iconInactivePath });
 		title += profile.name;
 	} else {
-		chrome.browserAction.setIcon({ path: activeIconPath });
+		var iconPath = iconDir + "icon-" + (profile.color || "blue") + ".png";
+		chrome.browserAction.setIcon({ path: iconPath });
 		title += ProfileManager.profileToString(profile, true);
 	}
-	chrome.browserAction.setTitle({ title: title });
+	
+	setIconTitle(title);
 }
 
-function monitorChanges() {
+function monitorProxyChanges() {
 	setInterval(setIconInfo, refreshInterval);
 }
 
 function diagnose() {
 	var result = true;
 	
-	Logger.log("Browser Info: " + navigator.appVersion, Logger.info);
+	Logger.log("Browser Info: " + navigator.appVersion, Logger.types.info);
 	
 	if (document.plugins.length > 0 && plugin == document.plugins[0])
-		Logger.log("Plugin loaded successfully..", Logger.success);
+		Logger.log("Plugin loaded successfully..", Logger.types.success);
 	else {
-		Logger.log("Plugin not loaded!", Logger.error);
+		Logger.log("Plugin not loaded!", Logger.types.error);
 		result = false;
 	}
 	
-	if (typeof plugin.setProxy == "function")
-		Logger.log("Plugin working properly..", Logger.success);
+	if (typeof plugin.setProxy == "function") {
+		var pluginDiagnoseResult = plugin.diagnose(0);
+		if (pluginDiagnoseResult == "OK")
+			Logger.log("Plugin working properly..", Logger.types.success);
+		else {
+			Logger.log("Plugin not working properly! Internal error: " + pluginDiagnoseResult, Logger.types.error);
+			result = false;
+		}
+	}
 	else {
-		Logger.log("Plugin not working properly!", Logger.error);
+		Logger.log("Plugin not working properly!", Logger.types.error);
 		result = false;
 	}
 	
 	if (localStorage && localStorage.constructor.toString().indexOf("Storage()") >= 0)
-		Logger.log("'localStorage' supported..", Logger.success);
+		Logger.log("'localStorage' supported..", Logger.types.success);
 	else {
-		Logger.log("'localStorage' not supported!", Logger.error);
+		Logger.log("'localStorage' not supported!", Logger.types.error);
 		result = false;
 	}
 	
 	if (localStorage.config != undefined)
-		Logger.log("Wrote to local storage successfully..", Logger.success);
+		Logger.log("Wrote to local storage successfully..", Logger.types.success);
 	else {
-		Logger.log("Can't write to local storage!", Logger.error);
+		Logger.log("Can't write to local storage!", Logger.types.error);
 		result = false;
 	}
 
