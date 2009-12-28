@@ -10,8 +10,18 @@ body {
 	margin: 0px;
 	color: #345;
 	font: menu;
-	font-size: 10pt;
+	font-size: 9pt;
 	-webkit-user-select: none;
+}
+
+body, td, th, input, select, textarea, button {
+	font: menu;
+	font-size: 9pt;
+}
+
+body * {
+	white-space: nowrap;
+	?outline: solid 1px #abc;
 }
 
 #menu {
@@ -23,10 +33,11 @@ body {
 }
 
 #menu .item {
-	padding: 4px 15px 4px 6px;
+	padding: 4px 25px 4px 6px;
 	margin: 0px 2px;
 	white-space: nowrap;
 	cursor: pointer;
+	?text-shadow: #ccc -1px 0px 2px;	
 }
 
 #menu .item:hover {
@@ -34,6 +45,9 @@ body {
 	border: solid 1px #abc;
 	border-radius: 3px;
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f0f5fc), color-stop(1, #e0e9f4));
+
+	?border: solid 1px #c5cdd3;
+	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f5f9fe), color-stop(1, #e8f1f9));
 }
 
 #menu .item:active {
@@ -47,8 +61,20 @@ body {
 	vertical-align: text-top;	
 }
 
-#menu .proxy[id*=":"] {
-	color: #458;
+#menu .blue {
+	color: #47b;
+}
+
+#menu .green {
+	color: #5b5;
+}
+
+#menu .red {
+	color: #d63;
+}
+
+#menu .yellow {
+	color: #ca0;
 }
 
 #menu .proxy img {
@@ -67,10 +93,11 @@ body {
 	height: 0px;
 	margin: 3px 2px;
 	border: 0;
-	border-top: 1px solid #ccc;
+	border-top: 1px solid #ddd;
 }
 
 #about {
+	font-size: 10pt;
 	padding: 10px;
 	display: none;
 }
@@ -94,11 +121,12 @@ body {
 }
 
 #about .header .title {
-	font-size: 24pt;
+	font-size: 26pt;
 	margin-top: -6px;
 }
 
 #about .header .version {
+	font-size: 11pt;
 	margin-top: -6px;
 	margin-left: 3px;
 	text-shadow: #ddd 1px 1px 2px;
@@ -106,7 +134,7 @@ body {
 
 #about .header .versionNumber {
 	font-weight: bold;
-	font-size: 80%;
+	?font-size: 80%;
 }
 
 #about .header img {
@@ -135,12 +163,18 @@ body {
 	white-space: nowrap;
 }
 
-#about .close {
+#about .close, #addRule .close {
 	position: absolute;
 	right: 10px;
+	cursor: pointer;
 }
 
-#about .close img {
+#addRule .close {
+	top: 10px;
+	padding: 10px;
+}
+
+#about .close img, #addRule .close img {
 	cursor: pointer;
 }
 
@@ -173,4 +207,102 @@ body {
 
 #changeLog * {
 	color: #080 !important;
+}
+
+#addRule {
+	padding: 5px;
+	display: none;
+	height: 20px;
+}
+
+#addRule * {
+	color: #5e708d;
+}
+
+#addRule table {
+	?width: 100%;
+	?border: solid 1px #ccc;
+	border-spacing: 1px;
+	padding: 5px;
+	table-layout: fixed;
+}
+
+#addRule table th {
+	text-align: left;
+}
+
+#addRule table th {
+	height: 28px;
+	padding-right: 8px;
+	font-size: 9pt;
+	font-weight: normal;
+	?border: solid 1px #e0e4e6;
+	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f2f7fe), color-stop(1, #e1eaf6));
+}
+
+#addRule table td {
+	height: 28px;
+	overflow: hidden;
+	vertical-align: middle;
+	?cursor: pointer;
+	?border: solid 1px #e0e4e6;
+	?background-color: #fafcff;
+	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f8fbfe), color-stop(1, #eef3fd));
+}
+
+#addRule input, #addRule select {
+	width: 200px;
+	min-height: 24px;
+	height: 100%;
+	padding-left: 3px;
+}
+
+#addRule .button {
+	width: 120px;
+	height: auto;
+	color: #567;
+	display: inline-block;
+	cursor: pointer;
+	text-align: center;
+	font-weight: bold;
+	padding: 6px;
+	margin: 0px;
+	border: solid 1px #abc;
+	border-radius: 2px;
+	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f0f5fc), color-stop(1, #e0e9f4));	
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fafcff), color-stop(1, #eff3fe));
+	-webkit-box-shadow: 0px 1px 2px #ddd;
+}
+
+#addRule .button:hover {
+	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f3f8fe), color-stop(1, #e3ebf7));
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f8fafe), color-stop(1, #e9eef9));
+}
+
+#addRule .button:active {
+	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f0f5fc), color-stop(1, #f0f5fc));	
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #eff3fe), color-stop(1, #eff3fe));	
+}
+
+#addRule .button img {
+	vertical-align: text-bottom;
+}
+
+#addRule .header {
+	?font-size: 10pt;
+	font-weight: bold;
+	?text-shadow: #ccc 1px 1px 3px;
+	border: solid 1px #abc;
+	border-radius: 2px;
+	padding: 8px;
+	padding-bottom: 8px;
+	margin-bottom: 7px;
+	background-color: #eaeeff;
+	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f4f9ff), color-stop(1, #e5ecf9));
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fafcff), color-stop(1, #eff3fe));
+	?-webkit-box-shadow: 0px 1px 2px #ddd;
+}
+
+#addRule .header.light {
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fafcff), color-stop(1, #eff3fe));
 }

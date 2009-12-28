@@ -18,15 +18,16 @@ var plugin;
 function init() {
 	plugin = document.getElementById("plugin");
 	loadManifestInfo();
-	ProfileManager.loadProfiles();
+	ProfileManager.load();
+	RuleManager.load();
 
-	applySavedOptions();
+	applySavedOptions(); // TODO option
 
 	if (!checkFirstTime())
 		checkNewVersion();
 	
 	setIconInfo();
-	monitorProxyChanges();	
+	monitorProxyChanges(); // TODO option
 	diagnose();
 }
 
@@ -72,27 +73,20 @@ function openOptions(firstTime) {
 	
 	var fullUrl = chrome.extension.getURL(url);
 	chrome.tabs.getAllInWindow(null, function(tabs) {
-		for (var i in tabs) {
+		for (var i in tabs) { // check if Options page is open already
 			var tab = tabs[i];
 			if (tab.url == fullUrl) {
-				chrome.tabs.update(tab.id, { selected: true });
+				chrome.tabs.update(tab.id, { selected: true }); // select the tab
 				return;
 			}
 		}
-		chrome.tabs.getSelected(null, function(tab) {
+		chrome.tabs.getSelected(null, function(tab) { // open a new tab next to currently selected tab
 			chrome.tabs.create({
 				url: url,
 				index: tab.index + 1
 			});
 		});
 	});
-	
-//	chrome.tabs.getSelected(null, function(tab) {
-//		chrome.tabs.create({
-//			url: url,
-//			index: tab.index + 1
-//		});
-//	});
 }
 
 function applySavedOptions() {
@@ -123,6 +117,12 @@ function setIconInfo(profile) {
 	if (!profile)
 		profile = ProfileManager.getCurrentProfile();
 	
+	var autoProfile = RuleManager.getAutomaticModeProfile();
+	if (RuleManager.isAutomaticModeEnabled(profile)) {
+		profile = autoProfile;
+		profile.proxyConfigUrl = "";
+	}
+	
 	var title = appName + "\n";	
 	if (profile.proxyMode == ProfileManager.proxyModes.direct) {
 		chrome.browserAction.setIcon({ path: iconInactivePath });
@@ -143,6 +143,7 @@ function monitorProxyChanges() {
 function diagnose() {
 	var result = true;
 	
+	Logger.log("Extension Info: v" + appVersion, Logger.types.info);
 	Logger.log("Browser Info: " + navigator.appVersion, Logger.types.info);
 	
 	if (document.plugins.length > 0 && plugin == document.plugins[0])

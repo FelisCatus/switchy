@@ -22,6 +22,9 @@ Settings.getValue = function getValue(key, defaultValue) {
 		return defaultValue;
 	
 	var config = JSON.parse(localStorage.config);
+	if (config[key] == undefined)
+		return defaultValue;
+	
 	return config[key];
 };
 

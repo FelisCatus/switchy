@@ -24,7 +24,7 @@ ProfileManager.directConnectionProfile = {
 
 ProfileManager.currentProfileName = "<Current Profile>";
 
-ProfileManager.loadProfiles = function loadProfiles() {
+ProfileManager.load = function loadProfiles() {
 	var profiles = Settings.getObject("profiles");
 	if (profiles != undefined) {
 		for (var i in profiles) {
@@ -36,7 +36,7 @@ ProfileManager.loadProfiles = function loadProfiles() {
 	}
 };
 
-ProfileManager.saveProfiles = function saveProfiles() {
+ProfileManager.save = function saveProfiles() {
 	Settings.setObject("profiles", ProfileManager.profiles);
 };
 
@@ -77,6 +77,17 @@ ProfileManager.getSortedProfileArray = function getSortedProfileArray() {
 	});
 	
 	return profileArray;
+};
+
+ProfileManager.getProfile = function getProfile(profileId) {
+	var profile;
+	if (profileId == ProfileManager.directConnectionProfile.id)
+		profile = ProfileManager.directConnectionProfile;
+	else
+		profile = ProfileManager.profiles[profileId];
+	
+	profile = ProfileManager.normalizeProfile(profile);
+	return profile;
 };
 
 ProfileManager.getSelectedProfile = function getSelectedProfile() {
@@ -131,6 +142,9 @@ ProfileManager.applyProfile = function applyProfile(profile) {
 	var direct = (profile.proxyMode == ProfileManager.proxyModes.direct);
 	
 	Settings.setObject("selectedProfile", profile);
+	
+	if (profile.isAutomaticModeProfile)
+		RuleManager.applyRules();
 	
 	var proxyString = ProfileManager.buildProxyString(profile);
 	try {

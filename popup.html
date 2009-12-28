@@ -15,10 +15,13 @@
 		switchProxy();
 	</script>
 </head>
-<body onload="init()" on>
+<body onload="init()">
 	<div id="menu">
-		<div id="directConnection" name="[Direct Connection]" class="item proxy" title="No Proxy">
+		<div id="directConnection" name="[Direct Connection]" class="item proxy" title="Disable Proxy">
 			<img src="assets/images/checked.png" width="16" /><span>Direct Connection</span>
+		</div>
+		<div id="automaticMode" class="item proxy" title="Automatically choose the proxy profile &#13;according to Switch Rules">
+			<img src="assets/images/checked.png" width="16" /><span>Auto Switch Mode</span>
 		</div>
 		<div class="separator"></div>
 		<div id="proxies">
@@ -27,6 +30,9 @@
 			</div>
 		</div>
 		<div class="separator"></div>
+		<div id="menuAddRule" class="item" onclick="showAddRule();" title="Quickly add a new Switch Rule &#13;for the current website.">
+			<img src="assets/images/filter.png" /><span>Quick Rule</span>
+		</div>
 		<div id="menuOptions" class="item" onclick="openOptions();">
 			<img src="assets/images/options.png" /><span>Options</span>
 		</div>
@@ -66,6 +72,33 @@
 		<div class="footer">
 			Copyright &copy; 2009 Samabox. All rights reserved.
 		</div>
+	</div>
+	
+	<div id="addRule">
+		
+		<div class="header">&nbsp; Quick Rule
+			<!--span class="close"><img src="assets/images/close.png" /></span--></div>
+		<div class="header light">
+			<table>
+				<tr>
+					<th>Rule Name</th>
+					<td><input id="txtRuleName" type="text" value="Quick Rule"></td>
+				</tr>
+				<tr>
+					<th>URL Pattern</th>
+					<td><input id="txtUrlPattern" type="text"></td>
+				</tr>
+				<tr>
+					<th>Proxy Profile</th>
+					<td><select id="cmbProfileId"></select></td>
+				</tr>
+			</table>
+		</div>
+		<button class="button" id="btnSave" onclick="addSwitchRule();">Add</button>
+		&nbsp;&nbsp; or &nbsp;<a href="" onclick="closePopup();"><b>Cancel</b></a>
+		<!--button class="button" id="btnCancel" onclick="closePopup();">Cancel</button-->
+		<br />
+		<br />
 	</div>
 </body>
 </html>
