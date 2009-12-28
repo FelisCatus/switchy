@@ -7,25 +7,29 @@
 /////////////////////////////////////////////////////////////////////////*/
 
 var extension;
-var ProfileManager;
-var Settings;
+//var ProfileManager;
+//var RuleManager;
+//var Settings;
 
 function init() {
-//	extension = chrome.extension.getBackgroundPage();
-//	ProfileManager = extension.ProfileManager;
-//	Settings = extension.Settings;
-
 	buildMenuItems();
 	
-	$("#about").click(closePopup);
+	$("#about, #addRule .close").click(closePopup);
 	$("#about .versionNumber").text(extension.appVersion);
 	
 	checkNewVersionBadge();
+	
+	
+	
+	
+	
+//	showAddRule();
 }
 
 function switchProxy() {
 	extension = chrome.extension.getBackgroundPage();
 	ProfileManager = extension.ProfileManager;
+	RuleManager = extension.RuleManager;
 	Settings = extension.Settings;
 
 	var quickSwitch = Settings.getValue("quickSwitch", false);
@@ -92,9 +96,46 @@ function openSupportWebsite() {
 }
 
 function showAbout() {
-	$("#menu, #about").toggle();
+	$("#menu").hide();
+	$("#about").show();
 	$(document.body).height($("#about").height());
 	$(window).height($("#about").height());
+}
+
+function showAddRule() {
+	var combobox = $("#cmbProfileId");
+	var profiles = ProfileManager.getSortedProfileArray();
+	var directProfile = ProfileManager.directConnectionProfile;
+	var item = $("<option>").attr("value", directProfile.id).text(directProfile.name);
+	item[0].profile = directProfile;
+	combobox.append(item);
+	$.each(profiles, function(key, profile) {
+		var item = $("<option>").attr("value", profile.id).text(profile.name);
+		item[0].profile = profile;		
+		combobox.append(item);
+	});
+	
+	chrome.tabs.getSelected(undefined, function(tab) {
+		var rule = RuleManager.urlToRule(tab.url);
+		$("#addRule")[0].rule = rule;
+		$("#txtUrlPattern").val(rule.urlPattern);
+		$("#txtRuleName").val(rule.name);
+		$("#txtRuleName").focus().select();
+	});
+	
+	$("#menu").hide();
+	$("#addRule").show();
+	$(document.body).height($("#addRule").height());
+	$(window).height($("#addRule").height());	
+}
+
+function addSwitchRule() {
+	closePopup();
+	var rule = $("#addRule")[0].rule;
+	rule.name = $("#txtRuleName").val();
+	rule.urlPattern = $("#txtUrlPattern").val();
+	rule.profileId = $("#cmbProfileId option:selected")[0].profile.id;
+	RuleManager.addRule(rule);
 }
 
 function clearMenuProxyItems() {
@@ -111,7 +152,7 @@ function buildMenuProxyItems(currentProfile) {
 			"id": profile.id || profile.name,
 			"name": profile.name,
 			"title": ProfileManager.profileToString(profile, true),
-			"class": "item proxy"
+			"class": "item proxy " + profile.color
 		});
 		$("span", item).text(profile.name);
 		item.click(onSelectProxyItem);
@@ -150,11 +191,28 @@ function buildMenuDirectConnectionItem(currentProfile) {
 		item.addClass("checked");
 }
 
+function buildMenuAutomaticModeItem(currentProfile) {
+	var item = $("#automaticMode");
+	if (!RuleManager.isEnabled()) {
+		item.hide();
+		$("#menuAddRule").hide();
+		return;
+	}
+	var autoProfile = RuleManager.getAutomaticModeProfile(true);
+	item.click(onSelectProxyItem);
+	item[0].profile = autoProfile;
+	if (RuleManager.isAutomaticModeEnabled(currentProfile)) {
+		item.addClass("checked");
+		delete currentProfile.unknown; // to prevent adding <current profile> item.
+	}
+}
+
 function buildMenuItems() {
 	var currentProfile = ProfileManager.getCurrentProfile();
 	clearMenuProxyItems();
-	buildMenuProxyItems(currentProfile);
 	buildMenuDirectConnectionItem(currentProfile);
+	buildMenuAutomaticModeItem(currentProfile);
+	buildMenuProxyItems(currentProfile);
 }
 
 function onSelectProxyItem() {

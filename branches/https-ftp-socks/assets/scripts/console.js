@@ -17,6 +17,10 @@ function init() {
 	loadLog();
 }
 
+function closeWindow() {
+	window.close();
+}
+
 function initLog() {
 	Logger.addEventListener(Logger.events.onLog, function(e) {
 		loadLog();

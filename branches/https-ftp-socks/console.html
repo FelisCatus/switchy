@@ -25,7 +25,7 @@
 								<span class="title">Switchy! Log</span>
 							</td>
 							<td width="100">
-								<img src="assets/images/close.png" class="close" onclick="closeWindow();" />
+								<img src="assets/images/close.png" class="close" title="Close" onclick="closeWindow();" />
 							</td>
 						</tr>
 					</table>
@@ -35,8 +35,8 @@
 		<tr>
 			<td>
 				<div id="logger">
-					<div id="btnClearLog" class="button" onclick="clearLog();">Clear Log</div>&nbsp;
-					<div id="btnDiagnose" class="button" onclick="diagnose();">Diagnose</div>
+					<button id="btnClearLog" class="button" onclick="clearLog();">Clear Log</button>&nbsp;
+					<button id="btnDiagnose" class="button" onclick="diagnose();">Diagnose</button>
 					<br />
 					<textarea id="console"></textarea>
 				</div>
