@@ -8,16 +8,23 @@
 
 var Settings = {};
 
+Settings.configCache = {};
+
 Settings.setValue = function setValue(key, value) {
+	Settings.configCache[key] = value;
+
 	var config = {};
 	if (localStorage.config)
 		config = JSON.parse(localStorage.config);
 	
 	config[key] = value;
-	localStorage.config = JSON.stringify(config);
+	localStorage.config = JSON.stringify(config);	
 };
 
 Settings.getValue = function getValue(key, defaultValue) {
+	if (Settings.configCache[key] != undefined)
+		return Settings.configCache[key];
+	
 	if (!localStorage.config)
 		return defaultValue;
 	
@@ -25,6 +32,7 @@ Settings.getValue = function getValue(key, defaultValue) {
 	if (config[key] == undefined)
 		return defaultValue;
 	
+	Settings.configCache[key] = config[key];
 	return config[key];
 };
 

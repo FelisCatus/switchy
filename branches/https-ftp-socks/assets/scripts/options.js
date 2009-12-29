@@ -120,7 +120,7 @@ function initUI() {
 		onFieldModified();
 	});
 	
-	// Quick Switch
+	// General
 	$("#chkQuickSwitch").change(function() {
 		if ($(this).is(":checked")) {
 			$("#quickSwitchTable .option").removeClass("disabled");
@@ -130,6 +130,16 @@ function initUI() {
 			$("#quickSwitchTable .option select").attr("disabled", "disabled");
 		}
 		onFieldModified();
+	});
+
+	$("#chkReapplySelectedProfile, #chkMonitorProxyChanges, #chkPreventProxyChanges, #chkConfirmDeletion").change(function() {
+		onFieldModified();
+	});
+	$("#chkMonitorProxyChanges").change(function() {
+		if ($(this).is(":checked"))
+			$("#chkPreventProxyChanges").removeAttr("disabled").parent().removeClass("disabled");
+		else
+			$("#chkPreventProxyChanges").attr("disabled", "disabled").parent().addClass("disabled");
 	});
 }
 
@@ -202,7 +212,7 @@ function loadOptions() {
 //		var row = newRuleRow();
 //	}
 
-	// Quick Switch
+	// General
 	if (Settings.getValue("quickSwitch", false))
 		$("#chkQuickSwitch").attr("checked", "checked");
 	
@@ -242,15 +252,27 @@ function loadOptions() {
 
 		$("#cmbDefaultRuleProfile").append(item);
 	});	
+
+	if (Settings.getValue("reapplySelectedProfile", true))
+		$("#chkReapplySelectedProfile").attr("checked", "checked");
+	if (Settings.getValue("monitorProxyChanges", true))
+		$("#chkMonitorProxyChanges").attr("checked", "checked");
+	if (Settings.getValue("preventProxyChanges", false))
+		$("#chkPreventProxyChanges").attr("checked", "checked");
+	if (Settings.getValue("confirmDeletion", true))
+		$("#chkConfirmDeletion").attr("checked", "checked");
 	
+	$("#chkReapplySelectedProfile").change();
+	$("#chkMonitorProxyChanges").change();
+	$("#chkPreventProxyChanges").change();
+	$("#chkConfirmDeletion").change();	
+	
+	// Done
 	ignoreFieldsChanges = false;
 	anyValueModified = false;
 }
 
 function saveOptions() {
-//	console.log(RuleManager.generatePacScript());
-//	return
-	
 	// Proxy Profiles
 	var currentProfile = ProfileManager.getCurrentProfile();
 	var oldProfiles = ProfileManager.getProfiles();
@@ -313,15 +335,23 @@ function saveOptions() {
 	if (RuleManager.isAutomaticModeEnabled(currentProfile))
 		ProfileManager.applyProfile(RuleManager.getAutomaticModeProfile(true));
 	
-	// Quick Switch
+	// General
 	Settings.setValue("quickSwitch", ($("#chkQuickSwitch").is(":checked")));
 	var quickSwitchProfiles = {
 		profile1: $("#cmbProfile1 option:selected")[0].profile.id,
 		profile2: $("#cmbProfile2 option:selected")[0].profile.id
 	};
 	Settings.setObject("quickSwitchProfiles", quickSwitchProfiles);
+
+	Settings.setValue("reapplySelectedProfile", ($("#chkReapplySelectedProfile").is(":checked")));
+	Settings.setValue("monitorProxyChanges", ($("#chkMonitorProxyChanges").is(":checked")));
+	Settings.setValue("preventProxyChanges", ($("#chkPreventProxyChanges").is(":checked")));
+	Settings.setValue("confirmDeletion", ($("#chkConfirmDeletion").is(":checked")));
 	
 	// Done
+	if (Settings.getValue("monitorProxyChanges", true))
+		extension.monitorProxyChanges(true);
+	
 	extension.setIconInfo();
 	InfoTip.showMessage("Options Saved..", InfoTip.types.success);
 	loadOptions();
@@ -442,8 +472,10 @@ function newRow(profile) {
 
 function deleteRow() {
 	var row = event.target.parentNode.parentNode;
-	if (confirm("\nAre you sure you want to delete selected profile?" + 
-		"\n\nSelected Profile: (" + row.children[0].innerText + ")")) {
+	if (!Settings.getValue("confirmDeletion", true)
+		|| confirm("\nAre you sure you want to delete selected profile?" + 
+					"\n\nSelected Profile: (" + row.children[0].innerText + ")")) {
+		
 		if (selectedRow[0] == row)
 			onSelectRow({}); // to clear fields.
 		
@@ -642,10 +674,12 @@ function newRuleRow(rule, activate) {
 	}
 }
 
-function deleteRuleRow() { // TODO option
+function deleteRuleRow() {
 	var row = event.target.parentNode.parentNode;
-	if (RuleManager.isEnabled() && confirm("\nAre you sure you want to delete selected rule?" + 
-		"\n\nSelected Rule: (" + row.children[0].innerText + ")")) {
+	if (RuleManager.isEnabled()
+		&& (!Settings.getValue("confirmDeletion", true) 
+			|| confirm("\nAre you sure you want to delete selected rule?" + 
+						"\n\nSelected Rule: (" + row.children[0].innerText + ")"))) {
 		$(row).remove();
 		saveOptions();
 		loadOptions();

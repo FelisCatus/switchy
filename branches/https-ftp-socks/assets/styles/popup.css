@@ -24,6 +24,13 @@ body * {
 	?outline: solid 1px #abc;
 }
 
+hr {
+	height: 0px;
+	margin: 0px 0px;
+	border: none;
+	border-top: solid 1px #eef;
+}
+
 #menu {
 	margin: 2px 0px;
 }
@@ -42,9 +49,11 @@ body * {
 
 #menu .item:hover {
 	padding: 3px 14px 3px 5px;
-	border: solid 1px #abc;
+	border: solid 1px #bcd;
 	border-radius: 3px;
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f0f5fc), color-stop(1, #e0e9f4));
+	background: -webkit-gradient(linear, left top, left bottom, 
+		color-stop(0, #fff),  color-stop(0.4, hsl(215, 67%, 97%)), color-stop(0.41, hsl(213, 48%, 95%)));
 
 	?border: solid 1px #c5cdd3;
 	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f5f9fe), color-stop(1, #e8f1f9));
@@ -55,6 +64,7 @@ body * {
 	border: solid 1px #abc;
 	border-radius: 3px;
 	background: #dde7f2 none;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #e8eef4), color-stop(1, #f5f9f4));
 }
 
 #menu .item img {
@@ -144,6 +154,7 @@ body * {
 #about .body {
 	padding: 10px 8px;
 	white-space: nowrap;
+	-webkit-user-select: text;
 }
 
 #about .body * {
@@ -163,6 +174,10 @@ body * {
 	white-space: nowrap;
 }
 
+#about .footer div {
+	?margin: 0px 10px;
+}
+
 #about .close, #addRule .close {
 	position: absolute;
 	right: 10px;
@@ -180,15 +195,19 @@ body * {
 
 #about .important {
 	color: #080;
-	padding: 4px;
-	padding-left: 25px;
+	padding: 5px;
+	padding-left: 28px;
 	margin: 2px 0px;
 	font-weight: bold;
 	font-size: 115%;
-	border: solid 1px #abc;
-	background: #f0fdf0 url(/assets/images/accept.png) 5px center no-repeat;
 	white-space: nowrap;
 	text-align: left;
+	border: solid 1px #acb;
+	border-radius: 2px;
+	background: #f0fdf0 url(/assets/images/accept.png) 5px center no-repeat;
+	background: url(/assets/images/accept.png) 7px center no-repeat, 
+				-webkit-gradient(linear, left top, left bottom, 
+				color-stop(0, #fff),  color-stop(0.4, hsl(115, 67%, 97%)), color-stop(0.41, hsl(113, 48%, 94%)));
 }
 
 #developer {
@@ -201,16 +220,30 @@ body * {
 	padding-bottom: 12px;
 	margin: 8px 0px;
 	white-space: nowrap;
-	font-size: 105%;
+	font-size: 100%;
 	border-bottom: solid 1px #eef;
+	border: solid 1px #acb;
+	border-radius: 2px;
+	?background: -webkit-gradient(linear, left top, left bottom, 
+				color-stop(0, #fff),  color-stop(0.4, hsl(115, 67%, 97%)), color-stop(0.41, hsl(113, 48%, 94%)));
 }
 
 #changeLog * {
 	color: #080 !important;
 }
 
+#changeLog .title {
+	margin-bottom: 8px;
+	font-weight: bold;
+}
+
+#changeLog .item {
+	margin-top: 4px;
+	font-size: 90%;
+}
+
 #addRule {
-	padding: 5px;
+	padding: 7px;
 	display: none;
 	height: 20px;
 }
@@ -223,7 +256,7 @@ body * {
 	?width: 100%;
 	?border: solid 1px #ccc;
 	border-spacing: 1px;
-	padding: 5px;
+	padding: 7px;
 	table-layout: fixed;
 }
 
@@ -258,34 +291,36 @@ body * {
 }
 
 #addRule .button {
-	width: 120px;
-	height: auto;
+	width: 100px;
 	color: #567;
 	display: inline-block;
 	cursor: pointer;
 	text-align: center;
-	font-weight: bold;
-	padding: 6px;
-	margin: 0px;
+	padding: 5px;
 	border: solid 1px #abc;
 	border-radius: 2px;
-	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f0f5fc), color-stop(1, #e0e9f4));	
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fafcff), color-stop(1, #eff3fe));
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f0f5fc), color-stop(1, #e0e9f4));
+	background: -webkit-gradient(linear, left top, left bottom, 
+		color-stop(0, #fff), color-stop(0.4, hsl(0, 0%, 97%)), color-stop(0.41, hsl(0, 0%, 94%)));
 	-webkit-box-shadow: 0px 1px 2px #ddd;
 }
 
+#addRule .button.bold {
+	font-weight: bold;
+}
+
 #addRule .button:hover {
-	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f3f8fe), color-stop(1, #e3ebf7));
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f8fafe), color-stop(1, #e9eef9));
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f6fafe), color-stop(1, #e3ebf7));
+	background: -webkit-gradient(linear, left top, left bottom, 
+		color-stop(0, #fff),  color-stop(0.4, hsl(215, 67%, 97%)), color-stop(0.41, hsl(213, 48%, 94%)));
 }
 
 #addRule .button:active {
-	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f0f5fc), color-stop(1, #f0f5fc));	
-	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #eff3fe), color-stop(1, #eff3fe));	
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #e0e9f4), color-stop(1, #f5f9f4));
 }
 
 #addRule .button img {
-	vertical-align: text-bottom;
+	vertical-align: text-bottom;;
 }
 
 #addRule .header {
@@ -296,10 +331,12 @@ body * {
 	border-radius: 2px;
 	padding: 8px;
 	padding-bottom: 8px;
-	margin-bottom: 7px;
+	margin-bottom: 9px;
 	background-color: #eaeeff;
 	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f4f9ff), color-stop(1, #e5ecf9));
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fafcff), color-stop(1, #eff3fe));
+	background: -webkit-gradient(linear, left top, left bottom, 
+		color-stop(0, #fff), color-stop(0.48, hsl(217, 73%, 98%)), color-stop(0.51, hsl(217, 62%, 96%)));
 	?-webkit-box-shadow: 0px 1px 2px #ddd;
 }
 

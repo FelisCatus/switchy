@@ -168,7 +168,7 @@
 
 					<div id="tabGeneralBody" class="tab">
 						<label>
-							<div class="title"><input id="chkQuickSwitch" type="checkbox"> &nbsp;Quick Switch
+							<div class="title"><input id="chkQuickSwitch" type="checkbox"> Quick Switch
 								<span class="help">
 									<p>Allows you to switch between two proxy profiles in one click 
 									(by clicking on Switchy icon).</p><hr />
@@ -204,11 +204,50 @@
 								</td>
 							</tr>
 						</table>
+						<hr />
+						<div class="title">Misc Options</div>
+						<label>
+							<div class="indent"><input id="chkReapplySelectedProfile" type="checkbox"> 
+							Auto apply last selected proxy profile on startup.
+								<span class="help">
+									<p>If this option is checked Switchy will apply last user-selected 
+									proxy profile on Chrome startup.</p>
+								</span>														
+							</div>
+						</label>
+						<label>
+							<div class="indent"><input id="chkMonitorProxyChanges" type="checkbox"> 
+							Monitor proxy changes.
+								<span class="help">
+									<p>Repeatedly check for changes in proxy settings done by other applications, 
+									and update Switchy icon to reflect those changes.</p>
+								</span>														
+							</div>
+						</label>
+						<label>
+							<div class="indent">
+							<div class="indent"><input id="chkPreventProxyChanges" type="checkbox"> 
+							Revert proxy changes done by other apps.
+								<span class="help">
+									<p>Revert any change in proxy settings done by other applications.</p>
+								</span>														
+							</div>
+							</div>
+						</label>
+						<label>
+							<div class="indent"><input id="chkConfirmDeletion" type="checkbox"> 
+							Confirm profile/rule deletion.
+								<span class="help">
+									<p>Show a confirmation dialog to confirm deletion of proxy 
+									profiles or switch rules in Options page ( meta option? :) ).</p>
+								</span>														
+							</div>
+						</label>
 					</div>
 
 					<div id="tabRulesBody" class="tab">
 						<label>
-							<div class="title"><input id="chkSwitchRules" type="checkbox"> &nbsp;Enable Switch Rules
+							<div class="title"><input id="chkSwitchRules" type="checkbox"> Enable Switch Rules
 								<span class="help">
 									<p>Switch Rules specify which proxy should be used for each URL.</p><hr />
 									<p>When this option is enabled you'll see two more items in main menu:</p>
