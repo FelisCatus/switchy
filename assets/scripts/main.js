@@ -11,6 +11,7 @@ var appVersion = "";
 var iconDir = "assets/images/";
 var iconInactivePath = "assets/images/inactive.png";
 var refreshInterval = 10000;
+var refreshTimer = undefined;
 var newVersion = false;
 var notifyOnNewVersion = true;
 var plugin;
@@ -21,13 +22,13 @@ function init() {
 	ProfileManager.load();
 	RuleManager.load();
 
-	applySavedOptions(); // TODO option
+	applySavedOptions();
 
 	if (!checkFirstTime())
 		checkNewVersion();
 	
 	setIconInfo();
-	monitorProxyChanges(); // TODO option
+	monitorProxyChanges();
 	diagnose();
 }
 
@@ -60,7 +61,7 @@ function checkFirstTime() {
 
 function checkNewVersion() {
 	if (notifyOnNewVersion && Settings.getValue("version") != appVersion) {
-		setIconTitle("Updated to new version (" + appVersion + ")");
+		setIconTitle("You've been updated to a new version (" + appVersion + ")");
 		setIconBadge(appVersion);
 		newVersion = true;
 	}
@@ -90,6 +91,9 @@ function openOptions(firstTime) {
 }
 
 function applySavedOptions() {
+	if (!Settings.getValue("reapplySelectedProfile", true))
+		return;
+	
 	var selectedProfile = ProfileManager.getSelectedProfile();
 	if (selectedProfile != undefined)
 		ProfileManager.applyProfile(selectedProfile);
@@ -110,12 +114,20 @@ function setIconTitle(title) {
 	chrome.browserAction.setTitle({ title: title });
 }
 
-function setIconInfo(profile) {
+function setIconInfo(profile, preventProxyChanges) {
 	if (newVersion)
 		return;
 	
-	if (!profile)
+	if (!profile) {
 		profile = ProfileManager.getCurrentProfile();
+		if (preventProxyChanges) {
+			var selectedProfile = ProfileManager.getSelectedProfile();
+			if (!ProfileManager.equals(profile, selectedProfile)) {
+				profile = selectedProfile;
+				ProfileManager.applyProfile(profile);
+			}
+		}
+	}
 	
 	var autoProfile = RuleManager.getAutomaticModeProfile();
 	if (RuleManager.isAutomaticModeEnabled(profile)) {
@@ -136,8 +148,16 @@ function setIconInfo(profile) {
 	setIconTitle(title);
 }
 
-function monitorProxyChanges() {
-	setInterval(setIconInfo, refreshInterval);
+function monitorProxyChanges(checkIfMonitorRunning) {
+	if (checkIfMonitorRunning && refreshTimer)
+		return;
+	
+	if (Settings.getValue("monitorProxyChanges", true)) {
+		setIconInfo(undefined, Settings.getValue("preventProxyChanges", false));
+		refreshTimer = setTimeout(monitorProxyChanges, refreshInterval);
+	}
+	else
+		refreshTimer = undefined;
 }
 
 function diagnose() {

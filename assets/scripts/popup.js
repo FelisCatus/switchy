@@ -19,11 +19,7 @@ function init() {
 	
 	checkNewVersionBadge();
 	
-	
-	
-	
-	
-//	showAddRule();
+//	showAbout();
 }
 
 function switchProxy() {
@@ -92,6 +88,13 @@ function openSupportWebsite() {
 	closePopup();
 	chrome.tabs.create({
 		url: 'http://code.google.com/p/switchy/issues/list'
+	});
+}
+
+function openExtensionGalleryWebsite() {
+	closePopup();
+	chrome.tabs.create({
+		url: 'https://chrome.google.com/extensions/detail/caehdcpeofiiigpdhbabniblemipncjj'
 	});
 }
 
@@ -239,7 +242,7 @@ function checkNewVersionBadge() {
 		extension.setIconInfo();
 		
 		$("#developer").addClass("important");
-		$("#developer").text("Updated to a new version (" + extension.appVersion + ")");
+		$("#developer").text("You've been updated to a new version.");
 		$("#changeLog").show();
 		$("#menu").hide();
 		$("#about").show();
