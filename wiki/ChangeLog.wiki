@@ -1,6 +1,19 @@
 #summary Switchy Change Log
 #labels Featured
 
+===1.3.0===
+(2009-12-29)
+  * New: URL Based Switch Rules (windows).
+  * Menu: Added 'Quick Rule' menu item.
+  * Menu: Added 'Auto Switch Mode' menu item.
+  * Menu: Proxy profiles items are colorful now.
+  * Options: Added 'Auto apply last selected profile' option.
+  * Options: Added 'Monitor proxy changes' and 'Revert proxy changes' options.
+  * Options: Added 'Confirm deletion' option.
+  * Options: Added help tool tips.
+  * General: Enhanced look and feel.
+  * General: Some bug fixes.
+
 ===1.2.0===
 (2009-12-18)
   * New: Linux (Ubuntu) Support (experimental).
