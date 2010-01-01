@@ -1,9 +1,17 @@
 #summary Switchy Change Log
 #labels Featured
 
+===1.3.5===
+(2010-01-01)
+  * New: Full Linux Support (Gnome/KDE 32/64 bit).
+  * New: URL Based Switch Rules (Linux).
+  * Menu: Grouped 'Auto Switch Mode' and 'Quick Rule' items.
+  * Options: Added infobar help for Switch Rules (for first time users).
+  * General: Some improvements and bug fixes.
+
 ===1.3.0===
 (2009-12-29)
-  * New: URL Based Switch Rules (windows).
+  * New: URL Based Switch Rules (Windows).
   * Menu: Added 'Quick Rule' menu item.
   * Menu: Added 'Auto Switch Mode' menu item.
   * Menu: Proxy profiles items are colorful now.
