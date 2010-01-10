@@ -1,6 +1,19 @@
 #summary Switchy Change Log
 #labels Featured
 
+===1.4.0===
+(2010-01-10)
+  * New: SOCKS v5 support.
+  * New: VPN/Dial-up support (Windows).
+  * New: Regular Expressions support for Switch Rules.
+  * Options: New option for Quick Switch (Cycle all profiles).
+  * Options: Only show HTTP proxy field if the same proxy is used for all protocols.
+  * QuickRule: Check if there's already a rule matches active page URL.
+  * ErrorLog: Added 'Reset Options' button.
+  * General: Icon color changes according to the applied Switch Rule in Auto Switch mode.
+  * General: Enhanced icons and a new color.
+  * General: Some improvements and bug fixes.
+
 ===1.3.5===
 (2010-01-01)
   * New: Full Linux Support (Gnome/KDE 32/64 bit).
