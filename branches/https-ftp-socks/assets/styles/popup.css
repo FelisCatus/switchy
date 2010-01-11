@@ -87,6 +87,10 @@ hr {
 	color: #ca0;
 }
 
+#menu .purple {
+	color: #a407be;
+}
+
 #menu .proxy img {
 	visibility: collapse;
 }
@@ -214,6 +218,10 @@ hr {
 	padding-bottom: 12px;
 }
 
+#developer .name {
+	padding: 5px 0px;
+}
+
 #changeLog {
 	display: none;
 	padding: 5px;
@@ -284,7 +292,7 @@ hr {
 }
 
 #addRule input, #addRule select {
-	width: 200px;
+	width: 250px;
 	min-height: 24px;
 	height: 100%;
 	padding-left: 3px;
@@ -342,4 +350,24 @@ hr {
 
 #addRule .header.light {
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fafcff), color-stop(1, #eff3fe));
+}
+
+#addRule .note {
+	display: none;
+}
+
+#addRule .note > * {
+	height: auto !important;
+	padding-bottom: 6px;
+}
+
+#addRule input.invalid {
+	color: inherit;
+	background-color: #fed;
+	border: solid 1px #ccc;
+	padding: 2px 4px;
+}
+
+#addRule .invalid {
+	color: #d63;
 }

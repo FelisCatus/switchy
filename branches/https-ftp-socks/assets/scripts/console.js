@@ -40,3 +40,14 @@ function diagnose() {
 	extension.diagnose();
 	loadLog();
 }
+
+function resetOptions() {
+	if (!confirm("\nThis will delete all your options permanently, continue?"))
+		return;
+	
+	if (!confirm("\nAre you sure you want to delete all your options permanently?"))
+		return;
+	
+	extension.localStorage.clear();
+	alert("\nOptions reset successfully..");
+}

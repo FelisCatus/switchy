@@ -17,7 +17,7 @@ InfoTip.types = {
 	error: "error"
 };
 
-InfoTip._timer;
+InfoTip._timer = undefined;
 
 InfoTip.showMessage = function showMessage(message, type, timeout) {
 	if (timeout == undefined)
@@ -26,13 +26,30 @@ InfoTip.showMessage = function showMessage(message, type, timeout) {
 	if (InfoTip._timer) {
 		clearTimeout(InfoTip._timer);
 		InfoTip._timer = undefined;
-	}
-	var note = $("#note");
+	}	
+	$("#infoTipContainer").remove();
+	
+	var note = $("<div id='infoTipContainer'><div>" +
+					"<span class='close'></span>" +
+					"<span class='text'>Info Tip</span>" +
+				 "</div></div>");
+	
 	note.attr("class", type);
-	note.children(":first").html(message);
+	$(".text", note).html(message);
+	$(document.body).append(note);
+
+	if (type == InfoTip.types.note) {
+		$(".close", note).show().click(function() {
+			note.animate({ top: -note.height() - 10 }, "fast");
+		});
+	}
+
 	note.animate({ top: -1 }, "fast");
-	InfoTip._timer = setTimeout(function() {
-		note.animate({ top: -100 }, "slow");
-		InfoTip._timer = undefined;
-	}, timeout);
+	
+	if (timeout > 0) {
+		InfoTip._timer = setTimeout(function() {
+			note.animate({ top: -note.height() - 10 }, "normal");
+			InfoTip._timer = undefined;
+		}, timeout, undefined);
+	}
 };
