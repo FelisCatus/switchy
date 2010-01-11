@@ -18,7 +18,6 @@
 	<script src="assets/scripts/helpToolTip.js" type="text/javascript"></script>
 </head>
 <body onload="init()">
-	<div id="note"><div>Info Tip</div></div>
 	<table id="optionsTable">
 		<tr>
 			<td>
@@ -30,7 +29,7 @@
 								<span class="title">Switchy! Options</span>
 							</td>
 							<td width="100">
-								<img src="assets/images/close.png" class="close" title="Close" onclick="closeWindow();" />
+								<!--img src="assets/images/close.png" class="close" title="Close" onclick="closeWindow();" /-->
 							</td>
 						</tr>
 					</table>
@@ -45,6 +44,9 @@
 					</div>
 					<div id="tabRules" class="normal">
 						<img src="assets/images/filter.png" valign="bottom"> Switch Rules
+					</div>
+					<div id="tabNetwork" class="normal">
+						<img src="assets/images/network.png" valign="bottom"> Network
 					</div>
 					<div id="tabGeneral" class="normal">
 						<img src="assets/images/options.png" valign="bottom"> General
@@ -127,10 +129,22 @@
 											<td><input id="ftpProxyPort" type="text"></td>
 										</tr>
 										<tr id="socksRow" class="indent">
-											<td><label>Socks Host</label></td>
+											<td><label>SOCKS Host</label></td>
 											<td><input id="socksProxyHost" type="text"></td>
 											<td><label>Port</label></td>
 											<td><input id="socksProxyPort" type="text"></td>
+										</tr>
+										<tr id="socksVersionRow" class="indent">
+											<td></td>
+											<td colspan="3">
+												<label>
+													<input id="socksV4" type="radio" name="socksVersion">
+													<span>SOCKS v4</span>&nbsp; &nbsp; &nbsp;
+												</label><label>
+													<input id="socksV5" type="radio" name="socksVersion">
+													<span>SOCKS v5</span>
+												</label>
+											</td>
 										</tr>
 										<tr class="section">
 											<td colspan="4">
@@ -166,6 +180,49 @@
 						</table>
 					</div>
 
+					<div id="tabNetworkBody" class="tab">
+						<label>
+							<div class="title"><input id="chkConnections" type="checkbox">
+								Proxy for VPN/Dial-up <small><i>&nbsp;&nbsp;&nbsp;(Windows only)</i></small>
+								<!--span class="help">
+									<p>Allows you to switch between two proxy profiles in one click 
+									(by clicking on Switchy icon).</p><hr />
+									<p><b>Note:</b> After enabling this feature you won't be able to see Switchy
+									main menu when clicking on Switchy icon, and so to open this Options page again 
+									you should go to Chrome Extensions page (Chrome Menu > Extensions).</p>
+								</span-->
+							</div>
+						</label>
+						<table id="connectionsTable">
+							<tr class="option">
+								<td><label>Connection</label></td>
+								<td>
+									<select id="cmbConnection">
+										<option value="">Test Connection</option>
+									</select>
+								</td>
+							</tr>
+						</table>
+						<hr />
+						<label>
+							<div class="title"><input id="chkMonitorProxyChanges" type="checkbox"> 
+							Monitor Proxy Changes
+								<span class="help">
+									<p>Repeatedly check for changes in proxy settings done by other applications, 
+									and update Switchy icon to reflect those changes.</p>
+								</span>														
+							</div>
+						</label>
+						<label>
+							<div class="indent"><input id="chkPreventProxyChanges" type="checkbox"> 
+							Revert proxy changes done by other apps.
+								<span class="help">
+									<p>Revert any change in proxy settings done by other applications.</p>
+								</span>														
+							</div>
+						</label>
+					</div>
+
 					<div id="tabGeneralBody" class="tab">
 						<label>
 							<div class="title"><input id="chkQuickSwitch" type="checkbox"> Quick Switch
@@ -175,18 +232,18 @@
 									<p><b>Note:</b> After enabling this feature you won't be able to see Switchy
 									main menu when clicking on Switchy icon, and so to open this Options page again 
 									you should go to Chrome Extensions page (Chrome Menu > Extensions).</p>
-								</span>														
+								</span>
 							</div>
 						</label>
 						<table id="quickSwitchTable">
-							<!--tr class="section">
+							<tr class="section">
 								<td colspan="2">
 									<label>
-										<input id="chkQuickSwitch" type="checkbox">&nbsp;
-										<span><b>Enable Quick Switch</b></span>
+										<input id="rdoBinarySwitch" type="radio" name="quickSwitchType" checked="checked">
+										<span><b>Binary Switch</b></span>
 									</label>
 								</td>
-							</tr-->
+							</tr>
 							<tr class="option indent">
 								<td><label>Profile 1</label></td>
 								<td>
@@ -203,6 +260,14 @@
 									</select>
 								</td>
 							</tr>
+							<tr class="section">
+								<td colspan="2">
+									<label>
+										<input id="rdoCycleSwitch" type="radio" name="quickSwitchType">
+										<span><b>Cycle All Proxies</b></span>
+									</label>
+								</td>
+							</tr>
 						</table>
 						<hr />
 						<div class="title">Misc Options</div>
@@ -213,25 +278,6 @@
 									<p>If this option is checked Switchy will apply last user-selected 
 									proxy profile on Chrome startup.</p>
 								</span>														
-							</div>
-						</label>
-						<label>
-							<div class="indent"><input id="chkMonitorProxyChanges" type="checkbox"> 
-							Monitor proxy changes.
-								<span class="help">
-									<p>Repeatedly check for changes in proxy settings done by other applications, 
-									and update Switchy icon to reflect those changes.</p>
-								</span>														
-							</div>
-						</label>
-						<label>
-							<div class="indent">
-							<div class="indent"><input id="chkPreventProxyChanges" type="checkbox"> 
-							Revert proxy changes done by other apps.
-								<span class="help">
-									<p>Revert any change in proxy settings done by other applications.</p>
-								</span>														
-							</div>
 							</div>
 						</label>
 						<label>
@@ -266,10 +312,10 @@
 						</label>
 						<table id="rulesTable">
 							<tr class="tableHeader">
-								<th width="20%">Rule Name</th>
-								<th width="40%">URL Pattern (Wildcard)
+								<th width="15%">Rule Name</th>
+								<th width="35%">URL Pattern
 									<span class="help">
-										<p>Pattern of the page url written as a wildcard expression.</p><hr />
+										<p>Pattern of the page url.</p><hr />
 										<table>
 											<tr>
 												<td colspan="2"><b>Wildcard Reference</b></td>
@@ -304,7 +350,22 @@
 										</table>
 									</span>								
 								</th>
-								<th width="20%">Proxy Profile
+								<th width="13%">Pattern Type
+									<span class="help">
+										<p>The type of URL Pattern.<hr />
+										<table>
+											<tr>
+												<td><i>Wildcard</i></td>
+												<td>for wildcard matching.</td>
+											</tr>
+											<tr>
+												<td><i>RegExp</i></td>
+												<td>for Regular Expression matching.</td>
+											</tr>
+										</table>
+									</span>								
+								</th>
+								<th width="17%">Proxy Profile
 									<span class="help">
 										<p>The proxy profile to be applied when this rule is matched.</p>
 									</span>								
@@ -314,8 +375,15 @@
 							<tr class="templateRow">
 								<td><div title="Click to edit"><span class="ruleName">New Rule</span>
 									<input name="name" type="text"></div></td>
-								<td><div title="Click to edit"><span class="urlPattern">&#x0b;&#x20;</span>
-									<input name="urlPattern" type="text"></div></td>
+								<td><div title="Click to edit">	
+									<span class="urlPattern">&#x0b;&#x20;</span>
+									<input name="urlPattern" type="text">
+									<!--b class="tag">RegEx</b--></div></td>
+								<td><div>
+									<select name="patternType">
+										<option value="wildcard">Wildcard</option>
+										<option value="regex">RegExp</option>
+									</select></div></td>
 								<td><div>
 									<select name="profileId"></select></div></td>
 								<td><div class="delete" title="Delete Rule" onclick="deleteRuleRow();"></div></td>
@@ -328,7 +396,8 @@
 										<p><b>Note:</b> This rule can't be deleted.</p>
 									</span>
 								</div></td>
-								<td><div><span class="urlPattern">All URLs</span></div></td>
+								<td colspan="2"><div><span class="urlPattern">All URLs</span></div></td>
+								<!--td><div><span class="patternType">---</span></div></td-->
 								<td><div>
 									<select id="cmbDefaultRuleProfile" name="profileId"></select></div></td>
 								<td></div></td>
@@ -358,7 +427,7 @@
 						<table>
 							<tr>
 								<td width="100%">
-									<button class="button" onclick="showLog();">Show Log</button>
+									<button class="button" onclick="showLog();">Error Log</button>
 								</td>
 								<td>
 									<button class="button bold" onclick="saveOptions();">Save</button>

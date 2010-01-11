@@ -10,6 +10,7 @@ var extension;
 //var ProfileManager;
 //var RuleManager;
 //var Settings;
+var activeTabUrl = undefined;
 
 function init() {
 	buildMenuItems();
@@ -19,41 +20,57 @@ function init() {
 	
 	checkNewVersionBadge();
 	
+	
 //	showAbout();
 }
 
-function switchProxy() {
+function quickSwitchProxy() {
 	extension = chrome.extension.getBackgroundPage();
 	ProfileManager = extension.ProfileManager;
 	RuleManager = extension.RuleManager;
 	Settings = extension.Settings;
 
+	if (extension.newVersion) // allow new version menu to appear.
+		return;
+	
 	var quickSwitch = Settings.getValue("quickSwitch", false);
 	if (!quickSwitch)
 		return;
 	
-	var quickSwitchProfiles = Settings.getObject("quickSwitchProfiles") || {};
-	if (!quickSwitchProfiles.profile1 || !quickSwitchProfiles.profile2)
-		return;
-	
-	window.stop();
-	
-	var profiles = ProfileManager.getProfiles();
+	var profile = undefined;
+	var profiles = ProfileManager.getSortedProfileIdArray();
 	var currentProfile = ProfileManager.getCurrentProfile();
-	var profileId;
-	if (currentProfile.id == quickSwitchProfiles.profile1)
-		profileId = quickSwitchProfiles.profile2;
-	else
-		profileId = quickSwitchProfiles.profile1;
-	
-	var profile;
-	if (profileId == ProfileManager.directConnectionProfile.id)
-		profile = ProfileManager.directConnectionProfile;
-	else
-		profile = profiles[profileId];
+	var quickSwitchType = Settings.getValue("quickSwitchType", "binary");
+	if (quickSwitchType == "binary") {
+		var quickSwitchProfiles = Settings.getObject("quickSwitchProfiles") || {};
+		if (!quickSwitchProfiles.profile1 || !quickSwitchProfiles.profile2)
+			return;
+		
+		var profileId;
+		if (currentProfile.id == quickSwitchProfiles.profile1)
+			profileId = quickSwitchProfiles.profile2;
+		else
+			profileId = quickSwitchProfiles.profile1;
+
+		if (profileId == ProfileManager.directConnectionProfile.id)
+			profile = ProfileManager.directConnectionProfile;
+		else
+			profile = ProfileManager.getProfile(profileId);
+		
+	} else {
+		var index = profiles.indexOf(currentProfile.id);
+		if (index == -1)
+			profile = ProfileManager.getProfile(profiles[0]);
+		else if (index == profiles.length - 1)
+			profile = ProfileManager.directConnectionProfile;
+		else
+			profile = ProfileManager.getProfile(profiles[index + 1]);
+	}
 	
 	if (profile == undefined)
 		return;
+
+	window.stop();
 	
 	ProfileManager.applyProfile(profile);
 	extension.setIconInfo(profile);	
@@ -106,6 +123,9 @@ function showAbout() {
 }
 
 function showAddRule() {
+	var lastProfileId = Settings.getValue("quickRuleProfileId");
+	var lastPatternType = Settings.getValue("quickRulePatternType", RuleManager.patternTypes.wildcard);
+
 	var combobox = $("#cmbProfileId");
 	var profiles = ProfileManager.getSortedProfileArray();
 	var directProfile = ProfileManager.directConnectionProfile;
@@ -116,12 +136,42 @@ function showAddRule() {
 		var item = $("<option>").attr("value", profile.id).text(profile.name);
 		item[0].profile = profile;		
 		combobox.append(item);
+		if (lastProfileId == profile.id)
+			item.attr("selected", "selected");
+	});
+	
+	$("#cmbPatternType option[value='" + lastPatternType + "']").attr("selected", "selected");
+	$("#txtUrlPattern, #cmbPatternType").change(function() {
+		var patternField = $("#txtUrlPattern");
+		var patternTypeField = $("#cmbPatternType option:selected");
+		if (this.id == "cmbPatternType") {
+			var previousPatternType;
+			if (patternTypeField.val() == RuleManager.patternTypes.regex)
+				previousPatternType = RuleManager.patternTypes.wildcard;
+			else
+				previousPatternType = RuleManager.patternTypes.regex;
+			
+			if (patternField.val() == RuleManager.urlToRule(activeTabUrl, previousPatternType).urlPattern)
+				patternField.val(RuleManager.urlToRule(activeTabUrl, patternTypeField.val()).urlPattern);
+		}
+		
+		if (RuleManager.ruleExists(patternField.val(), patternTypeField.val())) {
+			$("#addRule .note").show();
+			patternField.addClass("invalid");
+		} else {
+			$("#addRule .note").hide();
+			patternField.removeClass("invalid");
+		}
+
+	}).keyup(function() {
+		$(this).change();
 	});
 	
 	chrome.tabs.getSelected(undefined, function(tab) {
-		var rule = RuleManager.urlToRule(tab.url);
+		activeTabUrl = tab.url;
+		var rule = RuleManager.urlToRule(tab.url, $("#cmbPatternType option:selected").val());
 		$("#addRule")[0].rule = rule;
-		$("#txtUrlPattern").val(rule.urlPattern);
+		$("#txtUrlPattern").val(rule.urlPattern).change();
 		$("#txtRuleName").val(rule.name);
 		$("#txtRuleName").focus().select();
 	});
@@ -137,15 +187,30 @@ function addSwitchRule() {
 	var rule = $("#addRule")[0].rule;
 	rule.name = $("#txtRuleName").val();
 	rule.urlPattern = $("#txtUrlPattern").val();
+	rule.patternType = $("#cmbPatternType option:selected").val();
 	rule.profileId = $("#cmbProfileId option:selected")[0].profile.id;
 	RuleManager.addRule(rule);
+	
+	// notify 'Options' tabs
+	try {
+		var tabs = chrome.extension.getExtensionTabs();
+		for (var i in tabs) {
+			var tab = tabs[i];
+			if (tab.location.pathname == "/options.html") {
+				tab.loadOptions();
+			}
+		}
+	} catch (e) {}
+	
+	Settings.setValue("quickRuleProfileId", rule.profileId);
+	Settings.setValue("quickRulePatternType", rule.patternType);
 }
 
 function clearMenuProxyItems() {
 	$("#proxies .item").remove();
 }
 
-function buildMenuProxyItems(currentProfile) {
+function buildMenuProxyItems(currentProfile) {	
 	var profiles = ProfileManager.getSortedProfileArray();
 	var menu = $("#proxies");
 	var templateItem = $("#proxies .templateItem");
@@ -199,6 +264,7 @@ function buildMenuAutomaticModeItem(currentProfile) {
 	if (!RuleManager.isEnabled()) {
 		item.hide();
 		$("#menuAddRule").hide();
+		$("#separatorRules").hide();
 		return;
 	}
 	var autoProfile = RuleManager.getAutomaticModeProfile(true);
@@ -232,6 +298,19 @@ function onSelectProxyItem() {
 
 	$("#menu .item").removeClass("checked");
 	item.addClass("checked");
+	
+	if (profile.isAutomaticModeProfile)
+		checkRulesFirstTimeUse();
+}
+
+function checkRulesFirstTimeUse() {
+	if (!Settings.keyExists("rulesFirstTime")) {
+		Settings.setValue("rulesFirstTime", ";]");
+		if (!RuleManager.hasRules()) {
+			var url = "options.html?rulesFirstTime=true&tab=rules";
+			chrome.tabs.create({ url: url });
+		}
+	}
 }
 
 function checkNewVersionBadge() {

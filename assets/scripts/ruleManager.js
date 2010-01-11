@@ -11,14 +11,22 @@ var RuleManager = {};
 
 RuleManager.rules = {};
 
+RuleManager.patternTypes = {
+	wildcard: "wildcard",
+	regex: "regex"
+};
+
 RuleManager.enabled = true;
 
-RuleManager.pacScriptPath = undefined;
+RuleManager.autoPacScriptPath = undefined;
+
+RuleManager.socksPacScriptPath = undefined;
 
 RuleManager.defaultRule = {
 	id: "defaultRule",
 	name: "Default Rule",
 	urlPattern: "",
+	patternType: RuleManager.patternTypes.wildcard,
 	profileId : ProfileManager.directConnectionProfile.id
 };
 
@@ -74,7 +82,7 @@ RuleManager.getRules = function getRules() {
 };
 
 RuleManager.setRules = function setRules(rules) {
-	var rules = $.extend(true, {}, rules);
+	rules = $.extend(true, {}, rules);
 	RuleManager.rules = rules;
 };
 
@@ -82,7 +90,7 @@ RuleManager.addRule = function addRule(rule) {
 	RuleManager.rules[rule.id] = rule;
 	RuleManager.save();
 	
-	if (RuleManager.isAutomaticModeEnabled())
+	if (RuleManager.isAutomaticModeEnabled(undefined))
 		ProfileManager.applyProfile(RuleManager.getAutomaticModeProfile(true));
 };
 
@@ -92,20 +100,7 @@ RuleManager.getSortedRuleArray = function getSortedRuleArray() {
 	for (var i in rules)
 		ruleArray[ruleArray.length] = rules[i];
 
-	ruleArray = ruleArray.sort(function(rule1, rule2) {
-		var name1 = rule1.name.toLowerCase();
-		var name2 = rule2.name.toLowerCase();
-		var length = Math.min(name1.length, name2.length);
-		for (var i = 0; i < length; i++) {
-			var ch1 = name1.charCodeAt(i);
-			var ch2 = name2.charCodeAt(i);
-			if (ch1 != ch2)
-				return ch1 - ch2;
-		}
-		
-		return name1.length - name2.length;
-	});
-	
+	ruleArray = ruleArray.sort(Utils.compareNamedObjects);
 	return ruleArray;
 };
 
@@ -113,42 +108,88 @@ RuleManager.getAssociatedRule = function getAssociatedRule(url) {
 	var rules = RuleManager.rules;
 	for (var i in rules) {
 		var rule = rules[i];
-		if (RuleManager.shExpMatch(url, rule.urlPattern))
+		if (RuleManager.matchPattern(url, rule.urlPattern, rule.patternType))
 			return rule;
 	}
 	return undefined;
 };
 
-RuleManager.applyRules = function applyRules() {
+RuleManager.ruleExists = function ruleExists(urlPattern, patternType) {
+	var rules = RuleManager.rules;
+	for (var i in rules) {
+		var rule = rules[i];
+		if (rule.patternType == patternType && rule.urlPattern == urlPattern)
+			return true;
+	}
+	return false;
+};
+
+RuleManager.saveAutoPacScript = function saveAutoPacScript() {
 	var plugin = chrome.extension.getBackgroundPage().plugin;
-	var script = RuleManager.generatePacScript();
+	var script = RuleManager.generateAutoPacScript();
 	try {
-		var result = plugin.writePacFile(script);
+		var result = plugin.writeAutoPacFile(script);
 		if (result != 0 || result != "0")
 			throw "Error Code (" + result + ")";
 		
 	} catch(ex) {
-		Logger.log("Plugin Error @RuleManager.applyRules() > " + ex.toString(), Logger.types.error);		
+		Logger.log("Plugin Error @RuleManager.saveAutoPacScript() > " + ex.toString(), Logger.types.error);		
 		return false;
 	}
 };
 
-RuleManager.shExpMatch = function shExpMatch(url, pattern) {
-	pattern = pattern.replace(/\./g, '\\.');
-	pattern = pattern.replace(/\*/g, '.*');
-	pattern = pattern.replace(/\?/g, '.');
-	var rex = new RegExp('^' + pattern + '$');
-	return rex.test(url);
+RuleManager.saveSocksPacScript = function saveSocksPacScript(profile) {
+	var plugin = chrome.extension.getBackgroundPage().plugin;
+	var script = RuleManager.generateSocksPacScript(profile);
+	try {
+		var result = plugin.writeSocksPacFile(script);
+		if (result != 0 || result != "0")
+			throw "Error Code (" + result + ")";
+		
+	} catch(ex) {
+		Logger.log("Plugin Error @RuleManager.saveSocksPacScript() > " + ex.toString(), Logger.types.error);		
+		return false;
+	}
 };
 
-RuleManager.urlToRule = function urlToRule(url) {
+RuleManager.wildcardToRegexp = function wildcardToRegexp(pattern) {
+	pattern = pattern.replace(/([\\\+\|\{\}\[\]\(\)\^\$\.\#])/g, "\\$1");
+//	pattern = pattern.replace(/\./g, "\\.");
+	pattern = pattern.replace(/\*/g, ".*");
+	pattern = pattern.replace(/\?/g, ".");
+	var regex = /*new RegExp*/("^" + pattern + "$");
+	return regex;
+};
+
+RuleManager.shExpMatch = function shExpMatch(url, pattern) {
+	pattern = pattern.replace(/\./g, "\\.");
+	pattern = pattern.replace(/\*/g, ".*");
+	pattern = pattern.replace(/\?/g, ".");
+	var regex = new RegExp("^" + pattern + "$");
+	return regex.test(url);
+};
+
+RuleManager.regexMatch = function regexMatch(url, pattern) {
+	var regex = new RegExp(pattern);
+	return regex.test(url);
+};
+
+RuleManager.matchPattern = function matchPattern(url, pattern, patternType) {
+	if (patternType == RuleManager.patternTypes.regex)
+		return RuleManager.regexMatch(url, pattern);
+	
+	return RuleManager.shExpMatch(url, pattern);
+};
+
+RuleManager.urlToRule = function urlToRule(url, patternType) {
 	var urlParts = parseUri(url);
 	var pattern = "*://" + urlParts["authority"] + "/*";
 	var nameId = RuleManager.generateId("Quick Rule ");
 	var rule = {
 		id: nameId,
 		name: nameId,
-		urlPattern: pattern,
+		urlPattern: (patternType == RuleManager.patternTypes.regex ? RuleManager.wildcardToRegexp(pattern) : pattern),
+		patternType: patternType,
 		profileId : ProfileManager.directConnectionProfile.id
 	};
 	return rule;
@@ -177,9 +218,9 @@ RuleManager.ruleToString = function ruleToString(rule, prettyPrint) {
 	if (rule.name != undefined)
 		result.push(rule.name); 
 	
-	if (rule.urlPattern != undefined && rule.urlPattern.trim().length > 0)
-		result.push("URL Pattern: " + rule.urlPattern); 
-	
+	if (rule.urlPattern != undefined && rule.urlPattern.trim().length > 0) {
+		result.push("URL Pattern: " + rule.patternType + "(" + rule.urlPattern + ")"); 
+	}
 	if (rule.profileId != undefined && rule.profileId.trim().length > 0)
 		result.push("Proxy Profile: " + ProfileManager.getProfiles()[rule.profileId]);
 	
@@ -190,28 +231,35 @@ RuleManager.ruleToScript = function ruleToScript(rule) {
 	var proxy = "DIRECT";
 	if (rule.profileId != ProfileManager.directConnectionProfile.id) {
 		var profile = ProfileManager.getProfile(rule.profileId);
-		if (profile != undefined) {
-			if (profile.proxySocks && profile.proxySocks.length > 0)
-				proxy = "SOCKS " + profile.proxySocks;
-			else if (profile.proxyHttp && profile.proxyHttp.length > 0)
+		if (profile != undefined && profile.proxyMode == ProfileManager.proxyModes.manual) {
+			if (profile.proxyHttp && profile.proxyHttp.length > 0)
 				proxy = "PROXY " + profile.proxyHttp;
+			
+			if (profile.proxySocks && profile.proxySocks.length > 0
+				&& !profile.useSameProxy && profile.proxySocks != profile.proxyHttp) { // workaround for Gnome
+				if (profile.socksVersion == 5)
+					proxy = "SOCKS5 " + profile.proxySocks + "; " + proxy;
+				else
+					proxy = "SOCKS " + profile.proxySocks + "; " + proxy;
+			} 
 		}
 	}
-	if (rule.urlPattern.indexOf("://*.") > 0 || rule.urlPattern.indexOf("*.") == 0)
-		var pattern2 = rule.urlPattern.replace("*.", "");
 	
+	var matchFunc = (rule.patternType == RuleManager.patternTypes.regex ? "regExpMatch" : "shExpMatch");
 	var script = "if (";
-	script += "shExpMatch(url, '" + rule.urlPattern + "')";
-	if (rule.urlPattern.indexOf("://*.") > 0 || rule.urlPattern.indexOf("*.") == 0)
+	script += matchFunc + "(url, '" + rule.urlPattern + "')";
+	if (rule.patternType != RuleManager.patternTypes.regex
+		&& (rule.urlPattern.indexOf("://*.") > 0 || rule.urlPattern.indexOf("*.") == 0))
 		script += " || shExpMatch(url, '" + rule.urlPattern.replace("*.", "") + "')";
 
 	return script + ") return '" + proxy + "';";
 };
 
-RuleManager.generatePacScript = function generatePacScript() {
-	var script = [];
-	var rules = RuleManager.rules;
-	
+RuleManager.generatePacScript = function generatePacScript(rules, defaultProfile) {
+	var script = [];	
+	script.push("function regExpMatch(url, pattern) {");
+	script.push("\ttry { return new RegExp(pattern).test(url); } catch(ex) {}");
+	script.push("}\n");
 	script.push("function FindProxyForURL(url, host) {");
 	for (var i in rules) {
 		var rule = rules[i];
@@ -219,12 +267,19 @@ RuleManager.generatePacScript = function generatePacScript() {
 	}
 	
 	var proxy = "DIRECT";
-	var profile = RuleManager.getAutomaticModeProfile();
-	if (profile != undefined) {
-		if (profile.proxySocks && profile.proxySocks.length > 0)
-			proxy = "SOCKS " + profile.proxySocks;
-		else if (profile.proxyHttp && profile.proxyHttp.length > 0)
+	var profile = defaultProfile;
+	if (profile != undefined && 
+		(profile.isAutomaticModeProfile || profile.proxyMode == ProfileManager.proxyModes.manual)) {
+		if (profile.proxyHttp && profile.proxyHttp.length > 0)
 			proxy = "PROXY " + profile.proxyHttp;
+		
+		if (profile.proxySocks && profile.proxySocks.length > 0
+			&& !profile.useSameProxy && profile.proxySocks != profile.proxyHttp) { // workaround for useSameProxy in Gnome
+			if (profile.socksVersion == 5)
+				proxy = "SOCKS5 " + profile.proxySocks + "; " + proxy;
+			else
+				proxy = "SOCKS " + profile.proxySocks + "; " + proxy;
+		} 
 	}
 	script.push("\t" + "return '" + proxy + "';");
 	script.push("}");
@@ -232,17 +287,40 @@ RuleManager.generatePacScript = function generatePacScript() {
 	return script.join("\r\n");
 };
 
-RuleManager.getPacScriptPath = function getPacScriptPath() {
-	var plugin = chrome.extension.getBackgroundPage().plugin;
-	if (RuleManager.pacScriptPath == undefined) {
+RuleManager.generateAutoPacScript = function generateAutoPacScript() {
+	return RuleManager.generatePacScript(RuleManager.rules, RuleManager.getAutomaticModeProfile(false));
+};
+
+RuleManager.generateSocksPacScript = function generateSocksPacScript(profile) {
+	return RuleManager.generatePacScript([], profile);
+};
+
+RuleManager.getAutoPacScriptPath = function getAutoPacScriptPath(withSalt) {
+	if (RuleManager.autoPacScriptPath == undefined) {
+		var plugin = chrome.extension.getBackgroundPage().plugin;
 		try {
-			RuleManager.pacScriptPath = plugin.pacScriptPath;
+			RuleManager.autoPacScriptPath = plugin.autoPacScriptPath;
 		} catch(ex) {
-			Logger.log("Plugin Error @RuleManager.getPacScriptPath() > " + ex.toString(), Logger.types.error);
+			Logger.log("Plugin Error @RuleManager.getAutoPacScriptPath() > " + ex.toString(), Logger.types.error);
 			return undefined;
 		}
 	}
-	return RuleManager.pacScriptPath;
+	
+	return RuleManager.autoPacScriptPath + (withSalt ? "?" + new Date().getTime() : "");
+};
+
+RuleManager.getSocksPacScriptPath = function getSocksPacScriptPath(withSalt) {
+	if (RuleManager.socksPacScriptPath == undefined) {
+		var plugin = chrome.extension.getBackgroundPage().plugin;
+		try {
+			RuleManager.socksPacScriptPath = plugin.socksPacScriptPath;
+		} catch(ex) {
+			Logger.log("Plugin Error @RuleManager.getSocksPacScriptPath() > " + ex.toString(), Logger.types.error);
+			return undefined;
+		}
+	}
+	
+	return RuleManager.socksPacScriptPath + (withSalt ? "?" + new Date().getTime() : "");
 };
 
 RuleManager.getAutomaticModeProfile = function getAutomaticModeProfile(withSalt) {
@@ -253,8 +331,8 @@ RuleManager.getAutomaticModeProfile = function getAutomaticModeProfile(withSalt)
 	
 	profile.id = "";
 	profile.proxyMode = ProfileManager.proxyModes.auto;
-	profile.proxyConfigUrl = RuleManager.getPacScriptPath() + (withSalt ? "?" + new Date().getTime() : "");
-	profile.color = "auto";
+	profile.proxyConfigUrl = RuleManager.getAutoPacScriptPath(withSalt);
+	profile.color = "auto-blue";
 	profile.name = "Auto Swtich Mode";
 	profile.isAutomaticModeProfile = true;
 	return profile;
@@ -267,18 +345,31 @@ RuleManager.isAutomaticModeEnabled = function isAutomaticModeEnabled(currentProf
 	if (currentProfile.proxyMode != ProfileManager.proxyModes.auto)
 		return false;
 	
-	var autoProfile = RuleManager.getAutomaticModeProfile();
+	var autoProfile = RuleManager.getAutomaticModeProfile(false);
 	var length = autoProfile.proxyConfigUrl.length;
 	if (currentProfile.proxyConfigUrl.length > length && currentProfile.proxyConfigUrl.charAt(length) != '?')
 		return false;
 	
-	return (currentProfile.proxyConfigUrl.substring(0, length) == autoProfile.proxyConfigUrl);
+	return (currentProfile.proxyConfigUrl.substr(0, length) == autoProfile.proxyConfigUrl);
+};
+
+RuleManager.isModifiedSocksProfile = function isModifiedSocksProfile(profile) {
+	if (profile.proxyMode != ProfileManager.proxyModes.auto)
+		return false;
+	
+	var scriptPath = RuleManager.getSocksPacScriptPath(false);
+	var length = scriptPath.length;
+	if (profile.proxyConfigUrl.length > length && profile.proxyConfigUrl.charAt(length) != '?')
+		return false;
+	
+	return (profile.proxyConfigUrl.substr(0, length) == scriptPath);
 };
 
 RuleManager.normalizeRule = function normalizeRule(rule) {
 	var newRule = {
 		name: "",
 		urlPattern: "",
+		patternType: RuleManager.patternTypes.wildcard,
 		profileId : ProfileManager.directConnectionProfile.id
 	};
 	$.extend(newRule, rule);
@@ -301,6 +392,7 @@ RuleManager.hasRules = function hasRules() {
 
 RuleManager.equals = function equals(rule1, rule2) {
 	return (rule1.urlPattern == rule2.urlPattern
+			&& rule1.patternType == rule2.patternType
 			&& rule1.profileId == rule2.profileId);
 };
 

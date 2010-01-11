@@ -15,6 +15,7 @@ var anyValueModified = false;
 var ignoreFieldsChanges = false;
 var selectedRow;
 var selectedRuleRow;
+var switchRulesEnabled;
 
 function init() {
 	extension = chrome.extension.getBackgroundPage();
@@ -47,49 +48,55 @@ function initUI() {
 		selectedRow[0].profile.name = $(this).val();
 		onFieldModified(true);
 	});
-	$("#httpProxyHost, #httpProxyPort").change(function() {
-		selectedRow[0].profile.proxyHttp = joinProxy($("#httpProxyHost").val(), $("#httpProxyPort").val());
-		onFieldModified(true);
-	});
 	$("#modeManual, #modeAuto").change(function() {
 		if ($("#modeManual").is(":checked")) {
 			selectedRow[0].profile.proxyMode = ProfileManager.proxyModes.manual;
-			$("#httpRow, #sameProxyRow, #httpsRow, #ftpRow, #socksRow").removeClass("disabled");
-			$("#httpRow input, #sameProxyRow input, #httpsRow input, #ftpRow input, #socksRow input").removeAttr("disabled");
+			$("#httpRow, #sameProxyRow, #httpsRow, #ftpRow, #socksRow, #socksVersionRow").removeClass("disabled");
+			$("#httpRow input, #sameProxyRow input, #httpsRow input, #ftpRow input, #socksRow input, #socksVersionRow input").removeAttr("disabled");
 			$("#configUrlRow").addClass("disabled");
 			$("#configUrlRow input").attr("disabled", "disabled");
 			$("#useSameProxy").change();
 		} else {
 			selectedRow[0].profile.proxyMode = ProfileManager.proxyModes.auto;
-			$("#httpRow, #sameProxyRow, #httpsRow, #ftpRow, #socksRow").addClass("disabled");
-			$("#httpRow input, #sameProxyRow input, #httpsRow input, #ftpRow input, #socksRow input").attr("disabled", "disabled");
+			$("#httpRow, #sameProxyRow, #httpsRow, #ftpRow, #socksRow, #socksVersionRow").addClass("disabled");
+			$("#httpRow input, #sameProxyRow input, #httpsRow input, #ftpRow input, #socksRow input, #socksVersionRow input").attr("disabled", "disabled");
 			$("#configUrlRow").removeClass("disabled");
 			$("#configUrlRow input").removeAttr("disabled");
 		}
 		onFieldModified(true);
 	});
+	$("#httpProxyHost, #httpProxyPort").change(function() {
+		selectedRow[0].profile.proxyHttp = joinProxy($("#httpProxyHost").val(), $("#httpProxyPort").val(), 80);
+		onFieldModified(true);
+	});
 	$("#useSameProxy").change(function() {
 		if ($(this).is(":checked")) {
 			selectedRow[0].profile.useSameProxy = true;
-			$("#httpsRow, #ftpRow, #socksRow").addClass("disabled");
-			$("#httpsRow input, #ftpRow input, #socksRow input").attr("disabled", "disabled");
+			$("#httpsRow, #ftpRow, #socksRow, #socksVersionRow").hide();
+//			$("#httpsRow, #ftpRow, #socksRow, #socksVersionRow").addClass("disabled");
+//			$("#httpsRow input, #ftpRow input, #socksRow input, #socksVersionRow input").attr("disabled", "disabled");
 		} else {
 			selectedRow[0].profile.useSameProxy = false;
-			$("#httpsRow, #ftpRow, #socksRow").removeClass("disabled");
-			$("#httpsRow input, #ftpRow input, #socksRow input").removeAttr("disabled");
+			$("#httpsRow, #ftpRow, #socksRow, #socksVersionRow").show();
+//			$("#httpsRow, #ftpRow, #socksRow, #socksVersionRow").removeClass("disabled");
+//			$("#httpsRow input, #ftpRow input, #socksRow input, #socksVersionRow input").removeAttr("disabled");
 		}
 		onFieldModified(true);
 	});
 	$("#httpsProxyHost, #httpsProxyPort").change(function() {
-		selectedRow[0].profile.proxyHttps = joinProxy($("#httpsProxyHost").val(), $("#httpsProxyPort").val());
+		selectedRow[0].profile.proxyHttps = joinProxy($("#httpsProxyHost").val(), $("#httpsProxyPort").val(), 443);
 		onFieldModified(true);
 	});
 	$("#ftpProxyHost, #ftpProxyPort").change(function() {
-		selectedRow[0].profile.proxyFtp = joinProxy($("#ftpProxyHost").val(), $("#ftpProxyPort").val());
+		selectedRow[0].profile.proxyFtp = joinProxy($("#ftpProxyHost").val(), $("#ftpProxyPort").val(), 21);
 		onFieldModified(true);
 	});
 	$("#socksProxyHost, #socksProxyPort").change(function() {
-		selectedRow[0].profile.proxySocks = joinProxy($("#socksProxyHost").val(), $("#socksProxyPort").val());
+		selectedRow[0].profile.proxySocks = joinProxy($("#socksProxyHost").val(), $("#socksProxyPort").val(), 80);
+		onFieldModified(true);
+	});		
+	$("#socksV4, #socksV5").change(function() {
+		selectedRow[0].profile.socksVersion = $("#socksV5").is(":checked") ? 5 : 4;
 		onFieldModified(true);
 	});		
 	$("#proxyExceptions").change(function() {
@@ -105,11 +112,12 @@ function initUI() {
 	$("#cmbDefaultRuleProfile").change(function() {
 		var rule = this.parentNode.parentNode.parentNode.rule;
 		rule.profileId = $("option:selected", this)[0].profile.id;
-		onFieldModified();
+		onFieldModified(false);
 	});
 
 	$("#chkSwitchRules").change(function() {
-		RuleManager.setEnabled($(this).is(":checked"));
+//		RuleManager.setEnabled($(this).is(":checked"));
+		switchRulesEnabled = $(this).is(":checked");
 		if ($(this).is(":checked")) {
 			$("#rulesTable *, #btnNewRule").removeClass("disabled");
 			$("#rulesTable input, #rulesTable select").removeAttr("disabled");
@@ -117,29 +125,53 @@ function initUI() {
 			$("#rulesTable *, #btnNewRule").addClass("disabled");
 			$("#rulesTable input, #rulesTable select").attr("disabled", "disabled");
 		}
-		onFieldModified();
+		onFieldModified(false);
+	});
+	
+	// Network
+	$("#chkConnections").change(function() {
+		if ($(this).is(":checked")) {
+			$("#connectionsTable *").removeClass("disabled");
+			$("#connectionsTable select").removeAttr("disabled");
+		} else {
+			$("#connectionsTable *").addClass("disabled");
+			$("#connectionsTable select").attr("disabled", "disabled");
+		}
+		onFieldModified(false);
+	});
+
+	$("#chkMonitorProxyChanges").change(function() {
+		if ($(this).is(":checked"))
+			$("#chkPreventProxyChanges").removeAttr("disabled").parent().removeClass("disabled");
+		else
+			$("#chkPreventProxyChanges").attr("disabled", "disabled").parent().addClass("disabled");
 	});
 	
 	// General
 	$("#chkQuickSwitch").change(function() {
 		if ($(this).is(":checked")) {
+			$("#quickSwitchTable *").removeClass("disabled");
+			$("#quickSwitchTable input, #quickSwitchTable select").removeAttr("disabled");
+			$("#rdoBinarySwitch").change();
+		} else {
+			$("#quickSwitchTable *").addClass("disabled");
+			$("#quickSwitchTable input, #quickSwitchTable select").attr("disabled", "disabled");
+		}
+		onFieldModified(false);
+	});
+	$("#rdoBinarySwitch, #rdoCycleSwitch").change(function() {
+		if ($("#rdoBinarySwitch").is(":checked")) {
 			$("#quickSwitchTable .option").removeClass("disabled");
 			$("#quickSwitchTable .option select").removeAttr("disabled");
 		} else {
 			$("#quickSwitchTable .option").addClass("disabled");
 			$("#quickSwitchTable .option select").attr("disabled", "disabled");
 		}
-		onFieldModified();
+		onFieldModified(false);
 	});
 
 	$("#chkReapplySelectedProfile, #chkMonitorProxyChanges, #chkPreventProxyChanges, #chkConfirmDeletion").change(function() {
-		onFieldModified();
-	});
-	$("#chkMonitorProxyChanges").change(function() {
-		if ($(this).is(":checked"))
-			$("#chkPreventProxyChanges").removeAttr("disabled").parent().removeClass("disabled");
-		else
-			$("#chkPreventProxyChanges").attr("disabled", "disabled").parent().addClass("disabled");
+		onFieldModified(false);
 	});
 }
 
@@ -175,7 +207,7 @@ function loadOptions() {
 				$("td:first", row).click();
 		}
 	} else if (profiles.length == 0) {
-		var row = newRow();
+		var row = newRow(undefined);
 		if (!selectedRow)
 			$("td:first", row).click();
 	}
@@ -187,15 +219,16 @@ function loadOptions() {
 	RuleManager.load();
 	var defaultRule = RuleManager.getDefaultRule();
 	$("#rulesTable .defaultRow")[0].rule = defaultRule;
-	if (RuleManager.isEnabled())
+	switchRulesEnabled = RuleManager.isEnabled();
+	if (switchRulesEnabled)
 		$("#chkSwitchRules").attr("checked", "checked");
 	
 	$("#chkSwitchRules").change();
 
 	$("#rulesTable .tableRow").remove();
-	var table = $("#rulesTable");
+	table = $("#rulesTable");
 	var rules = RuleManager.getSortedRuleArray();
-	var defaultRule = RuleManager.getDefaultRule();
+	//var defaultRule = RuleManager.getDefaultRule();
 	var rulesTemp = RuleManager.getRules();
 	var lastSelectedRule = selectedRuleRow;
 	selectedRuleRow = undefined;
@@ -206,17 +239,45 @@ function loadOptions() {
 			rulesTemp[rule.id] = rule;
 		}
 
-		var row = newRuleRow(rule);		
+		var row = newRuleRow(rule, false);		
 	}
 //	if (rules.length == 0) {
 //		var row = newRuleRow();
 //	}
 
+	// Network
+	if (Settings.getValue("enableConnections", false))
+		$("#chkConnections").attr("checked", "checked");
+	
+	$("#chkConnections").change();
+	
+	$("#cmbConnection").empty();
+	var connections = ProfileManager.getConnections();	
+	var selectedConnection = Settings.getValue("connectionName");
+	$.each(connections, function(key, connection) {
+		var item = $("<option>").attr("value", connection).text(connection);
+		if (selectedConnection == connection)
+			item.attr("selected", "selected");
+		
+		$("#cmbConnection").append(item);
+	});	
+
+	if (Settings.getValue("monitorProxyChanges", true))
+		$("#chkMonitorProxyChanges").attr("checked", "checked");
+	if (Settings.getValue("preventProxyChanges", false))
+		$("#chkPreventProxyChanges").attr("checked", "checked");
+
+	$("#chkMonitorProxyChanges").change();
+	$("#chkPreventProxyChanges").change();
+	
 	// General
 	if (Settings.getValue("quickSwitch", false))
 		$("#chkQuickSwitch").attr("checked", "checked");
 	
 	$("#chkQuickSwitch").change();
+	
+	if (Settings.getValue("quickSwitchType", "binary") == "cycle")
+		$("#rdoCycleSwitch").attr("checked", "checked").change();
 	
 	$("#cmbProfile1, #cmbProfile2, #cmbDefaultRuleProfile").empty();
 	var directProfile = ProfileManager.directConnectionProfile;
@@ -255,16 +316,10 @@ function loadOptions() {
 
 	if (Settings.getValue("reapplySelectedProfile", true))
 		$("#chkReapplySelectedProfile").attr("checked", "checked");
-	if (Settings.getValue("monitorProxyChanges", true))
-		$("#chkMonitorProxyChanges").attr("checked", "checked");
-	if (Settings.getValue("preventProxyChanges", false))
-		$("#chkPreventProxyChanges").attr("checked", "checked");
 	if (Settings.getValue("confirmDeletion", true))
 		$("#chkConfirmDeletion").attr("checked", "checked");
 	
 	$("#chkReapplySelectedProfile").change();
-	$("#chkMonitorProxyChanges").change();
-	$("#chkPreventProxyChanges").change();
 	$("#chkConfirmDeletion").change();	
 	
 	// Done
@@ -314,7 +369,7 @@ function saveOptions() {
 	// Switch Rules
 	var oldRules = RuleManager.getRules();
 	var rules = {};
-	var rows = $("#rulesTable .tableRow");
+	rows = $("#rulesTable .tableRow");
 	for (var i = 0; i < rows.length; i++) {
 		var row = rows[i];
 		var rule = row.rule;
@@ -335,8 +390,16 @@ function saveOptions() {
 	if (RuleManager.isAutomaticModeEnabled(currentProfile))
 		ProfileManager.applyProfile(RuleManager.getAutomaticModeProfile(true));
 	
+	// Network
+	Settings.setValue("enableConnections", ($("#chkConnections").is(":checked")));
+	Settings.setValue("connectionName", ($("#cmbConnection").val()));
+
+	Settings.setValue("monitorProxyChanges", ($("#chkMonitorProxyChanges").is(":checked")));
+	Settings.setValue("preventProxyChanges", ($("#chkPreventProxyChanges").is(":checked")));
+	
 	// General
 	Settings.setValue("quickSwitch", ($("#chkQuickSwitch").is(":checked")));
+	Settings.setValue("quickSwitchType", ($("#rdoBinarySwitch").is(":checked") ? "binary" : "cycle"));
 	var quickSwitchProfiles = {
 		profile1: $("#cmbProfile1 option:selected")[0].profile.id,
 		profile2: $("#cmbProfile2 option:selected")[0].profile.id
@@ -344,8 +407,6 @@ function saveOptions() {
 	Settings.setObject("quickSwitchProfiles", quickSwitchProfiles);
 
 	Settings.setValue("reapplySelectedProfile", ($("#chkReapplySelectedProfile").is(":checked")));
-	Settings.setValue("monitorProxyChanges", ($("#chkMonitorProxyChanges").is(":checked")));
-	Settings.setValue("preventProxyChanges", ($("#chkPreventProxyChanges").is(":checked")));
 	Settings.setValue("confirmDeletion", ($("#chkConfirmDeletion").is(":checked")));
 	
 	// Done
@@ -376,6 +437,10 @@ function switchTab(tab) {
 		tabId = "tabGeneral";
 		break;
 
+	case "network":
+		tabId = "tabNetwork";
+		break;
+
 	default:
 		tabId = "tabProfiles";
 		break;
@@ -398,7 +463,7 @@ function onFieldModified(isChangeInProfile) {
 	if (ignoreFieldsChanges) // ignore changes when they're really not changes (populating fields)
 		return;
 
-	if (isChangeInProfile) {
+	if (isChangeInProfile && selectedRow != undefined) {
 		delete selectedRow[0].profile.unknown; // so it can be saved (when clicking Save)
 		selectedRow.removeClass("unknown");
 	}
@@ -445,6 +510,7 @@ function newRow(profile) {
 		profile = ProfileManager.normalizeProfile(profile);		
 		$("td:first", row).text(profile.name);
 		$("td:nth(1) div div", row).addClass(profile.color);
+//		$("td:nth(0)", row).addClass("c" + profile.color);
 		row[0].profile = profile;
 		if (profile.unknown)
 			row.addClass("unknown");
@@ -455,11 +521,12 @@ function newRow(profile) {
 			name : profileName,
 			proxyMode: ProfileManager.proxyModes.manual,
 			proxyHttp : "",
-			useSameProxy : true,
+			useSameProxy : false,
 			proxyHttps : "",
 			proxyFtp : "",
 			proxySocks : "",
-			proxyExceptions : "<local>; localhost; 127.0.0.1",
+			socksVersion: 4,
+			proxyExceptions : "localhost; 127.0.0.1; <local>",
 			proxyConfigUrl : ""
 		};
 		
@@ -476,7 +543,7 @@ function deleteRow() {
 		|| confirm("\nAre you sure you want to delete selected profile?" + 
 					"\n\nSelected Profile: (" + row.children[0].innerText + ")")) {
 		
-		if (selectedRow[0] == row)
+		if (selectedRow != undefined && selectedRow[0] == row)
 			onSelectRow({}); // to clear fields.
 		
 		$(row).remove();
@@ -484,7 +551,7 @@ function deleteRow() {
 		saveOptions();
 		loadOptions();
 		extension.setIconInfo();
-		InfoTip.showMessage("Profile Deleted..", InfoTip.types.note);
+		InfoTip.showMessage("Profile Deleted..", InfoTip.types.info);
 	}
 }
 
@@ -500,6 +567,8 @@ function changeColor() {
 	else if (cell.hasClass("red"))
 		color = "yellow";
 	else if (cell.hasClass("yellow"))
+		color = "purple";
+	else if (cell.hasClass("purple"))
 		color = "blue";
 	
 	cell.attr("class", color);
@@ -527,7 +596,7 @@ function onSelectRow(e) {
 	var proxyInfo;
 	$("#profileName").val(profile.name || "");
 	
-	proxyInfo = parseProxy(profile.proxyHttp || "");
+	proxyInfo = parseProxy(profile.proxyHttp || "", 80);
 	$("#httpProxyHost").val(proxyInfo.host);
 	$("#httpProxyPort").val(proxyInfo.port);
 	
@@ -549,17 +618,22 @@ function onSelectRow(e) {
 	}
 	$("#modeManual").change();
 	
-	proxyInfo = parseProxy(profile.proxyHttps || "");
+	proxyInfo = parseProxy(profile.proxyHttps || "", 443);
 	$("#httpsProxyHost").val(proxyInfo.host);
 	$("#httpsProxyPort").val(proxyInfo.port);
 
-	proxyInfo = parseProxy(profile.proxyFtp || "");
+	proxyInfo = parseProxy(profile.proxyFtp || "", 21);
 	$("#ftpProxyHost").val(proxyInfo.host);
 	$("#ftpProxyPort").val(proxyInfo.port);
 
-	proxyInfo = parseProxy(profile.proxySocks || "");
+	proxyInfo = parseProxy(profile.proxySocks || "", 80);
 	$("#socksProxyHost").val(proxyInfo.host);
 	$("#socksProxyPort").val(proxyInfo.port);
+
+	if (profile.socksVersion == 5)
+		$("#socksV5").attr("checked", "checked");
+	else
+		$("#socksV4").attr("checked", "checked");
 	
 	$("#proxyExceptions").val(profile.proxyExceptions || "");
 	
@@ -602,7 +676,7 @@ function exitFieldEditMode(cell) {
 }
 
 function newRuleRow(rule, activate) {
-	if (!rule && !RuleManager.isEnabled())
+	if (!rule && !switchRulesEnabled)
 		return;
 	
 	var table = $("#rulesTable");
@@ -612,7 +686,7 @@ function newRuleRow(rule, activate) {
 	table.append(row);
 	
 	$("td", row).click(function() {
-		if (RuleManager.isEnabled())
+		if (switchRulesEnabled)
 			enterFieldEditMode(this);
 	});
 	$("input", row).blur(function() {
@@ -636,7 +710,7 @@ function newRuleRow(rule, activate) {
 		}
 	});
 
-	var combobox = $("select", row);
+	var combobox = $("select[name='profileId']", row);
 	var profiles = ProfileManager.getSortedProfileArray();
 	var directProfile = ProfileManager.directConnectionProfile;
 	var item = $("<option>").attr("value", directProfile.id).text(directProfile.name);
@@ -656,6 +730,16 @@ function newRuleRow(rule, activate) {
 		anyValueModified = true;
 	});
 	
+	combobox = $("select[name='patternType']", row);
+	if (rule)
+		$("option[value='" + rule.patternType + "']", combobox).attr("selected", "selected");
+	
+	combobox.change(function() {
+		var rule = this.parentNode.parentNode.parentNode.rule;
+		rule.patternType = $("option:selected", this).val();
+		anyValueModified = true;
+	});
+	
 	if (rule) {
 		row[0].rule = rule;
 		$(".ruleName", row).text(rule.name);
@@ -665,6 +749,7 @@ function newRuleRow(rule, activate) {
 		row[0].rule = {
 			name: ruleName,
 			urlPattern: "",
+			patternType: RuleManager.patternTypes.wildcard,
 			profileId: ProfileManager.directConnectionProfile.id
 		};
 	}
@@ -676,7 +761,7 @@ function newRuleRow(rule, activate) {
 
 function deleteRuleRow() {
 	var row = event.target.parentNode.parentNode;
-	if (RuleManager.isEnabled()
+	if (switchRulesEnabled
 		&& (!Settings.getValue("confirmDeletion", true) 
 			|| confirm("\nAre you sure you want to delete selected rule?" + 
 						"\n\nSelected Rule: (" + row.children[0].innerText + ")"))) {
@@ -684,7 +769,7 @@ function deleteRuleRow() {
 		saveOptions();
 		loadOptions();
 		extension.setIconInfo();
-		InfoTip.showMessage("Rule Deleted..", InfoTip.types.note);
+		InfoTip.showMessage("Rule Deleted..", InfoTip.types.info);
 	}
 }
 
@@ -706,12 +791,24 @@ function getQueryParams() {
 
 function checkPageParams() {
 	var params = getQueryParams();
-	if (params["firstTime"] == "true") 
+	if (params["firstTime"] == "true") {
 		InfoTip.showMessage(
-			"Welcome first time user! To start using Switchy, set up some proxy profiles below and then press 'Save'.", 
-			InfoTip.types.note, 25000);
-
-	switchTab(params["tab"]);
+			"Welcome first time user!<br>" +
+			"To start using Switchy set up some proxy profiles below and then press 'Save'.", 
+			InfoTip.types.note, -1);
+	}
+	if (params["rulesFirstTime"] == "true") {
+		InfoTip.showMessage(
+			"This is the first time you use Auto Switch Mode. Here is how to start:<br><ol>" +
+			"<li>Set up the 'Default Rule' below, this rule will be applied if no other rule is matched.</li>" +
+			"<li>Add some rules (press 'New Rule' button), for each rule you should specify a " +
+				"URL Pattern and a Proxy Profile.</li>" +
+			"<li>Press 'Save' and 'Close' to close this tab.</li></ol>", 
+			InfoTip.types.note, -1);
+	}
+//	if (params["tab"] != undefined) {
+		switchTab(params["tab"]);
+//	}
 }
 
 function parseProxy(proxy, port) {
@@ -723,10 +820,12 @@ function parseProxy(proxy, port) {
 	}
 	
 	proxy = fixProxyString(proxy, port);
-	var parts = proxy.split(":");
+	var pos = proxy.lastIndexOf(":");
+	var host = (pos > 0 ? proxy.substring(0, pos) : proxy);
+	var port = (pos > 0 ? proxy.substring(pos + 1) : "");
 	return {
-		host : parts[0],
-		port : parts[1]
+		host : host,
+		port : port
 	};
 }
 

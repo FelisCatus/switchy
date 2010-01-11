@@ -35,9 +35,18 @@
 		<tr>
 			<td>
 				<div id="logger">
-					<button id="btnClearLog" class="button" onclick="clearLog();">Clear Log</button>&nbsp;
-					<button id="btnDiagnose" class="button" onclick="diagnose();">Diagnose</button>
-					<br />
+					<table>
+						<tr>
+							<td width="100%">
+								<button id="btnClearLog" class="button" onclick="clearLog();">Clear Log</button>&nbsp;
+								<!--button id="btnSendLog" class="button" onclick="sendLog();">** Send Error Log</button-->
+							</td>
+							<td nowrap="nowrap">
+								<button id="btnDiagnose" class="button" onclick="diagnose();">Diagnose</button>&nbsp;
+								<button id="btnReset" class="button" onclick="resetOptions();">Reset Options</button>
+							</td>
+						</tr>
+					</table>
 					<textarea id="console"></textarea>
 				</div>
 			</td>

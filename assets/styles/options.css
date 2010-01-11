@@ -8,13 +8,13 @@
 
 body {
 	padding: 0 18%;
-	color: #4e607d;
 	cursor: default;
 	background-color: #fafcff;
 	-webkit-user-select: none;
 }
 
 body, td, input, select, textarea, button {
+	color: #4e607d;
 	font: menu;
 	font-size: 9pt;
 }
@@ -110,7 +110,7 @@ hr {
 }
 
 #tabsContainer div {
-	width: 130px;
+	width: 125px;
 	vertical-align: bottom;
 	font-size: 9pt;
 	font-weight: bold;
@@ -156,7 +156,7 @@ hr {
 	cursor: pointer;
 }
 
-#tabGeneralBody, #tabRulesBody {
+#tabProfilesBody, #tabGeneralBody, #tabNetworkBody, #tabRulesBody {
 	display: none;
 }
 
@@ -213,7 +213,15 @@ hr {
 	padding: 0px;
 }
 
-#?proxyTable th div {
+#proxyTable th div, .tab .title {
+	text-align: left;
+	padding: 5px 0px 8px 0px;
+	margin-bottom: 0px;
+	font-size: 9pt;
+	font-weight: bold;
+}
+
+?#proxyTable th div {
 	vertical-align: middle;
 	padding: 6px;
 	font-size: 9pt;
@@ -223,12 +231,19 @@ hr {
 	border-radius: 3px 3px 0px 0px;
 }
 
-#proxyTable th div, .tab .title {
-	text-align: left;
-	padding: 5px 0px 8px 0px;
-	margin-bottom: 0px;
+?#proxyTable th div {
+	?margin-bottom: 1px;
+	?height: 28px;
+	padding: 5px;
+	padding-left: 8px;
 	font-size: 9pt;
 	font-weight: bold;
+	border: solid 1px #d0d6d9;
+	?border-radius: 3px 3px 0px 0px;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f2f7fe), color-stop(1, #e1eaf6));
+	background: -webkit-gradient(linear, left top, left bottom, 
+		color-stop(0, #fff), color-stop(0.48, hsl(217, 73%, 96%)), color-stop(0.51, hsl(217, 62%, 94%)));
+	-webkit-box-shadow: 0px 0px 1px #ccc;
 }
 
 #proxyTable td {
@@ -262,6 +277,9 @@ hr {
 
 #proxyProfiles td {
 	height: 28px;
+	border-left: solid 1px #f0f4f6;
+	border-top: solid 1px #e0e4e6;
+	border-bottom: solid 1px #f0f4f6;
 	border: solid 1px #e0e4e6;
 	overflow: hidden;
 	vertical-align: middle;
@@ -270,16 +288,50 @@ hr {
 	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f8fbfe), color-stop(1, #eef3fd));
 }
 
+#proxyProfiles tr:nth-child(odd) td {
+	background-color: #f8fafc;
+}
+
+#proxyProfiles td:first-child {
+	?border-left: none;
+}
+
+#rulesTable {
+	border-spacing: 0px;
+	-webkit-box-shadow: 0px 0px 2px #ddd;
+}
+
+#rulesTable th {
+	border-left: solid 1px #e2e7e9;
+	border-bottom: solid 1px #d7dbe0;
+	font-weight: bold;
+	color: #6e809d;
+}
+
 #rulesTable td {
-	height: 28px;
-	border: solid 1px #e2e7e9;
-	background-color: #f9fbfe;
+	height: 29px;
+	border-top: solid 1px #e2e7e9;
+	border-left: solid 1px #e2e7e9;
+	background-color: #fafcfe;
 	overflow: hidden;
 	padding: 1px;
+	?white-space: nowrap;
+}
+
+#rulesTable tr:nth-child(odd) td {
+	background-color: #f8fafc;
+}
+
+#rulesTable .defaultRow td {
+	background-color: #f0f3f4 !important;
+}
+
+#rulesTable td:first-child, #rulesTable th:first-child {
+	border-left: none;
 }
 
 #proxyProfiles td:hover {
-	background-color: #f8fbfe;
+	?background-color: #f8fbfe;
 	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f8fbfe), color-stop(1, #f2f7fe));
 }
 
@@ -291,7 +343,7 @@ hr {
 	background-color: #e0e9ea;
 	background-color: #dae4ff !important;
 	background: -webkit-gradient(linear, left top, left bottom, 
-		color-stop(0, #fff), color-stop(0.48, hsl(217, 73%, 95%)), color-stop(0.51, hsl(217, 62%, 94%)));
+		color-stop(0, hsl(217, 62%, 95%)), color-stop(1, hsl(217, 62%, 91%)));
 }
 
 #proxyProfiles td:first-child {
@@ -312,11 +364,42 @@ hr {
 
 #rulesTable td select {
 	display: block;
+	?border: solid 1px #f9fbfe;
+	border: solid 1px #ccddee;
+	?background-color: #f9fbfe;
+	min-height: 22px;
+	height: 22px;
+	margin: 0px 2px 0px 0px;
+}
+
+?#rulesTable td select:hover {
+	background-color: #fff;
+	border: solid 1px #ccddee;
+}
+
+#rulesTable td input[type='radio'] {
+	display: inline-block;
+	width: auto;
 }
 
 #rulesTable td input {
 	?display: block;
 	font-size: 9pt;
+	z-index: 30;
+}
+
+#rulesTable td .tag {
+	?display: inline;
+	position: relative;
+	z-index: 100;
+	float: right;
+	font-size: 8pt;
+	background-color: #8ac;
+	color: #fff;
+	padding: 2px;
+	margin-right: 4px;
+	?border: solid 1px #d1dbdf;
+	border-radius: 3px;
 }
 
 #proxyProfiles td span, #rulesTable td span {
@@ -357,6 +440,27 @@ hr {
 	outline: solid 1px #dc7;
 }
 
+#proxyProfiles .purple {
+	background-color: #d497ee;
+	outline: 1px solid #b477ce;
+}
+
+#proxyProfiles .cblue {
+	color: #47b;
+}
+
+#proxyProfiles .cgreen {
+	color: #5b5;
+}
+
+#proxyProfiles .cred {
+	color: #d63;
+}
+
+#proxyProfiles .cyellow {
+	color: #ca0;
+}
+
 #proxyProfiles .delete, #rulesTable .delete {
 	background: url("../images/delete.png") center no-repeat;
 	cursor: pointer;
@@ -371,7 +475,7 @@ hr {
 	background-color: #fbf9f4;
 }
 
-#profileDetails, #tabGeneralBody table, #tabRulesBody .optionGroup {
+#profileDetails, #tabGeneralBody table, #tabNetworkBody table, #tabRulesBody .optionGroup {
 	width: 100%;
 	height: 100%;
 	border: solid 1px #d1dadd;
@@ -419,12 +523,12 @@ hr {
 	margin: 6px 0;
 }
 
-#profileDetails .disabled, .tab .disabled {
+#profileDetails .disabled, .tab .disabled, .tab .disabled * {
 	color: #aaa;
 }
 
 #profileDetails .indent td:first-child, .tab .indent td:first-child {
-	padding-left: 22px;
+	padding-left: 22px !important;
 }
 
 .tab div.indent {
@@ -440,22 +544,18 @@ hr {
 	padding: 10px 0px;
 }
 
-#tabGeneralBody td, #tabRulesBody td {
+#tabGeneralBody td, #tabNetworkBody td, #tabRulesBody td {
 	white-space: nowrap;
 	padding: 2px;
 }
 
-#tabGeneralBody select, #tabRulesBody select {
+#tabGeneralBody select, #tabNetworkBody select, #tabRulesBody select {
 	width: 200px;
 	height: 140%;
 }
 
-#tabGeneralBody td:nth-child(2), #tabRulesBody td:nth-child(2) {
+#tabGeneralBody td:nth-child(2), #tabNetworkBody td:nth-child(2), #tabRulesBody td:nth-child(2) {
 	width: 100%;
-}
-
-#tabRulesBody .defaultRow td {
-	background-color: #f0f3f4;
 }
 
 #proxyList {

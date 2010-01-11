@@ -14,6 +14,7 @@ var refreshInterval = 10000;
 var refreshTimer = undefined;
 var newVersion = false;
 var notifyOnNewVersion = true;
+var currentProfile = undefined;
 var plugin;
 
 function init() {
@@ -27,9 +28,19 @@ function init() {
 	if (!checkFirstTime())
 		checkNewVersion();
 	
-	setIconInfo();
-	monitorProxyChanges();
+	setIconInfo(undefined);
+	monitorProxyChanges(false);
 	diagnose();
+	
+	chrome.tabs.onSelectionChanged.addListener(function(tabId, selectInfo) {
+		chrome.tabs.get(tabId, function(tab) {
+			setAutoSwitchIcon(tab.url);
+		});
+	});
+	chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+		if (changeInfo.status == "complete")
+			setAutoSwitchIcon(tab.url);
+	});
 }
 
 function loadManifestInfo() {
@@ -61,6 +72,9 @@ function checkFirstTime() {
 
 function checkNewVersion() {
 	if (notifyOnNewVersion && Settings.getValue("version") != appVersion) {
+		
+		if (Settings.getValue("version") == "1.4.1") return; //// TODO remove this
+		
 		setIconTitle("You've been updated to a new version (" + appVersion + ")");
 		setIconBadge(appVersion);
 		newVersion = true;
@@ -129,10 +143,15 @@ function setIconInfo(profile, preventProxyChanges) {
 		}
 	}
 	
+	currentProfile = profile;
 	var autoProfile = RuleManager.getAutomaticModeProfile();
 	if (RuleManager.isAutomaticModeEnabled(profile)) {
-		profile = autoProfile;
-		profile.proxyConfigUrl = "";
+//		profile = autoProfile;
+//		profile.proxyConfigUrl = "";
+//		profile.color = "auto-blue";
+		
+		setAutoSwitchIcon();
+		return;
 	}
 	
 	var title = appName + "\n";	
@@ -148,13 +167,39 @@ function setIconInfo(profile, preventProxyChanges) {
 	setIconTitle(title);
 }
 
+function setAutoSwitchIcon(url) {
+	if (!RuleManager.isAutomaticModeEnabled(currentProfile))
+		return;
+	
+	if (url == undefined) {
+		chrome.tabs.getSelected(undefined, function(tab) {
+			setAutoSwitchIcon(tab.url);
+		});
+		return;
+	}
+	
+	var rule = RuleManager.getAssociatedRule(url) || RuleManager.getDefaultRule();
+	var color = undefined;
+	var profileName = ProfileManager.directConnectionProfile.name;
+	if (rule != undefined) {
+		var profile = ProfileManager.getProfile(rule.profileId);
+		color = profile.color;
+		profileName = profile.name;
+	}
+	var iconPath = iconDir + "icon-auto-" + (color || "blue") + ".png";
+	chrome.browserAction.setIcon({ path: iconPath });
+
+	var title = appName + "\nAuto Switch Mode\nActive Page Proxy: " + profileName;	
+	setIconTitle(title);
+}
+
 function monitorProxyChanges(checkIfMonitorRunning) {
 	if (checkIfMonitorRunning && refreshTimer)
 		return;
 	
 	if (Settings.getValue("monitorProxyChanges", true)) {
 		setIconInfo(undefined, Settings.getValue("preventProxyChanges", false));
-		refreshTimer = setTimeout(monitorProxyChanges, refreshInterval);
+		refreshTimer = setTimeout(monitorProxyChanges, refreshInterval, undefined);
 	}
 	else
 		refreshTimer = undefined;

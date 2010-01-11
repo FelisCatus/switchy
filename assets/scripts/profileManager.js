@@ -19,7 +19,8 @@ ProfileManager.proxyModes = {
 ProfileManager.directConnectionProfile = {
 	id: "direct",
 	name: "[Direct Connection]",
-	proxyMode: ProfileManager.proxyModes.direct
+	proxyMode: ProfileManager.proxyModes.direct,
+	color: "inactive"
 };
 
 ProfileManager.currentProfileName = "<Current Profile>";
@@ -52,7 +53,7 @@ ProfileManager.getProfiles = function getProfiles() {
 };
 
 ProfileManager.setProfiles = function setProfiles(profiles) {
-	var profiles = $.extend(true, {}, profiles);
+	profiles = $.extend(true, {}, profiles);
 	ProfileManager.profiles = profiles;
 };
 
@@ -62,20 +63,16 @@ ProfileManager.getSortedProfileArray = function getSortedProfileArray() {
 	for (var i in profiles)
 		profileArray[profileArray.length] = profiles[i];
 
-	profileArray = profileArray.sort(function(profile1, profile2) {
-		var name1 = profile1.name.toLowerCase();
-		var name2 = profile2.name.toLowerCase();
-		var length = Math.min(name1.length, name2.length);
-		for (var i = 0; i < length; i++) {
-			var ch1 = name1.charCodeAt(i);
-			var ch2 = name2.charCodeAt(i);
-			if (ch1 != ch2)
-				return ch1 - ch2;
-		}
-		
-		return name1.length - name2.length;
-	});
-	
+	profileArray = profileArray.sort(Utils.compareNamedObjects);
+	return profileArray;
+};
+
+ProfileManager.getSortedProfileIdArray = function getSortedProfileIdArray() {
+	var profiles = ProfileManager.getSortedProfileArray();
+	var profileArray = [];
+	for (var i in profiles)
+		profileArray[profileArray.length] = profiles[i].id;
+
 	return profileArray;
 };
 
@@ -127,6 +124,10 @@ ProfileManager.getCurrentProfile = function getCurrentProfile() {
 	profile.proxyConfigUrl = proxyConfigUrl;
 	profile = ProfileManager.normalizeProfile(profile);
 	
+	if (RuleManager.isModifiedSocksProfile(profile)) {
+		profile.proxyMode = ProfileManager.proxyModes.manual;
+	}
+	
 	var foundProfile = ProfileManager.contains(profile);
 	if (foundProfile)
 		return foundProfile;
@@ -144,15 +145,23 @@ ProfileManager.applyProfile = function applyProfile(profile) {
 	Settings.setObject("selectedProfile", profile);
 	
 	if (profile.isAutomaticModeProfile)
-		RuleManager.applyRules();
+		RuleManager.saveAutoPacScript();
+	else
+		profile = ProfileManager.handleSocksProfile(profile);
 	
 	var proxyString = ProfileManager.buildProxyString(profile);
+	
+	var connection = "";
+	if (Settings.getValue("enableConnections", false))
+		connection = Settings.getValue("connectionName");
+	
 	try {
 		var result;
 		if (direct) {
-			result = plugin.setDirect(0);
+			result = plugin.setDirect(connection);
 		} else {
-			result = plugin.setProxy(profile.proxyMode, proxyString, profile.proxyExceptions, profile.proxyConfigUrl);
+			result = plugin.setProxy(profile.proxyMode, proxyString, profile.proxyExceptions, 
+									 profile.proxyConfigUrl, connection);
 		}
 		
 		if (result != 0 || result != "0")
@@ -160,9 +169,36 @@ ProfileManager.applyProfile = function applyProfile(profile) {
 		
 		plugin.notifyChanges(0);
 	} catch(ex) {
-		Logger.log("Plugin Error @ProfileManager.applyProfile(" + ProfileManager.profileToString(profile) + ") > " +
+		Logger.log("Plugin Error @ProfileManager.applyProfile(" + ProfileManager.profileToString(profile, false) + ") > " +
 			ex.toString(), Logger.types.error);
 	}
+};
+
+ProfileManager.handleSocksProfile = function handleSocksProfile(profile) {
+	// TODO if (windows || gnome) only handle SOCKS5
+	if (profile.proxyMode == ProfileManager.proxyModes.manual && profile.proxySocks.trim().length > 0) {
+		RuleManager.saveSocksPacScript(profile);
+		profile = $.extend(true, {}, profile);
+		profile.proxyMode = ProfileManager.proxyModes.auto;
+		profile.proxyConfigUrl = RuleManager.getSocksPacScriptPath(true);
+	}
+	
+	return profile;
+};
+
+ProfileManager.getConnections = function getConnections() {
+	var plugin = chrome.extension.getBackgroundPage().plugin;
+	var connections;
+	
+	try {
+		connections = plugin.getConnections(0);
+	} catch(ex) {
+		Logger.log("Plugin Error @ProfileManager.getConnections() > " +
+			ex.toString(), Logger.types.error);
+		
+		return [];
+	}
+	return connections.split("|");
 };
 
 ProfileManager.profileToString = function profileToString(profile, prettyPrint) {
@@ -173,23 +209,24 @@ ProfileManager.profileToString = function profileToString(profile, prettyPrint) 
 	if (profile.name != undefined)
 		result.push(profile.name); 
 	
-	if (profile.proxyHttp != undefined && profile.proxyHttp.trim().length > 0)
-		result.push("HTTP: " + profile.proxyHttp); 
+	if (profile.proxyMode == ProfileManager.proxyModes.manual) {
+		if (profile.proxyHttp != undefined && profile.proxyHttp.trim().length > 0)
+			result.push("HTTP: " + profile.proxyHttp); 
+		
+		if (!profile.useSameProxy) {
+			if (profile.proxyHttps != undefined && profile.proxyHttps.trim().length > 0)
+				result.push("HTTPS: " + profile.proxyHttps); 
 	
-	if (!profile.useSameProxy) {
-		if (profile.proxyHttps != undefined && profile.proxyHttps.trim().length > 0)
-			result.push("HTTPS: " + profile.proxyHttps); 
-
-		if (profile.proxyFtp != undefined && profile.proxyFtp.trim().length > 0)
-			result.push("FTP: " + profile.proxyFtp); 
-
-		if (profile.proxySocks != undefined && profile.proxySocks.trim().length > 0)
-			result.push("Socks: " + profile.proxySocks); 
+			if (profile.proxyFtp != undefined && profile.proxyFtp.trim().length > 0)
+				result.push("FTP: " + profile.proxyFtp); 
+	
+			if (profile.proxySocks != undefined && profile.proxySocks.trim().length > 0)
+				result.push("SOCKS" + profile.socksVersion + ": " + profile.proxySocks); 
+		}
+	} else {
+//		if (profile.proxyConfigUrl != undefined && profile.proxyConfigUrl.trim().length > 0)
+			result.push("PAC Script: " + profile.proxyConfigUrl);
 	}
-
-	if (profile.proxyConfigUrl != undefined && profile.proxyConfigUrl.trim().length > 0)
-		result.push("Config Script: " + profile.proxyConfigUrl);
-	
 	return result.join("\n");
 };
 
@@ -214,6 +251,10 @@ ProfileManager.parseProxyString = function parseProxyString(proxyString) {
 				profile.proxyFtp = part.substring(4);
 			} else if (part.indexOf("socks=") == 0) {
 				profile.proxySocks = part.substring(6);
+				profile.socksVersion = 4;
+			} else if (part.indexOf("socks5=") == 0) {
+				profile.proxySocks = part.substring(6);
+				profile.socksVersion = 5;
 			}
 		}
 	} else {
@@ -241,7 +282,7 @@ ProfileManager.buildProxyString = function buildProxyString(profile) {
 		proxy.push("ftp=" + profile.proxyFtp);
 	
 	if (profile.proxySocks)
-		proxy.push("socks=" + profile.proxySocks);
+		proxy.push("socks=" + profile.proxySocks); // TODO: handle Socks v5
 	
 	proxy = proxy.join(";");
 	return proxy;
@@ -256,6 +297,7 @@ ProfileManager.normalizeProfile = function normalizeProfile(profile) {
 		proxyHttps : "",
 		proxyFtp : "",
 		proxySocks : "",
+		socksVersion : 4,
 		proxyExceptions : "",
 		proxyConfigUrl : "",
 		color: "blue"
@@ -313,7 +355,8 @@ ProfileManager.equals = function equals(profile1, profile2) {
 
 		return (profile1.proxyHttps == profile2.proxyHttps
 				&& profile1.proxyFtp == profile2.proxyFtp
-				&& profile1.proxySocks == profile2.proxySocks);
+				&& profile1.proxySocks == profile2.proxySocks
+				/*&& profile1.socksVersion == profile2.socksVersion*/);
 	}
 	
 	if (profile1.proxyMode == ProfileManager.proxyModes.auto)
