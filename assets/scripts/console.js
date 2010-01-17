@@ -6,6 +6,12 @@
 //                                                                       //
 /////////////////////////////////////////////////////////////////////////*/
 
+var os = {
+	isMac: (/mac/i).test(navigator.userAgent), // maybe should test |navigator.platform| instead?
+	isWindows: (/win/i).test(navigator.userAgent),
+	isLinux: (/linux/i).test(navigator.userAgent)
+};
+
 var extension;
 var Logger;
 
@@ -25,6 +31,66 @@ function initLog() {
 	Logger.addEventListener(Logger.events.onLog, function(e) {
 		loadLog();
 	});
+	
+	var plugin = extension.plugin;
+	
+	// Test #1
+	$("#test1 .title").removeClass("inactive");
+	if (typeof plugin.setProxy == "function") {
+		$("#test1 .icon").addClass("success");
+		
+		// Test #2
+		$("#test2 .title").removeClass("inactive");
+		try {
+			var pluginDiagnoseResult = plugin.diagnose(0);
+			if (pluginDiagnoseResult == "OK") {
+				$("#test2 .icon").addClass("success");
+				
+				// Test #3
+				$("#test3 .title").removeClass("inactive");
+				try {
+					var pluginCheckResult = plugin.checkEnvironment(0);
+					if (pluginCheckResult == "OK") {
+						Logger.log("Everything is OK", Logger.types.success);
+						$("#test3 .icon").addClass("success");
+					}
+					else {
+						Logger.log("Plugin error: " + pluginCheckResult, Logger.types.error);
+						$("#test3 .icon").addClass("error");
+						$("#test3 .description").text("(Plugin error: " + pluginCheckResult + ")");
+						// TODO: (Your Linux distribution isn't supported yet. 
+						// Currently only Gnome and KDE based distributions are supported)
+					}
+				} catch (e) {
+					Logger.log("Error checking the environment!", Logger.types.error);
+					$("#test3 .icon").addClass("error");
+					$("#test3 .description").text("(Error checking the environment!)");
+				}			
+			}
+			else {
+				Logger.log("Plugin error: " + pluginDiagnoseResult, Logger.types.error);
+				$("#test2 .icon").addClass("error");
+				$("#test2 .description").text("(Plugin error: " + pluginDiagnoseResult + ")");
+			}
+		} catch (e) {
+			Logger.log("Error diagnosing the plugin!", Logger.types.error);
+			$("#test2 .icon").addClass("error");
+			$("#test2 .description").text("(Error diagnosing the plugin!)");
+		}
+	}
+	else {
+		$("#test1 .icon").addClass("error");
+		if (os.isMac)
+			$("#test1 .description").html("(Sorry, Mac OS X isn't supported yet, you can star this " +
+					"<a href='http://code.google.com/p/switchy/issues/detail?id=4'>issue</a> " +
+					"to keep track of changes)");
+		else
+			$("#test1 .description").html(
+					"(Can't load the plugin, please " +
+					"<a href='http://code.google.com/p/switchy/issues/list'>" +
+					"file an issue</a> about this problem)");
+	}
+
 }
 
 function loadLog() {

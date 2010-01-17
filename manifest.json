@@ -8,7 +8,10 @@
 	"options_page": "options.html",
 	
 	"permissions": [
-		"tabs"
+		"tabs",
+		"bookmarks",
+		"http://*/",
+		"https://*/"
 	],
 	"browser_action": {
 		"default_icon": "assets/images/icon-blue.png",

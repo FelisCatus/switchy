@@ -9,7 +9,7 @@
 body {
 	padding: 0 18%;
 	cursor: default;
-	background-color: #fafcff;
+	background-color: #fafbff;
 	-webkit-user-select: none;
 }
 
@@ -105,7 +105,7 @@ hr {
 
 #tabsContainer {
 	border-bottom: solid 1px #d1dbdf;
-	background-color: #fafcff;
+	background-color: #fafbff;
 	margin-bottom: -4px;
 }
 
@@ -250,7 +250,7 @@ hr {
 	vertical-align: top;
 }
 
-#proxyProfiles, #rulesTable {
+#proxyProfiles, .rulesTable {
 	width: 100%;
 	height: 100%;
 	border: solid 1px #d0d6d9;
@@ -260,11 +260,11 @@ hr {
 	table-layout: fixed;
 }
 
-#proxyProfiles th, #proxyProfiles td, #rulesTable th, #rulesTable td {
+#proxyProfiles th, #proxyProfiles td, .rulesTable th, .rulesTable td {
 	text-align: left;
 }
 
-#proxyProfiles th, #rulesTable th {
+#proxyProfiles th, .rulesTable th {
 	height: 28px;
 	padding-left: 8px;
 	font-size: 9pt;
@@ -284,7 +284,7 @@ hr {
 	overflow: hidden;
 	vertical-align: middle;
 	cursor: pointer;
-	background-color: #fafcff;
+	background-color: #fafbff;
 	?background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f8fbfe), color-stop(1, #eef3fd));
 }
 
@@ -296,19 +296,19 @@ hr {
 	?border-left: none;
 }
 
-#rulesTable {
+.rulesTable {
 	border-spacing: 0px;
 	-webkit-box-shadow: 0px 0px 2px #ddd;
 }
 
-#rulesTable th {
+.rulesTable th {
 	border-left: solid 1px #e2e7e9;
 	border-bottom: solid 1px #d7dbe0;
 	font-weight: bold;
 	color: #6e809d;
 }
 
-#rulesTable td {
+.rulesTable td {
 	height: 29px;
 	border-top: solid 1px #e2e7e9;
 	border-left: solid 1px #e2e7e9;
@@ -318,15 +318,15 @@ hr {
 	?white-space: nowrap;
 }
 
-#rulesTable tr:nth-child(odd) td {
+.rulesTable tr:nth-child(odd) td {
 	background-color: #f8fafc;
 }
 
-#rulesTable .defaultRow td {
+.rulesTable .defaultRow td {
 	background-color: #f0f3f4 !important;
 }
 
-#rulesTable td:first-child, #rulesTable th:first-child {
+.rulesTable td:first-child, .rulesTable th:first-child {
 	border-left: none;
 }
 
@@ -354,21 +354,21 @@ hr {
 	text-align: center;
 }
 
-#proxyProfiles td input, #rulesTable td input, #rulesTable td select {
-	width: 100%;
+#proxyProfiles td input, .rulesTable td input, .rulesTable td select {
+	width: 100% !important;
 	min-height: 24px;
 	height: 100%;
 	padding-left: 3px;
 	display: none;
 }
 
-#rulesTable td select {
+.rulesTable td select {
 	display: block;
 	?border: solid 1px #f9fbfe;
 	border: solid 1px #ccddee;
 	?background-color: #f9fbfe;
 	min-height: 22px;
-	height: 22px;
+	height: 22px !important;
 	margin: 0px 2px 0px 0px;
 }
 
@@ -377,18 +377,18 @@ hr {
 	border: solid 1px #ccddee;
 }
 
-#rulesTable td input[type='radio'] {
+.rulesTable td input[type='radio'] {
 	display: inline-block;
 	width: auto;
 }
 
-#rulesTable td input {
+.rulesTable td input {
 	?display: block;
 	font-size: 9pt;
 	z-index: 30;
 }
 
-#rulesTable td .tag {
+.rulesTable td .tag {
 	?display: inline;
 	position: relative;
 	z-index: 100;
@@ -402,11 +402,15 @@ hr {
 	border-radius: 3px;
 }
 
-#proxyProfiles td span, #rulesTable td span {
+#ruleListsTable input {
+	display: block;
+}
+
+#proxyProfiles td span, .rulesTable td span {
 	padding-left: 6px;
 }
 
-#proxyProfiles td img, #rulesTable td img {
+#proxyProfiles td img, .rulesTable td img {
 	cursor: pointer;
 }
 
@@ -461,18 +465,27 @@ hr {
 	color: #ca0;
 }
 
-#proxyProfiles .delete, #rulesTable .delete {
+#proxyProfiles .delete, .rulesTable .delete {
 	background: url("../images/delete.png") center no-repeat;
 	cursor: pointer;
 	height: 100%;
 }
 
-#proxyProfiles .templateRow, #rulesTable .templateRow {
+#proxyProfiles .templateRow, .rulesTable .templateRow {
 	display: none;
 }
 
 #proxyProfiles .unknown td {
 	background-color: #fbf9f4;
+	cursor: default;
+}
+
+#proxyProfiles .unknown td:nth-child(2) * {
+	display: none;
+}
+
+#proxyProfiles .unknown .delete {
+	display: none;
 }
 
 #profileDetails, #tabGeneralBody table, #tabNetworkBody table, #tabRulesBody .optionGroup {
@@ -558,6 +571,30 @@ hr {
 	width: 100%;
 }
 
+#ruleListTable {
+	?table-layout: fixed;
+}
+
+#ruleListTable td:nth-child(2) {
+	width: 70%;
+}
+
+#ruleListTable td:nth-child(5) {
+	width: 30%;
+}
+
+#ruleListTable td:nth-child(3) {
+	width: 0%;
+}
+
+#ruleListTable select {
+	height: 22px;
+}
+
+#ruleListTable input, #ruleListTable select {
+	width: 100%;
+}
+
 #proxyList {
 	width: 100%;
 	margin-top: -5px;
@@ -592,6 +629,43 @@ hr {
 
 #console {
 	width: 100%;
-	height: 350px;
-	margin-top: 10px;
+	height: 250px;
+	?margin-top: 10px;
+}
+
+#logSummary {
+	border-spacing: 6px;
+}
+
+#logSummary td {
+	vertical-align: top;
+	-webkit-user-select: text;
+	cursor: text;
+}
+
+#logSummary .icon {
+	width: 16px;
+	height: 16px;
+}
+
+#logSummary .icon.success {
+	background: url(/assets/images/accept.png) center top no-repeat;
+}
+
+#logSummary .icon.error {
+	background: url(/assets/images/error.png) center top no-repeat;
+}
+
+#logSummary .title {
+	white-space: nowrap;
+}
+
+#logSummary .description {
+	color: #888;
+	padding-left: 10px;
+	font-size: 9pt;
+}
+
+#logSummary .inactive {
+	opacity: 0.4;
 }
