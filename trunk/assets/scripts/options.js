@@ -29,8 +29,6 @@ function init() {
 	checkPageParams();
 	
 	HelpToolTip.enableTooltips();
-	
-//	newRuleRow();
 }
 
 function initUI() {
@@ -119,12 +117,28 @@ function initUI() {
 //		RuleManager.setEnabled($(this).is(":checked"));
 		switchRulesEnabled = $(this).is(":checked");
 		if ($(this).is(":checked")) {
-			$("#rulesTable *, #btnNewRule").removeClass("disabled");
-			$("#rulesTable input, #rulesTable select").removeAttr("disabled");
+			$("#switchRules *, #btnNewRule").removeClass("disabled");
+			$("#switchRules input, #switchRules select").removeAttr("disabled");
+			$("#chkRuleList").change();
 		} else {
-			$("#rulesTable *, #btnNewRule").addClass("disabled");
-			$("#rulesTable input, #rulesTable select").attr("disabled", "disabled");
+			$("#switchRules *, #btnNewRule").addClass("disabled");
+			$("#switchRules input, #switchRules select").attr("disabled", "disabled");
 		}
+		onFieldModified(false);
+	});
+
+	$("#chkRuleList").change(function() {
+		if ($(this).is(":checked")) {
+			$("#ruleListsTable *").removeClass("disabled");
+			$("#ruleListsTable input, #ruleListsTable select").removeAttr("disabled");
+		} else {
+			$("#ruleListsTable *").addClass("disabled");
+			$("#ruleListsTable input, #ruleListsTable select").attr("disabled", "disabled");
+		}
+		onFieldModified(false);
+	});
+
+	$("#txtRuleListUrl, #cmbRuleListProfile, #cmbRuleListReload").change(function() {
 		onFieldModified(false);
 	});
 	
@@ -145,6 +159,10 @@ function initUI() {
 			$("#chkPreventProxyChanges").removeAttr("disabled").parent().removeClass("disabled");
 		else
 			$("#chkPreventProxyChanges").attr("disabled", "disabled").parent().addClass("disabled");
+	});
+
+	$("#cmbConnection, #chkMonitorProxyChanges, #chkPreventProxyChanges").change(function() {
+		onFieldModified(false);
 	});
 	
 	// General
@@ -170,7 +188,7 @@ function initUI() {
 		onFieldModified(false);
 	});
 
-	$("#chkReapplySelectedProfile, #chkMonitorProxyChanges, #chkPreventProxyChanges, #chkConfirmDeletion").change(function() {
+	$("#chkReapplySelectedProfile, #chkConfirmDeletion").change(function() {
 		onFieldModified(false);
 	});
 }
@@ -203,8 +221,8 @@ function loadOptions() {
 		if (!RuleManager.isAutomaticModeEnabled(currentProfile)) {
 			currentProfile.name = ProfileManager.currentProfileName;
 			var row = newRow(currentProfile);
-			if (!selectedRow)
-				$("td:first", row).click();
+//			if (!selectedRow)
+//				$("td:first", row).click();
 		}
 	} else if (profiles.length == 0) {
 		var row = newRow(undefined);
@@ -241,10 +259,15 @@ function loadOptions() {
 
 		var row = newRuleRow(rule, false);		
 	}
-//	if (rules.length == 0) {
-//		var row = newRuleRow();
-//	}
 
+	if (RuleManager.isRuleListEnabled())
+		$("#chkRuleList").attr("checked", "checked");
+	
+	$("#chkRuleList").change();
+	$("#txtRuleListUrl").val(Settings.getValue("ruleListUrl"));	
+	$("#cmbRuleListReload option[value='" + Settings.getValue("ruleListReload") + "']").attr("selected", "selected");
+	var ruleListProfileId = Settings.getValue("ruleListProfileId");
+	
 	// Network
 	if (Settings.getValue("enableConnections", false))
 		$("#chkConnections").attr("checked", "checked");
@@ -279,7 +302,7 @@ function loadOptions() {
 	if (Settings.getValue("quickSwitchType", "binary") == "cycle")
 		$("#rdoCycleSwitch").attr("checked", "checked").change();
 	
-	$("#cmbProfile1, #cmbProfile2, #cmbDefaultRuleProfile").empty();
+	$("#cmbProfile1, #cmbProfile2, #cmbDefaultRuleProfile, #cmbRuleListProfile").empty();
 	var directProfile = ProfileManager.directConnectionProfile;
 	var quickSwitchProfiles = Settings.getObject("quickSwitchProfiles") || {};
 	var item = $("<option>").attr("value", directProfile.id).text(directProfile.name);
@@ -291,6 +314,9 @@ function loadOptions() {
 	item = item.clone();
 	item[0].profile = directProfile;
 	$("#cmbDefaultRuleProfile").append(item);
+	item = item.clone();
+	item[0].profile = directProfile;
+	$("#cmbRuleListProfile").append(item);
 	$.each(profiles, function(key, profile) {
 		var item = $("<option>").attr("value", profile.id).text(profile.name);
 		item[0].profile = profile;
@@ -312,6 +338,13 @@ function loadOptions() {
 			item.attr("selected", "selected");
 
 		$("#cmbDefaultRuleProfile").append(item);
+		
+		item = item.clone();
+		item[0].profile = profile;
+		if (ruleListProfileId == profile.id)
+			item.attr("selected", "selected");
+
+		$("#cmbRuleListProfile").append(item);
 	});	
 
 	if (Settings.getValue("reapplySelectedProfile", true))
@@ -386,6 +419,12 @@ function saveOptions() {
 	RuleManager.setEnabled($("#chkSwitchRules").is(":checked"));
 	RuleManager.setRules(rules);
 	RuleManager.setDefaultRule(defaultRule);
+
+	RuleManager.setRuleListEnabled($("#chkRuleList").is(":checked"));
+	Settings.setValue("ruleListUrl", $("#txtRuleListUrl").val());
+	Settings.setValue("ruleListReload", $("#cmbRuleListReload option:selected").val());
+	Settings.setValue("ruleListProfileId", $("#cmbRuleListProfile option:selected")[0].profile.id);
+
 	RuleManager.save();
 	if (RuleManager.isAutomaticModeEnabled(currentProfile))
 		ProfileManager.applyProfile(RuleManager.getAutomaticModeProfile(true));

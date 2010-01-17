@@ -18,6 +18,8 @@ RuleManager.patternTypes = {
 
 RuleManager.enabled = true;
 
+RuleManager.ruleListEnabled = false;
+
 RuleManager.autoPacScriptPath = undefined;
 
 RuleManager.socksPacScriptPath = undefined;
@@ -46,12 +48,15 @@ RuleManager.load = function loadRules() {
 	var rule = Settings.getObject("defaultRule");
 	if (rule != undefined)
 		RuleManager.defaultRule = rule;
+
+	RuleManager.ruleListEnabled = Settings.getValue("ruleListEnabled", false);
 };
 
 RuleManager.save = function saveRules() {
 	Settings.setObject("rules", RuleManager.rules);
 	Settings.setValue("switchRules", RuleManager.enabled);		
 	Settings.setObject("defaultRule", RuleManager.defaultRule);
+	Settings.setValue("ruleListEnabled", RuleManager.ruleListEnabled);		
 };
 
 RuleManager.isEnabled = function isEnabled() {
@@ -60,6 +65,14 @@ RuleManager.isEnabled = function isEnabled() {
 
 RuleManager.setEnabled = function setEnabled(enabled) {
 	RuleManager.enabled = (enabled == true);
+};
+
+RuleManager.isRuleListEnabled = function isRuleListEnabled() {
+	return RuleManager.ruleListEnabled;
+};
+
+RuleManager.setRuleListEnabled = function setRuleListEnabled(enabled) {
+	RuleManager.ruleListEnabled = (enabled == true);
 };
 
 RuleManager.getDefaultRule = function getDefaultRule() {
@@ -288,7 +301,33 @@ RuleManager.generatePacScript = function generatePacScript(rules, defaultProfile
 };
 
 RuleManager.generateAutoPacScript = function generateAutoPacScript() {
-	return RuleManager.generatePacScript(RuleManager.rules, RuleManager.getAutomaticModeProfile(false));
+	var rules = RuleManager.rules;
+	var defaultProfile = RuleManager.getAutomaticModeProfile(false);
+	
+	if (RuleManager.isRuleListEnabled()) {
+		var ruleListRules = Settings.getObject("ruleListRules");
+		var ruleListProfileId = Settings.getValue("ruleListProfileId");
+		if (ruleListRules != undefined) {
+			for (var i = 0; i < ruleListRules.wildcard.length; i++) {
+				var urlPattern = ruleListRules.wildcard[i];
+				rules["__ruleW" + i] = {
+					urlPattern: urlPattern,
+					patternType: RuleManager.patternTypes.wildcard,
+					profileId : ruleListProfileId
+				};
+			}
+			for (var i = 0; i < ruleListRules.regexp.length; i++) {
+				var urlPattern = ruleListRules.regexp[i];
+				rules["__ruleR" + i] = {
+					urlPattern: urlPattern,
+					patternType: RuleManager.patternTypes.regexp,
+					profileId : ruleListProfileId
+				};
+			}
+		}
+	}
+	
+	return RuleManager.generatePacScript(rules, defaultProfile);
 };
 
 RuleManager.generateSocksPacScript = function generateSocksPacScript(profile) {
@@ -363,6 +402,81 @@ RuleManager.isModifiedSocksProfile = function isModifiedSocksProfile(profile) {
 		return false;
 	
 	return (profile.proxyConfigUrl.substr(0, length) == scriptPath);
+};
+
+RuleManager.reloadRuleList = function reloadRuleList(scheduleNextReload) {
+	if (!RuleManager.isRuleListEnabled())
+		return;
+	
+	if (scheduleNextReload) {
+		var interval = Settings.getValue("ruleListReload", 1) * 1000 * 60;
+		setTimeout(function() {
+			RuleManager.reloadRuleList(true);
+		}, interval);
+	}
+	
+	var ruleListUrl = Settings.getValue("ruleListUrl");
+	if (!(/^https?:\/\//).test(ruleListUrl)) {
+		Logger.log("Invalid rule list url: (" + ruleListUrl + ")", Logger.types.error);
+		return;
+	}
+
+	$.ajaxSetup({ cache: false });
+	$.get(
+		ruleListUrl,
+		undefined,
+		function(data, textStatus){
+			if (data.length <= 1024 * 1024) // bigger than 1 megabyte
+				RuleManager.parseRuleList(data);
+			else {
+				Logger.log("Too big rule list file!", Logger.types.error);
+			}
+		},
+		"text"
+	);
+};
+
+RuleManager.parseRuleList = function parseRuleList(data) {
+	data = (/#BEGIN((?:.|[\n\r])+)#END/i).exec(data);
+	if (data == null || data.length < 2)
+		return;
+	
+	data = data[1].trim();
+	var lines = data.split(/[\r\n]+/);
+	var rules = {
+		wildcard: [],
+		regexp: []
+	};
+	var patternType = RuleManager.patternTypes.wildcard;
+	for (var index = 0; index < lines.length; index++) {
+		var line = lines[index].trim();
+		
+		if (line.length == 0 || line[0] == ';' || line[0] == '!') // comment line
+			continue;
+		
+		if (line.toLowerCase() == "[wildcard]") {
+			patternType = RuleManager.patternTypes.wildcard;
+			continue;
+		}
+		
+		if (line.toLowerCase() == "[regexp]") {
+			patternType = RuleManager.patternTypes.regex;
+			continue;
+		}
+
+		if (line[0] == '[') // unknown section
+			continue;
+		
+		rules[patternType].push(line);
+	}
+	
+	Settings.setObject("ruleListRules", rules);
+	
+	if (RuleManager.isAutomaticModeEnabled(undefined)) {
+		var profile = RuleManager.getAutomaticModeProfile(true);
+		ProfileManager.applyProfile(profile);
+	}
+//	console.log(rules);
 };
 
 RuleManager.normalizeRule = function normalizeRule(rule) {

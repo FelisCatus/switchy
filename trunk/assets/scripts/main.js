@@ -22,6 +22,7 @@ function init() {
 	loadManifestInfo();
 	ProfileManager.load();
 	RuleManager.load();
+	RuleManager.reloadRuleList(true);
 
 	applySavedOptions();
 
@@ -211,40 +212,40 @@ function diagnose() {
 	Logger.log("Extension Info: v" + appVersion, Logger.types.info);
 	Logger.log("Browser Info: " + navigator.appVersion, Logger.types.info);
 	
-	if (document.plugins.length > 0 && plugin == document.plugins[0])
-		Logger.log("Plugin loaded successfully..", Logger.types.success);
-	else {
-		Logger.log("Plugin not loaded!", Logger.types.error);
-		result = false;
-	}
+//	if (document.plugins.length > 0 && plugin == document.plugins[0])
+//		Logger.log("Plugin loaded successfully..", Logger.types.success);
+//	else {
+//		Logger.log("Plugin not loaded!", Logger.types.error);
+//		result = false;
+//	}
 	
 	if (typeof plugin.setProxy == "function") {
 		var pluginDiagnoseResult = plugin.diagnose(0);
 		if (pluginDiagnoseResult == "OK")
-			Logger.log("Plugin working properly..", Logger.types.success);
+			Logger.log("Plugin loaded successfully..", Logger.types.success);
 		else {
 			Logger.log("Plugin not working properly! Internal error: " + pluginDiagnoseResult, Logger.types.error);
 			result = false;
 		}
 	}
 	else {
-		Logger.log("Plugin not working properly!", Logger.types.error);
+		Logger.log("Error loading plugin!", Logger.types.error);
 		result = false;
 	}
 	
-	if (localStorage && localStorage.constructor.toString().indexOf("Storage()") >= 0)
-		Logger.log("'localStorage' supported..", Logger.types.success);
-	else {
-		Logger.log("'localStorage' not supported!", Logger.types.error);
-		result = false;
-	}
-	
-	if (localStorage.config != undefined)
-		Logger.log("Wrote to local storage successfully..", Logger.types.success);
-	else {
-		Logger.log("Can't write to local storage!", Logger.types.error);
-		result = false;
-	}
+//	if (localStorage && localStorage.constructor.toString().indexOf("Storage()") >= 0)
+//		Logger.log("'localStorage' supported..", Logger.types.success);
+//	else {
+//		Logger.log("'localStorage' not supported!", Logger.types.error);
+//		result = false;
+//	}
+//	
+//	if (localStorage.config != undefined)
+//		Logger.log("Wrote to local storage successfully..", Logger.types.success);
+//	else {
+//		Logger.log("Can't write to local storage!", Logger.types.error);
+//		result = false;
+//	}
 
 	return result;
 }
