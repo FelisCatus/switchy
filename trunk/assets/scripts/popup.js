@@ -125,6 +125,8 @@ function showAbout() {
 function showAddRule() {
 	var lastProfileId = Settings.getValue("quickRuleProfileId");
 	var lastPatternType = Settings.getValue("quickRulePatternType", RuleManager.patternTypes.wildcard);
+	if (lastPatternType == "regex") // backward compatibility
+		lastPatternType = RuleManager.patternTypes.regexp;
 
 	var combobox = $("#cmbProfileId");
 	var profiles = ProfileManager.getSortedProfileArray();
@@ -146,10 +148,10 @@ function showAddRule() {
 		var patternTypeField = $("#cmbPatternType option:selected");
 		if (this.id == "cmbPatternType") {
 			var previousPatternType;
-			if (patternTypeField.val() == RuleManager.patternTypes.regex)
+			if (patternTypeField.val() == RuleManager.patternTypes.regexp)
 				previousPatternType = RuleManager.patternTypes.wildcard;
 			else
-				previousPatternType = RuleManager.patternTypes.regex;
+				previousPatternType = RuleManager.patternTypes.regexp;
 			
 			if (patternField.val() == RuleManager.urlToRule(activeTabUrl, previousPatternType).urlPattern)
 				patternField.val(RuleManager.urlToRule(activeTabUrl, patternTypeField.val()).urlPattern);
@@ -233,7 +235,7 @@ function buildMenuProxyItems(currentProfile) {
 	
 	$("#menu .separator:first").show();
 	
-	if (currentProfile.unknown) {
+	if (currentProfile.unknown && currentProfile.proxyMode != ProfileManager.proxyModes.direct) {
 		var item = templateItem.clone().attr({
 			"id": currentProfile.id,
 			"name": currentProfile.name,

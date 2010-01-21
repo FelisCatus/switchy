@@ -13,7 +13,7 @@ RuleManager.rules = {};
 
 RuleManager.patternTypes = {
 	wildcard: "wildcard",
-	regex: "regex"
+	regexp: "regexp"
 };
 
 RuleManager.enabled = true;
@@ -128,10 +128,27 @@ RuleManager.getAssociatedRule = function getAssociatedRule(url) {
 };
 
 RuleManager.ruleExists = function ruleExists(urlPattern, patternType) {
+	if (patternType == RuleManager.patternTypes.wildcard)
+		urlPattern = RuleManager.wildcardToRegexp(urlPattern);
+	
 	var rules = RuleManager.rules;
 	for (var i in rules) {
 		var rule = rules[i];
-		if (rule.patternType == patternType && rule.urlPattern == urlPattern)
+		var ruleUrlPattern = rule.urlPattern;
+		if (rule.patternType == RuleManager.patternTypes.wildcard)
+			ruleUrlPattern = RuleManager.wildcardToRegexp(ruleUrlPattern);
+		
+		if (ruleUrlPattern == urlPattern)
+			return true;
+	}
+	return false;
+};
+
+RuleManager.ruleExistsForUrl = function ruleExistsForUrl(url) {
+	var rules = RuleManager.rules;
+	for (var i in rules) {
+		var rule = rules[i];
+		if (RuleManager.matchPattern(url, rule.urlPattern, rule.patternType))
 			return true;
 	}
 	return false;
@@ -170,26 +187,27 @@ RuleManager.wildcardToRegexp = function wildcardToRegexp(pattern) {
 //	pattern = pattern.replace(/\./g, "\\.");
 	pattern = pattern.replace(/\*/g, ".*");
 	pattern = pattern.replace(/\?/g, ".");
-	var regex = /*new RegExp*/("^" + pattern + "$");
-	return regex;
+//	var regexp = /*new RegExp*/("^" + pattern + "$");
+	var regexp = pattern;
+	return regexp;
 };
 
 RuleManager.shExpMatch = function shExpMatch(url, pattern) {
 	pattern = pattern.replace(/\./g, "\\.");
 	pattern = pattern.replace(/\*/g, ".*");
 	pattern = pattern.replace(/\?/g, ".");
-	var regex = new RegExp("^" + pattern + "$");
-	return regex.test(url);
+	var regexp = new RegExp("^" + pattern + "$");
+	return regexp.test(url);
 };
 
-RuleManager.regexMatch = function regexMatch(url, pattern) {
-	var regex = new RegExp(pattern);
-	return regex.test(url);
+RuleManager.regExpMatch = function regExpMatch(url, pattern) {
+	var regexp = new RegExp(pattern);
+	return regexp.test(url);
 };
 
 RuleManager.matchPattern = function matchPattern(url, pattern, patternType) {
-	if (patternType == RuleManager.patternTypes.regex)
-		return RuleManager.regexMatch(url, pattern);
+	if (patternType == RuleManager.patternTypes.regexp)
+		return RuleManager.regExpMatch(url, pattern);
 	
 	return RuleManager.shExpMatch(url, pattern);
 };
@@ -201,7 +219,7 @@ RuleManager.urlToRule = function urlToRule(url, patternType) {
 	var rule = {
 		id: nameId,
 		name: nameId,
-		urlPattern: (patternType == RuleManager.patternTypes.regex ? RuleManager.wildcardToRegexp(pattern) : pattern),
+		urlPattern: (patternType == RuleManager.patternTypes.regexp ? RuleManager.wildcardToRegexp(pattern) : pattern),
 		patternType: patternType,
 		profileId : ProfileManager.directConnectionProfile.id
 	};
@@ -241,9 +259,28 @@ RuleManager.ruleToString = function ruleToString(rule, prettyPrint) {
 };
 
 RuleManager.ruleToScript = function ruleToScript(rule) {
+	var proxy;
+	if (rule.proxy) { // predefined proxy (see |generateAutoPacScript|)
+		proxy = rule.proxy;
+	}
+	else if (rule.profileId != ProfileManager.directConnectionProfile.id) {
+		proxy = RuleManager.getPacRuleProxy(rule.profileId);
+	}
+	
+	var matchFunc = (rule.patternType == RuleManager.patternTypes.regexp ? "regExpMatch" : "shExpMatch");
+	var script = "if (";
+	script += matchFunc + "(url, '" + rule.urlPattern + "')";
+	if (rule.patternType != RuleManager.patternTypes.regexp
+		&& (rule.urlPattern.indexOf("://*.") > 0 || rule.urlPattern.indexOf("*.") == 0))
+		script += " || shExpMatch(url, '" + rule.urlPattern.replace("*.", "") + "')";
+
+	return script + ") return '" + proxy + "';";
+};
+
+RuleManager.getPacRuleProxy = function getPacRuleProxy(profileId) {
 	var proxy = "DIRECT";
-	if (rule.profileId != ProfileManager.directConnectionProfile.id) {
-		var profile = ProfileManager.getProfile(rule.profileId);
+	if (profileId != ProfileManager.directConnectionProfile.id) {
+		var profile = ProfileManager.getProfile(profileId);
 		if (profile != undefined && profile.proxyMode == ProfileManager.proxyModes.manual) {
 			if (profile.proxyHttp && profile.proxyHttp.length > 0)
 				proxy = "PROXY " + profile.proxyHttp;
@@ -251,21 +288,32 @@ RuleManager.ruleToScript = function ruleToScript(rule) {
 			if (profile.proxySocks && profile.proxySocks.length > 0
 				&& !profile.useSameProxy && profile.proxySocks != profile.proxyHttp) { // workaround for Gnome
 				if (profile.socksVersion == 5)
-					proxy = "SOCKS5 " + profile.proxySocks + "; " + proxy;
+					proxy = "SOCKS5 " + profile.proxySocks + (proxy != "DIRECT" ? "; " + proxy : "");
 				else
-					proxy = "SOCKS " + profile.proxySocks + "; " + proxy;
+					proxy = "SOCKS " + profile.proxySocks + (proxy != "DIRECT" ? "; " + proxy : "");
 			} 
 		}
 	}
-	
-	var matchFunc = (rule.patternType == RuleManager.patternTypes.regex ? "regExpMatch" : "shExpMatch");
-	var script = "if (";
-	script += matchFunc + "(url, '" + rule.urlPattern + "')";
-	if (rule.patternType != RuleManager.patternTypes.regex
-		&& (rule.urlPattern.indexOf("://*.") > 0 || rule.urlPattern.indexOf("*.") == 0))
-		script += " || shExpMatch(url, '" + rule.urlPattern.replace("*.", "") + "')";
+	return proxy;
+};
 
-	return script + ") return '" + proxy + "';";
+RuleManager.getPacDefaultProxy = function getPacDefaultProxy(defaultProfile) {
+	var proxy = "DIRECT";
+	var profile = defaultProfile;
+	if (profile != undefined && 
+		(profile.isAutomaticModeProfile || profile.proxyMode == ProfileManager.proxyModes.manual)) {
+		if (profile.proxyHttp && profile.proxyHttp.length > 0)
+			proxy = "PROXY " + profile.proxyHttp;
+		
+		if (profile.proxySocks && profile.proxySocks.length > 0
+			&& !profile.useSameProxy && profile.proxySocks != profile.proxyHttp) { // workaround for useSameProxy in Gnome
+			if (profile.socksVersion == 5)
+				proxy = "SOCKS5 " + profile.proxySocks + (proxy != "DIRECT" ? "; " + proxy : "");
+			else
+				proxy = "SOCKS " + profile.proxySocks + (proxy != "DIRECT" ? "; " + proxy : "");
+		} 
+	}
+	return proxy;
 };
 
 RuleManager.generatePacScript = function generatePacScript(rules, defaultProfile) {
@@ -279,49 +327,79 @@ RuleManager.generatePacScript = function generatePacScript(rules, defaultProfile
 		script.push("\t" + RuleManager.ruleToScript(rule));
 	}
 	
-	var proxy = "DIRECT";
-	var profile = defaultProfile;
-	if (profile != undefined && 
-		(profile.isAutomaticModeProfile || profile.proxyMode == ProfileManager.proxyModes.manual)) {
-		if (profile.proxyHttp && profile.proxyHttp.length > 0)
-			proxy = "PROXY " + profile.proxyHttp;
-		
-		if (profile.proxySocks && profile.proxySocks.length > 0
-			&& !profile.useSameProxy && profile.proxySocks != profile.proxyHttp) { // workaround for useSameProxy in Gnome
-			if (profile.socksVersion == 5)
-				proxy = "SOCKS5 " + profile.proxySocks + "; " + proxy;
-			else
-				proxy = "SOCKS " + profile.proxySocks + "; " + proxy;
-		} 
-	}
+	var proxy = RuleManager.getPacDefaultProxy(defaultProfile);
 	script.push("\t" + "return '" + proxy + "';");
 	script.push("}");
 	
 	return script.join("\r\n");
 };
 
+RuleManager.generateRuleList = function generateRuleList() {
+	var rules = RuleManager.getRules();
+	var allRules = undefined;
+	if (RuleManager.isRuleListEnabled())
+		allRules = Settings.getObject("ruleListRules");
+	
+	if (!allRules) {
+		allRules = {
+			wildcard : [],
+			regexp : []
+		};
+	}
+	for (var i in rules) {
+		var rule = rules[i];
+		if (rule.patternType == RuleManager.patternTypes.regexp)
+			allRules.regexp.push(rule.urlPattern);
+		else
+			allRules.wildcard.push(rule.urlPattern);
+	}
+	var wildcardRules = "[wildcard]\n" + allRules.wildcard.join("\n");
+	var regexpRules = "[regexp]\n" + allRules.regexp.join("\n");
+	var header = "; Summary: Proxy Switchy! Exported Rule List\n"
+		+ "; Date: " + new Date().toLocaleDateString() + "\n"
+		+ "; Website: http://bit.ly/proxyswitchy";
+		
+	var ruleListData = header + "\n\n#BEGIN\n\n" + wildcardRules + "\n\n" + regexpRules + "\n\n#END";
+	
+	return ruleListData;
+};
+
 RuleManager.generateAutoPacScript = function generateAutoPacScript() {
 	var rules = RuleManager.rules;
-	var defaultProfile = RuleManager.getAutomaticModeProfile(false);
-	
+	var defaultProfile = RuleManager.getAutomaticModeProfile(false);	
+	var defaultProxy = RuleManager.getPacDefaultProxy(defaultProfile);
+
 	if (RuleManager.isRuleListEnabled()) {
 		var ruleListRules = Settings.getObject("ruleListRules");
 		var ruleListProfileId = Settings.getValue("ruleListProfileId");
+		var ruleListProxy = RuleManager.getPacRuleProxy(ruleListProfileId);
 		if (ruleListRules != undefined) {
 			for (var i = 0; i < ruleListRules.wildcard.length; i++) {
 				var urlPattern = ruleListRules.wildcard[i];
+				var proxy = ruleListProxy;
+				if (urlPattern[0] == '!') {
+					urlPattern = urlPattern.substr(1);
+					proxy = defaultProxy;
+				}
 				rules["__ruleW" + i] = {
 					urlPattern: urlPattern,
 					patternType: RuleManager.patternTypes.wildcard,
-					profileId : ruleListProfileId
+					profileId : ruleListProfileId,
+					proxy: proxy
 				};
 			}
 			for (var i = 0; i < ruleListRules.regexp.length; i++) {
 				var urlPattern = ruleListRules.regexp[i];
+				var proxy = ruleListProxy;
+				if (urlPattern[0] == '!') {
+					urlPattern = urlPattern.substr(1);
+					proxy = defaultProxy;
+				}
 				rules["__ruleR" + i] = {
 					urlPattern: urlPattern,
 					patternType: RuleManager.patternTypes.regexp,
-					profileId : ruleListProfileId
+					profileId : ruleListProfileId,
+					proxy: proxy
 				};
 			}
 		}
@@ -422,6 +500,9 @@ RuleManager.reloadRuleList = function reloadRuleList(scheduleNextReload) {
 	}
 
 	$.ajaxSetup({ cache: false });
+	$().ajaxError(function(event, request, ajaxOptions, thrownError){
+		Logger.log("Error downloading rule list file!", Logger.types.warning);
+	});
 	$.get(
 		ruleListUrl,
 		undefined,
@@ -437,8 +518,18 @@ RuleManager.reloadRuleList = function reloadRuleList(scheduleNextReload) {
 };
 
 RuleManager.parseRuleList = function parseRuleList(data) {
+	if (Settings.getValue("ruleListAutoProxy", false))
+		return RuleManager.parseAutoProxyRuleList(data);
+	
+	return RuleManager.parseSwitchyRuleList(data);
+};
+
+RuleManager.parseSwitchyRuleList = function parseSwitchyRuleList(data) {
+	if (data == null)
+		return;
+
 	data = (/#BEGIN((?:.|[\n\r])+)#END/i).exec(data);
-	if (data == null || data.length < 2)
+	if (data.length < 2)
 		return;
 	
 	data = data[1].trim();
@@ -466,6 +557,72 @@ RuleManager.parseRuleList = function parseRuleList(data) {
 
 		if (line[0] == '[') // unknown section
 			continue;
+		
+		rules[patternType].push(line);
+	}
+	
+	Settings.setObject("ruleListRules", rules);
+	
+	if (RuleManager.isAutomaticModeEnabled(undefined)) {
+		var profile = RuleManager.getAutomaticModeProfile(true);
+		ProfileManager.applyProfile(profile);
+	}
+//	console.log(rules);
+};
+
+RuleManager.parseAutoProxyRuleList = function parseAutoProxyRuleList(data) {
+	if (data == null || data.length < 2) {
+		Logger.log("Too small AutoProxy rules file!", Logger.types.warning);
+		return;
+	}
+	data = $.base64Decode(data);
+	if (data.substr(0, 10) != "[AutoProxy") {
+		Logger.log("Invalid AutoProxy rules file!", Logger.types.warning);
+		return;
+	}
+	var lines = data.split(/[\r\n]+/);
+	var rules = {
+		wildcard: [],
+		regexp: []
+	};
+	var patternType;
+	for (var index = 0; index < lines.length; index++) {
+		var line = lines[index].trim();
+		
+		if (line.length == 0 || line[0] == ';' || line[0] == '!' || line[0] == '[') // comment line
+			continue;
+		
+		var exclude = false;
+		if (line.substr(0, 2) == "@@") {
+			exclude = true;
+			line = line.substring(2);
+		}
+		
+		if (line[0] == '/' && line[line.length - 1] == '/') { // regexp pattern
+			patternType = RuleManager.patternTypes.regexp;
+			line = line.substring(1, line.length - 1);
+		}
+		else if (line.indexOf('^') > -1) {
+			patternType = RuleManager.patternTypes.regexp;
+			line = RuleManager.wildcardToRegexp(line);
+			line = line.replace(/\\\^/g, "(?:[^\\w\\-.%\\u0080-\\uFFFF]|$)");
+		}
+		else if (line.substr(0, 2) == "||") {
+			patternType = RuleManager.patternTypes.regexp;
+			line = "^[\\w\\-]+:\\/+(?!\\/)(?:[^\\/]+\\.)?" + RuleManager.wildcardToRegexp(line.substring(2));
+		}
+		else if (line[0] == "|" || line[line.length - 1] == "|") {
+			patternType = RuleManager.patternTypes.regexp;
+			line = RuleManager.wildcardToRegexp(line);
+			line = line.replace(/^\\\|/, "^");
+			line = line.replace(/\\\|$/, "$");
+		}
+		else {
+			patternType = RuleManager.patternTypes.wildcard;
+		}
+
+		if (exclude)
+			line = "!" + line;
 		
 		rules[patternType].push(line);
 	}

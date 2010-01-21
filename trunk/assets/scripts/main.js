@@ -74,7 +74,7 @@ function checkFirstTime() {
 function checkNewVersion() {
 	if (notifyOnNewVersion && Settings.getValue("version") != appVersion) {
 		
-		if (Settings.getValue("version") == "1.4.1" || Settings.getValue("version") == "1.4.2") return; //// TODO remove this
+//		if (Settings.getValue("version") == "1.4.1" || Settings.getValue("version") == "1.4.2") return;
 		
 		setIconTitle("You've been updated to a new version (" + appVersion + ")");
 		setIconBadge(appVersion);
