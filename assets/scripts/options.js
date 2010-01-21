@@ -129,16 +129,16 @@ function initUI() {
 
 	$("#chkRuleList").change(function() {
 		if ($(this).is(":checked")) {
-			$("#ruleListsTable *").removeClass("disabled");
-			$("#ruleListsTable input, #ruleListsTable select").removeAttr("disabled");
+			$("#ruleListsTable *, #autoProxy").removeClass("disabled");
+			$("#ruleListsTable input, #ruleListsTable select, #autoProxy input").removeAttr("disabled");
 		} else {
-			$("#ruleListsTable *").addClass("disabled");
-			$("#ruleListsTable input, #ruleListsTable select").attr("disabled", "disabled");
+			$("#ruleListsTable *, #autoProxy").addClass("disabled");
+			$("#ruleListsTable input, #ruleListsTable select, #autoProxy input").attr("disabled", "disabled");
 		}
 		onFieldModified(false);
 	});
 
-	$("#txtRuleListUrl, #cmbRuleListProfile, #cmbRuleListReload").change(function() {
+	$("#txtRuleListUrl, #cmbRuleListProfile, #cmbRuleListReload, #chkAutoProxy").change(function() {
 		onFieldModified(false);
 	});
 	
@@ -163,6 +163,12 @@ function initUI() {
 
 	$("#cmbConnection, #chkMonitorProxyChanges, #chkPreventProxyChanges").change(function() {
 		onFieldModified(false);
+	});
+	
+	// Import-Export
+	$("#txtBackupFilePath").bind("click keydown", function() {
+		if ($(this).hasClass("initial"))
+			$(this).removeClass("initial").val("");
 	});
 	
 	// General
@@ -218,7 +224,8 @@ function loadOptions() {
 	}
 
 	if (currentProfile.unknown) {
-		if (!RuleManager.isAutomaticModeEnabled(currentProfile)) {
+		if (!RuleManager.isAutomaticModeEnabled(currentProfile)
+			&& currentProfile.proxyMode != ProfileManager.proxyModes.direct) {
 			currentProfile.name = ProfileManager.currentProfileName;
 			var row = newRow(currentProfile);
 //			if (!selectedRow)
@@ -265,8 +272,10 @@ function loadOptions() {
 	
 	$("#chkRuleList").change();
 	$("#txtRuleListUrl").val(Settings.getValue("ruleListUrl"));	
-	$("#cmbRuleListReload option[value='" + Settings.getValue("ruleListReload") + "']").attr("selected", "selected");
+	$("#cmbRuleListReload option[value='" + Settings.getValue("ruleListReload", 720) + "']").attr("selected", "selected");
 	var ruleListProfileId = Settings.getValue("ruleListProfileId");
+	if (Settings.getValue("ruleListAutoProxy", false))
+		$("#chkAutoProxy").attr("checked", "checked");
 	
 	// Network
 	if (Settings.getValue("enableConnections", false))
@@ -347,7 +356,7 @@ function loadOptions() {
 		$("#cmbRuleListProfile").append(item);
 	});	
 
-	if (Settings.getValue("reapplySelectedProfile", true))
+	if (Settings.getValue("reapplySelectedProfile", false))
 		$("#chkReapplySelectedProfile").attr("checked", "checked");
 	if (Settings.getValue("confirmDeletion", true))
 		$("#chkConfirmDeletion").attr("checked", "checked");
@@ -424,6 +433,7 @@ function saveOptions() {
 	Settings.setValue("ruleListUrl", $("#txtRuleListUrl").val());
 	Settings.setValue("ruleListReload", $("#cmbRuleListReload option:selected").val());
 	Settings.setValue("ruleListProfileId", $("#cmbRuleListProfile option:selected")[0].profile.id);
+	if (Settings.setValue("ruleListAutoProxy", $("#chkAutoProxy").is(":checked")));
 
 	RuleManager.save();
 	if (RuleManager.isAutomaticModeEnabled(currentProfile))
@@ -472,12 +482,16 @@ function switchTab(tab) {
 		tabId = "tabRules";
 		break;
 
-	case "general":
-		tabId = "tabGeneral";
-		break;
-
 	case "network":
 		tabId = "tabNetwork";
+		break;
+
+	case "importexport":
+		tabId = "tabImportExport";
+		break;
+
+	case "general":
+		tabId = "tabGeneral";
 		break;
 
 	default:
@@ -810,6 +824,93 @@ function deleteRuleRow() {
 		extension.setIconInfo();
 		InfoTip.showMessage("Rule Deleted..", InfoTip.types.info);
 	}
+}
+
+function saveFileAs(fileName, fileData) {
+	var filePath;
+	try {
+		filePath = extension.plugin.writeTempFile(fileData, fileName);
+		if (!filePath || filePath.trim().length == 0)
+			throw "Error";
+	} catch (e) {
+		Logger.log("Oops! Can't save generated file, " + e.toString(), Logger.types.error);
+		alert("\nOops! Can't save generated file..");
+		return;
+	}
+	
+	if (filePath.substr(0, 7) != "file://")
+		filePath = "file://" + filePath;
+	
+	chrome.tabs.create({
+		url: filePath
+	});
+}
+
+function exportPacFile() {
+	var script = RuleManager.generateAutoPacScript();
+
+	saveFileAs("SwitchyPac.pac", script);
+}
+
+function exportRuleList() {
+	var ruleListData = RuleManager.generateRuleList();
+	
+	saveFileAs("SwitchyRules.txt", ruleListData);
+}
+
+function makeBackup() {
+	var backupData = JSON.stringify(localStorage);
+	var backupData = $.base64Encode(backupData);
+	
+	saveFileAs("SwitchyOptions.bak", backupData);
+}
+
+function restoreBackup() {
+	var txtBackupFilePath = $("#txtBackupFilePath");
+	if (txtBackupFilePath.hasClass("initial") || txtBackupFilePath.val().trim().length == 0) {
+		alert("\nYou should set the backup file path first..");
+		txtBackupFilePath.focus();
+		return;
+	}
+	var backupFilePath = txtBackupFilePath.val();
+	
+	var backupData;
+	try {
+		backupData = extension.plugin.readFile(backupFilePath);
+	} catch (e) {
+		Logger.log("Oops! Can't read the backup file, " + e.toString(), Logger.types.error);
+		alert("\nOops! Can't read the backup file..");
+		return;
+	}
+	
+	if (!backupData || backupData.trim().length == 0) {
+		alert("\nOops! Can't restore from this backup file\n\nThe backup file is corrupted or invalid..");
+		return;
+	}
+	
+	var options;
+	try {
+		backupData = $.base64Decode(backupData);
+		options = JSON.parse(backupData);
+	} catch (e) {
+		Logger.log("Oops! Can't restore from this backup file\n\nThe backup file is corrupted or invalid, " + e.toString(), Logger.types.error);
+		alert("\nOops! Can't restore from this backup file\n\nThe backup file is corrupted or invalid..");
+		return;
+	}
+	
+	if (!confirm("\nAre you sure you want to restore Switchy options from this backup?" + 
+			"\n\nCurrent Switchy! options will be overwritten."))
+		return;
+	
+	for (var optionName in options)
+		localStorage[optionName] = options[optionName];
+	
+	Settings.setValue("ruleListEnabled", false); // for security concerns
+
+	alert("\nSwitchy! options restored successfully.." +
+			"\n\nYou should restart Switchy! (disable it and then reenable it) for the new options to take effect.");
+
+//	window.location.reload();
 }
 
 function getQueryParams() {

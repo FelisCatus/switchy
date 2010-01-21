@@ -10,7 +10,7 @@ body {
 	padding: 0 18%;
 	cursor: default;
 	background-color: #fafbff;
-	-webkit-user-select: none;
+	?-webkit-user-select: none;
 }
 
 body, td, input, select, textarea, button {
@@ -156,7 +156,7 @@ hr {
 	cursor: pointer;
 }
 
-#tabProfilesBody, #tabGeneralBody, #tabNetworkBody, #tabRulesBody {
+#tabProfilesBody, #tabNetworkBody, #tabGeneralBody, #tabImportExportBody, #tabRulesBody {
 	display: none;
 }
 
@@ -476,7 +476,7 @@ hr {
 }
 
 #proxyProfiles .unknown td {
-	background-color: #fbf9f4;
+	background-color: #fbf9f4 !important;
 	cursor: default;
 }
 
@@ -488,7 +488,7 @@ hr {
 	display: none;
 }
 
-#profileDetails, #tabGeneralBody table, #tabNetworkBody table, #tabRulesBody .optionGroup {
+#profileDetails, #tabNetworkBody table, #tabGeneralBody table, .optionGroup {
 	width: 100%;
 	height: 100%;
 	border: solid 1px #d1dadd;
@@ -557,19 +557,30 @@ hr {
 	padding: 10px 0px;
 }
 
-#tabGeneralBody td, #tabNetworkBody td, #tabRulesBody td {
+#tabRulesBody td, #tabNetworkBody td, #tabGeneralBody td, #tabImportExportBody td {
 	white-space: nowrap;
 	padding: 2px;
 }
 
-#tabGeneralBody select, #tabNetworkBody select, #tabRulesBody select {
+#tabRulesBody select, #tabNetworkBody select, #tabGeneralBody select, #tabImportExportBody select {
 	width: 200px;
 	height: 140%;
 }
 
-#tabGeneralBody td:nth-child(2), #tabNetworkBody td:nth-child(2), #tabRulesBody td:nth-child(2) {
+#tabRulesBody td:nth-child(2), #tabNetworkBody td:nth-child(2), #tabGeneralBody td:nth-child(2), #tabImportExportBody td:nth-child(2) {
 	width: 100%;
 }
+
+#tabImportExportBody input[type='text'] {
+	width: 75%;
+	height: 85%;
+	padding-left: 3px;
+} 
+
+#tabImportExportBody input[type='text'].initial {
+	color: #888;
+	font-style: italic;
+} 
 
 #ruleListTable {
 	?table-layout: fixed;
