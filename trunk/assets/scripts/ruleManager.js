@@ -319,7 +319,7 @@ RuleManager.getPacDefaultProxy = function getPacDefaultProxy(defaultProfile) {
 RuleManager.generatePacScript = function generatePacScript(rules, defaultProfile) {
 	var script = [];	
 	script.push("function regExpMatch(url, pattern) {");
-	script.push("\ttry { return new RegExp(pattern).test(url); } catch(ex) {}");
+	script.push("\ttry { return new RegExp(pattern).test(url); } catch(ex) { return false; }");
 	script.push("}\n");
 	script.push("function FindProxyForURL(url, host) {");
 	for (var i in rules) {
@@ -364,6 +364,71 @@ RuleManager.generateRuleList = function generateRuleList() {
 	return ruleListData;
 };
 
+RuleManager.ruleListToScript = function ruleListToScript() {
+//	if (!RuleManager.isRuleListEnabled())
+//		return "";
+//
+//	var defaultProfile = RuleManager.getAutomaticModeProfile(false);	
+//	var defaultProxy = RuleManager.getPacDefaultProxy(defaultProfile);
+//	var ruleListRules = Settings.getObject("ruleListRules");
+//	var ruleListProfileId = Settings.getValue("ruleListProfileId");
+//	var ruleListProxy = RuleManager.getPacRuleProxy(ruleListProfileId);
+//	if (ruleListRules == undefined)
+//		return "";
+//	
+//	// start with reverse rules (starting with '!') (top priority)
+//	for (var i = 0; i < ruleListRules.wildcard.length; i++) {
+//		var urlPattern = ruleListRules.wildcard[i];
+//		if (urlPattern[0] == '!') {
+//			urlPattern = urlPattern.substr(1);
+//			rules["__ruleW" + i] = {
+//				urlPattern: urlPattern,
+//				patternType: RuleManager.patternTypes.wildcard,
+//				profileId : ruleListProfileId,
+//				proxy: defaultProxy
+//			};
+//		}
+//	}
+//	for (var i = 0; i < ruleListRules.regexp.length; i++) {
+//		var urlPattern = ruleListRules.regexp[i];
+//		if (urlPattern[0] == '!') {
+//			urlPattern = urlPattern.substr(1);
+//			rules["__ruleR" + i] = {
+//				urlPattern: urlPattern,
+//				patternType: RuleManager.patternTypes.regexp,
+//				profileId : ruleListProfileId,
+//				proxy: defaultProxy
+//			};
+//		}
+//	}
+//	
+//	// normal rules
+//	for (var i = 0; i < ruleListRules.wildcard.length; i++) {
+//		var urlPattern = ruleListRules.wildcard[i];
+//		if (urlPattern[0] != '!') {
+//			urlPattern = urlPattern.substr(1);
+//			rules["__ruleW" + i] = {
+//				urlPattern: urlPattern,
+//				patternType: RuleManager.patternTypes.wildcard,
+//				profileId : ruleListProfileId,
+//				proxy: ruleListProxy
+//			};
+//		}
+//	}
+//	for (var i = 0; i < ruleListRules.regexp.length; i++) {
+//		var urlPattern = ruleListRules.regexp[i];
+//		if (urlPattern[0] != '!') {
+//			urlPattern = urlPattern.substr(1);
+//			rules["__ruleR" + i] = {
+//				urlPattern: urlPattern,
+//				patternType: RuleManager.patternTypes.regexp,
+//				profileId : ruleListProfileId,
+//				proxy: ruleListProxy
+//			};
+//		}
+//	}
+};
+
 RuleManager.generateAutoPacScript = function generateAutoPacScript() {
 	var rules = RuleManager.rules;
 	var defaultProfile = RuleManager.getAutomaticModeProfile(false);	
@@ -374,34 +439,84 @@ RuleManager.generateAutoPacScript = function generateAutoPacScript() {
 		var ruleListProfileId = Settings.getValue("ruleListProfileId");
 		var ruleListProxy = RuleManager.getPacRuleProxy(ruleListProfileId);
 		if (ruleListRules != undefined) {
+			// start with reverse rules (starting with '!') (top priority)
 			for (var i = 0; i < ruleListRules.wildcard.length; i++) {
 				var urlPattern = ruleListRules.wildcard[i];
-				var proxy = ruleListProxy;
 				if (urlPattern[0] == '!') {
 					urlPattern = urlPattern.substr(1);
-					proxy = defaultProxy;
+					rules["__ruleW" + i] = {
+						urlPattern: urlPattern,
+						patternType: RuleManager.patternTypes.wildcard,
+						profileId : ruleListProfileId,
+						proxy: defaultProxy
+					};
 				}
-				rules["__ruleW" + i] = {
-					urlPattern: urlPattern,
-					patternType: RuleManager.patternTypes.wildcard,
-					profileId : ruleListProfileId,
-					proxy: proxy
-				};
 			}
 			for (var i = 0; i < ruleListRules.regexp.length; i++) {
 				var urlPattern = ruleListRules.regexp[i];
-				var proxy = ruleListProxy;
 				if (urlPattern[0] == '!') {
 					urlPattern = urlPattern.substr(1);
-					proxy = defaultProxy;
+					rules["__ruleR" + i] = {
+						urlPattern: urlPattern,
+						patternType: RuleManager.patternTypes.regexp,
+						profileId : ruleListProfileId,
+						proxy: defaultProxy
+					};
 				}
-				rules["__ruleR" + i] = {
-					urlPattern: urlPattern,
-					patternType: RuleManager.patternTypes.regexp,
-					profileId : ruleListProfileId,
-					proxy: proxy
-				};
 			}
+			// normal rules
+			for (var i = 0; i < ruleListRules.wildcard.length; i++) {
+				var urlPattern = ruleListRules.wildcard[i];
+				if (urlPattern[0] != '!') {
+					urlPattern = urlPattern.substr(1);
+					rules["__ruleW" + i] = {
+						urlPattern: urlPattern,
+						patternType: RuleManager.patternTypes.wildcard,
+						profileId : ruleListProfileId,
+						proxy: ruleListProxy
+					};
+				}
+			}
+			for (var i = 0; i < ruleListRules.regexp.length; i++) {
+				var urlPattern = ruleListRules.regexp[i];
+				if (urlPattern[0] != '!') {
+					urlPattern = urlPattern.substr(1);
+					rules["__ruleR" + i] = {
+						urlPattern: urlPattern,
+						patternType: RuleManager.patternTypes.regexp,
+						profileId : ruleListProfileId,
+						proxy: ruleListProxy
+					};
+				}
+			}
+//			for (var i = 0; i < ruleListRules.wildcard.length; i++) {
+//				var urlPattern = ruleListRules.wildcard[i];
+//				var proxy = ruleListProxy;
+//				if (urlPattern[0] == '!') {
+//					urlPattern = urlPattern.substr(1);
+//					proxy = defaultProxy;
+//				}
+//				rules["__ruleW" + i] = {
+//					urlPattern: urlPattern,
+//					patternType: RuleManager.patternTypes.wildcard,
+//					profileId : ruleListProfileId,
+//					proxy: proxy
+//				};
+//			}
+//			for (var i = 0; i < ruleListRules.regexp.length; i++) {
+//				var urlPattern = ruleListRules.regexp[i];
+//				var proxy = ruleListProxy;
+//				if (urlPattern[0] == '!') {
+//					urlPattern = urlPattern.substr(1);
+//					proxy = defaultProxy;
+//				}
+//				rules["__ruleR" + i] = {
+//					urlPattern: urlPattern,
+//					patternType: RuleManager.patternTypes.regexp,
+//					profileId : ruleListProfileId,
+//					proxy: proxy
+//				};
+//			}
 		}
 	}
 	
