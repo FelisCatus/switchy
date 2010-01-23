@@ -20,25 +20,29 @@
 		<div id="directConnection" name="[Direct Connection]" class="item proxy" title="Disable Proxy">
 			<img src="assets/images/checked.png" width="16" /><span>Direct Connection</span>
 		</div>
-		<div class="separator"></div>
+		<div id="separatorProxies" class="separator"></div>
 		<div id="proxies">
 			<div class="templateItem" title="">
-				<img src="assets/images/checked.png"/><span>Proxy</span>
+				<img src="assets/images/checked.png" /><span>Proxy</span>
 			</div>
 		</div>
 		<div id="separatorRules" class="separator"></div>
-		<div id="automaticMode" class="item proxy" title="Automatically choose the proxy profile &#13;according to Switch Rules">
-			<img src="assets/images/checked.png" width="16" /><span>Auto Switch Mode</span>
+		<div id="automaticMode" class="item proxy" title="Automatically choose the proper proxy profile &#13;for each URL, based on Switch Rules.">
+			<img src="assets/images/checked.png" /><img src="assets/images/switch.png" /><span>Auto Switch Mode</span>
 		</div>
 		<div id="menuAddRule" class="item" onclick="showAddRule();" title="Quickly add a new Switch Rule &#13;for the current website.">
-			<img src="assets/images/filter-add.png" /><span>Quick Rule</span>
+			<img src="assets/images/filter-add.png" /><span>New Rule</span>
 		</div>
-		<div class="separator"></div>
+		<div id="separatorOptions" class="separator"></div>
 		<div id="menuOptions" class="item" onclick="openOptions();">
 			<img src="assets/images/options.png" /><span>Options</span>
 		</div>
 		<div id="menuAbout" class="item" onclick="showAbout();">
 			<img src="assets/images/about.png" /><span>About Switchy!</span>
+		</div>
+		<div id="separatorError" class="separator"></div>
+		<div id="menuError" class="item" onclick="openErrorLog();" title="Switchy! isn't working properly. &#13;Click to open the error log.">
+			<img src="assets/images/error2.png" /><span>Not Working Preperly</span>
 		</div>
 	</div>
 
@@ -80,7 +84,7 @@
 	
 	<div id="addRule">
 		
-		<div class="header">&nbsp; Quick Rule
+		<div class="header">&nbsp; New Rule
 			<!--span class="close"><img src="assets/images/close.png" /></span--></div>
 		<div class="header light">
 			<table>

@@ -609,8 +609,9 @@ function deleteRow() {
 }
 
 function changeColor() {
-	var cell = $(event.target);
-	var profile = event.target.parentNode.parentNode.parentNode.profile;
+	var target = event.target.onclick ? event.target.children[0] : event.target;
+	var cell = $(target);
+	var profile = target.parentNode.parentNode.parentNode.profile;
 	var color;
 	
 	if (cell.attr("class") == "" || cell.hasClass("blue"))
