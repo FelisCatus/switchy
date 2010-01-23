@@ -74,8 +74,8 @@
 										<tr class="templateRow">
 											<td width="100%">[Untitled Profile]</td>
 											<td width="28">
-												<div class="color" title="Profile Color">
-													<div class="" onclick="changeColor();"></div>
+												<div class="color" title="Profile Color" onclick="changeColor();">
+													<div></div>
 												</div>
 											</td>
 											<td width="30">
@@ -290,7 +290,7 @@
 										<p><b>Note:</b> This rule can't be deleted.</p>
 									</span>
 								</div></td>
-								<td colspan="2"><div><span class="urlPattern">All URLs</span></div></td>
+								<td colspan="2"><div><span class="urlPattern">All URLs that doesn't match any other pattern</span></div></td>
 								<!--td><div><span class="patternType">---</span></div></td-->
 								<td><div>
 									<select id="cmbDefaultRuleProfile" name="profileId"></select></div></td>
@@ -305,7 +305,7 @@
 						<label>
 							<div class="title"><input id="chkRuleList" type="checkbox"> Import Rule List
 								<span class="help">
-									<p>Import predefined Switch Rules from online repository.</p><hr />
+									<p>Import predefined Switch Rules from online repository.</p>
 								</span>							
 							</div>
 						</label>
@@ -365,7 +365,7 @@
 							<div class="title"><input id="chkConnections" type="checkbox">
 								Proxy for VPN/Dial-up
 								<span class="help">
-									<p>Set proxy for this VPN/Dial-up connection.</p>
+									<p>Also set proxy for this VPN/Dial-up connection.</p>
 								</span>
 								<small><i>&nbsp;&nbsp;&nbsp;(Windows only)</i></small>
 							</div>

@@ -263,7 +263,7 @@ RuleManager.ruleToScript = function ruleToScript(rule) {
 	if (rule.proxy) { // predefined proxy (see |generateAutoPacScript|)
 		proxy = rule.proxy;
 	}
-	else if (rule.profileId != ProfileManager.directConnectionProfile.id) {
+	else {
 		proxy = RuleManager.getPacRuleProxy(rule.profileId);
 	}
 	
@@ -529,7 +529,7 @@ RuleManager.parseSwitchyRuleList = function parseSwitchyRuleList(data) {
 		return;
 
 	data = (/#BEGIN((?:.|[\n\r])+)#END/i).exec(data);
-	if (data.length < 2)
+	if (!data || data.length < 2)
 		return;
 	
 	data = data[1].trim();

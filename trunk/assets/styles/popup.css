@@ -99,6 +99,23 @@ hr {
 	visibility: visible !important;
 }
 
+#menu .proxy#automaticMode img:nth-child(1) {
+	display: none;
+}
+
+#menu .checked#automaticMode img:nth-child(1) {
+	display: inline; !important;
+}
+
+#menu .proxy#automaticMode img:nth-child(2) {
+	display: inline;
+	visibility: visible
+}
+
+#menu .checked#automaticMode img:nth-child(2) {
+	display: none !important;
+}
+
 #menu .item span {
 	padding-left: 3px;
 }
@@ -108,6 +125,10 @@ hr {
 	margin: 3px 2px;
 	border: 0;
 	border-top: 1px solid #ddd;
+}
+
+#menuError, #separatorError {
+	display: none;
 }
 
 #about {

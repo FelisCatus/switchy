@@ -20,6 +20,7 @@ function init() {
 	Logger = extension.Logger;
 	
 	initLog();
+	initDiagnose();
 	loadLog();
 }
 
@@ -31,7 +32,18 @@ function initLog() {
 	Logger.addEventListener(Logger.events.onLog, function(e) {
 		loadLog();
 	});
-	
+}
+
+function loadLog() {
+	$("#console").text(Logger.toString());
+}
+
+function clearLog() {
+	Logger.clear();
+	loadLog();
+}
+
+function initDiagnose() {
 	var plugin = extension.plugin;
 	
 	// Test #1
@@ -79,6 +91,7 @@ function initLog() {
 		}
 	}
 	else {
+		Logger.log("Plugin not loaded!", Logger.types.error);
 		$("#test1 .icon").addClass("error");
 		if (os.isMac)
 			$("#test1 .description").html("(Sorry, Mac OS X isn't supported yet, you can star this " +
@@ -90,20 +103,11 @@ function initLog() {
 					"<a href='http://code.google.com/p/switchy/issues/list'>" +
 					"file an issue</a> about this problem)");
 	}
-
-}
-
-function loadLog() {
-	$("#console").text(Logger.toString());
-}
-
-function clearLog() {
-	Logger.clear();
-	loadLog();
 }
 
 function diagnose() {
 	extension.diagnose();
+	initDiagnose();
 	loadLog();
 }
 

@@ -87,6 +87,13 @@ function openOptions() {
 	extension.openOptions();
 }
 
+function openErrorLog() {
+	closePopup();
+	chrome.tabs.create({
+		url: 'console.html'
+	});
+}
+
 function openContactEmail() {
 	closePopup();
 	chrome.tabs.create({
@@ -233,7 +240,7 @@ function buildMenuProxyItems(currentProfile) {
 		menu.append(item);
 	}
 	
-	$("#menu .separator:first").show();
+	$("#separatorProxies").show();
 	
 	if (currentProfile.unknown && currentProfile.proxyMode != ProfileManager.proxyModes.direct) {
 		var item = templateItem.clone().attr({
@@ -249,7 +256,7 @@ function buildMenuProxyItems(currentProfile) {
 		menu.append(item);
 		
 	} else if (profiles.length == 0) {
-		$("#menu .separator:first").hide();
+		$("#separatorProxies").hide();
 	}
 }
 
@@ -284,6 +291,8 @@ function buildMenuItems() {
 	buildMenuDirectConnectionItem(currentProfile);
 	buildMenuAutomaticModeItem(currentProfile);
 	buildMenuProxyItems(currentProfile);
+	if (extension.diagnosedError)
+		$("#menuError, #separatorError").show();
 }
 
 function onSelectProxyItem() {

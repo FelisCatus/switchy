@@ -10,11 +10,13 @@ var appName = "";
 var appVersion = "";
 var iconDir = "assets/images/";
 var iconInactivePath = "assets/images/inactive.png";
+var iconErrorPath = "assets/images/icon-error.png";
 var refreshInterval = 10000;
 var refreshTimer = undefined;
 var newVersion = false;
 var notifyOnNewVersion = true;
 var currentProfile = undefined;
+var diagnosedError = false;
 var plugin;
 
 function init() {
@@ -29,9 +31,9 @@ function init() {
 	if (!checkFirstTime())
 		checkNewVersion();
 	
+	diagnosedError = !diagnose();
 	setIconInfo(undefined);
 	monitorProxyChanges(false);
-	diagnose();
 	
 	chrome.tabs.onSelectionChanged.addListener(function(tabId, selectInfo) {
 		chrome.tabs.get(tabId, function(tab) {
@@ -145,7 +147,7 @@ function setIconInfo(profile, preventProxyChanges) {
 	}
 	
 	currentProfile = profile;
-	var autoProfile = RuleManager.getAutomaticModeProfile();
+//	var autoProfile = RuleManager.getAutomaticModeProfile();
 	if (RuleManager.isAutomaticModeEnabled(profile)) {
 //		profile = autoProfile;
 //		profile.proxyConfigUrl = "";
@@ -164,6 +166,9 @@ function setIconInfo(profile, preventProxyChanges) {
 		chrome.browserAction.setIcon({ path: iconPath });
 		title += ProfileManager.profileToString(profile, true);
 	}
+
+//	if (diagnosedError)
+//		chrome.browserAction.setIcon({ path: iconErrorPath });
 	
 	setIconTitle(title);
 }
@@ -188,6 +193,9 @@ function setAutoSwitchIcon(url) {
 		profileName = profile.name;
 	}
 	var iconPath = iconDir + "icon-auto-" + (color || "blue") + ".png";
+//	if (diagnosedError)
+//		iconPath = iconErrorPath;
+
 	chrome.browserAction.setIcon({ path: iconPath });
 
 	var title = appName + "\nAuto Switch Mode\nActive Page Proxy: " + profileName;	
@@ -207,7 +215,7 @@ function monitorProxyChanges(checkIfMonitorRunning) {
 }
 
 function diagnose() {
-	var result = true;
+	var result = false;
 	
 	Logger.log("Extension Info: v" + appVersion, Logger.types.info);
 	Logger.log("Browser Info: " + navigator.appVersion, Logger.types.info);
@@ -219,19 +227,19 @@ function diagnose() {
 //		result = false;
 //	}
 	
-	if (typeof plugin.setProxy == "function") {
-		var pluginDiagnoseResult = plugin.diagnose(0);
-		if (pluginDiagnoseResult == "OK")
-			Logger.log("Plugin loaded successfully..", Logger.types.success);
-		else {
-			Logger.log("Plugin not working properly! Internal error: " + pluginDiagnoseResult, Logger.types.error);
-			result = false;
-		}
-	}
-	else {
-		Logger.log("Error loading plugin!", Logger.types.error);
-		result = false;
-	}
+//	if (typeof plugin.setProxy == "function") {
+//		var pluginDiagnoseResult = plugin.diagnose(0);
+//		if (pluginDiagnoseResult == "OK")
+//			Logger.log("Plugin loaded successfully..", Logger.types.success);
+//		else {
+//			Logger.log("Plugin not working properly! Internal error: " + pluginDiagnoseResult, Logger.types.error);
+//			result = false;
+//		}
+//	}
+//	else {
+//		Logger.log("Error loading plugin!", Logger.types.error);
+//		result = false;
+//	}
 	
 //	if (localStorage && localStorage.constructor.toString().indexOf("Storage()") >= 0)
 //		Logger.log("'localStorage' supported..", Logger.types.success);
@@ -246,6 +254,22 @@ function diagnose() {
 //		Logger.log("Can't write to local storage!", Logger.types.error);
 //		result = false;
 //	}
+
+	if (typeof plugin.setProxy == "function") {
+		try {
+			var pluginDiagnoseResult = plugin.diagnose(0);
+			if (pluginDiagnoseResult == "OK") {
+				try {
+					var pluginCheckResult = plugin.checkEnvironment(0);
+					if (pluginCheckResult == "OK") {
+						result = true;
+					}
+				} catch (e) {
+				}			
+			}
+		} catch (e) {
+		}
+	}
 
 	return result;
 }
