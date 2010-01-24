@@ -1,6 +1,6 @@
 #summary About the rule lists and their file format.
 
-== Rule List ==
+== Introduction ==
 A Rule List is a collection of Switch Rules distributed as a text file.
 
 == Format ==
