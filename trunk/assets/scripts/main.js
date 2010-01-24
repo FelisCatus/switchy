@@ -147,14 +147,13 @@ function setIconInfo(profile, preventProxyChanges) {
 	}
 	
 	currentProfile = profile;
-//	var autoProfile = RuleManager.getAutomaticModeProfile();
 	if (RuleManager.isAutomaticModeEnabled(profile)) {
+//		var autoProfile = RuleManager.getAutomaticModeProfile();
 //		profile = autoProfile;
 //		profile.proxyConfigUrl = "";
 //		profile.color = "auto-blue";
-		
-		setAutoSwitchIcon();
-		return;
+		if (setAutoSwitchIcon())
+			return;
 	}
 	
 	var title = appName + "\n";	
@@ -175,22 +174,24 @@ function setIconInfo(profile, preventProxyChanges) {
 
 function setAutoSwitchIcon(url) {
 	if (!RuleManager.isAutomaticModeEnabled(currentProfile))
-		return;
+		return false;
 	
 	if (url == undefined) {
 		chrome.tabs.getSelected(undefined, function(tab) {
 			setAutoSwitchIcon(tab.url);
 		});
-		return;
+		return true;
 	}
 	
-	var rule = RuleManager.getAssociatedRule(url) || RuleManager.getDefaultRule();
 	var color = undefined;
-	var profileName = ProfileManager.directConnectionProfile.name;
-	if (rule != undefined) {
-		var profile = ProfileManager.getProfile(rule.profileId);
-		color = profile.color;
-		profileName = profile.name;
+	if (!RuleManager.isRuleListEnabled()) {
+		var rule = RuleManager.getAssociatedRule(url) || RuleManager.getDefaultRule();
+		var profileName = ProfileManager.directConnectionProfile.name;
+		if (rule != undefined) {
+			var profile = ProfileManager.getProfile(rule.profileId);
+			color = profile.color;
+			profileName = profile.name;
+		}
 	}
 	var iconPath = iconDir + "icon-auto-" + (color || "blue") + ".png";
 //	if (diagnosedError)
@@ -198,8 +199,13 @@ function setAutoSwitchIcon(url) {
 
 	chrome.browserAction.setIcon({ path: iconPath });
 
-	var title = appName + "\nAuto Switch Mode\nActive Page Proxy: " + profileName;	
+	var title = appName + "\nAuto Switch Mode";
+	if (!RuleManager.isRuleListEnabled())
+		title += "\nActive Page Proxy: " + profileName;	
+	
 	setIconTitle(title);
+	
+	return true;
 }
 
 function monitorProxyChanges(checkIfMonitorRunning) {

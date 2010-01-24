@@ -489,34 +489,6 @@ RuleManager.generateAutoPacScript = function generateAutoPacScript() {
 					};
 				}
 			}
-//			for (var i = 0; i < ruleListRules.wildcard.length; i++) {
-//				var urlPattern = ruleListRules.wildcard[i];
-//				var proxy = ruleListProxy;
-//				if (urlPattern[0] == '!') {
-//					urlPattern = urlPattern.substr(1);
-//					proxy = defaultProxy;
-//				}
-//				rules["__ruleW" + i] = {
-//					urlPattern: urlPattern,
-//					patternType: RuleManager.patternTypes.wildcard,
-//					profileId : ruleListProfileId,
-//					proxy: proxy
-//				};
-//			}
-//			for (var i = 0; i < ruleListRules.regexp.length; i++) {
-//				var urlPattern = ruleListRules.regexp[i];
-//				var proxy = ruleListProxy;
-//				if (urlPattern[0] == '!') {
-//					urlPattern = urlPattern.substr(1);
-//					proxy = defaultProxy;
-//				}
-//				rules["__ruleR" + i] = {
-//					urlPattern: urlPattern,
-//					patternType: RuleManager.patternTypes.regexp,
-//					profileId : ruleListProfileId,
-//					proxy: proxy
-//				};
-//			}
 		}
 	}
 	
@@ -614,22 +586,22 @@ RuleManager.reloadRuleList = function reloadRuleList(scheduleNextReload) {
 		return;
 	}
 
-	$.ajaxSetup({ cache: false });
-	$().ajaxError(function(event, request, ajaxOptions, thrownError){
-		Logger.log("Error downloading rule list file!", Logger.types.warning);
-	});
-	$.get(
-		ruleListUrl,
-		undefined,
-		function(data, textStatus){
+	$.ajax({
+		url: ruleListUrl,
+		success: function(data, textStatus){
 			if (data.length <= 1024 * 1024) // bigger than 1 megabyte
 				RuleManager.parseRuleList(data);
 			else {
 				Logger.log("Too big rule list file!", Logger.types.error);
 			}
 		},
-		"text"
-	);
+		error: function(request, textStatus, thrownError){
+			Logger.log("Error downloading rule list file!", Logger.types.warning);
+		},
+		dataType: "text",
+		cache: false,
+		timeout: 10000
+	});
 };
 
 RuleManager.parseRuleList = function parseRuleList(data) {
