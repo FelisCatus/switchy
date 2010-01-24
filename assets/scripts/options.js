@@ -38,6 +38,10 @@ function initUI() {
 		$(this).removeClass("normal").addClass("selected");
 		$("#body .tab").hide();
 		$("#" + $(this).attr("id") + "Body").show();
+		if (this.id == "tabImportExport")
+			$(".control").hide();
+		else
+			$(".control").show();
 	});
 	
 	// Proxy Profiles
@@ -860,7 +864,12 @@ function exportRuleList() {
 }
 
 function makeBackup() {
-	var backupData = JSON.stringify(localStorage);
+	var options = {};
+	for (var optionName in localStorage)
+		if (optionName != "ruleListRules")
+			options[optionName] = localStorage[optionName];
+	
+	var backupData = JSON.stringify(options);
 	var backupData = $.base64Encode(backupData);
 	
 	saveFileAs("SwitchyOptions.bak", backupData);
@@ -874,14 +883,34 @@ function restoreBackup() {
 		return;
 	}
 	var backupFilePath = txtBackupFilePath.val();
+	var backupData = undefined;
 	
-	var backupData;
-	try {
-		backupData = extension.plugin.readFile(backupFilePath);
-	} catch (e) {
-		Logger.log("Oops! Can't read the backup file, " + e.toString(), Logger.types.error);
-		alert("\nOops! Can't read the backup file..");
-		return;
+	if (backupFilePath.substr(0, 7) == "http://" || backupFilePath.substr(0, 8) == "https://") {
+		$.ajax({
+			async: false,
+			url: backupFilePath,
+			success: function(data, textStatus){
+				if (data.length <= 1024 * 50) // bigger than 50 KB
+					backupData = data;
+				else
+					Logger.log("Too big backup file!", Logger.types.error);
+			},
+			error: function(request, textStatus, thrownError){
+				Logger.log("Error downloading the backup file!", Logger.types.warning);
+			},
+			dataType: "text",
+			cache: false,
+			timeout: 10000
+		});	
+	}
+	else {
+		try {
+			backupData = extension.plugin.readFile(backupFilePath);
+		} catch (e) {
+			Logger.log("Oops! Can't read the backup file, " + e.toString(), Logger.types.error);
+			alert("\nOops! Can't read the backup file..");
+			return;
+		}
 	}
 	
 	if (!backupData || backupData.trim().length == 0) {
@@ -903,10 +932,10 @@ function restoreBackup() {
 			"\n\nCurrent Switchy! options will be overwritten."))
 		return;
 	
-	for (var optionName in options)
-		localStorage[optionName] = options[optionName];
-	
-	Settings.setValue("ruleListEnabled", false); // for security concerns
+//	for (var optionName in options)
+//		localStorage[optionName] = options[optionName];
+//	
+//	Settings.setValue("ruleListEnabled", false); // for security concerns
 
 	alert("\nSwitchy! options restored successfully.." +
 			"\n\nYou should restart Switchy! (disable it and then reenable it) for the new options to take effect.");
