@@ -923,7 +923,7 @@ function restoreBackup() {
 		backupData = $.base64Decode(backupData);
 		options = JSON.parse(backupData);
 	} catch (e) {
-		Logger.log("Oops! Can't restore from this backup file\n\nThe backup file is corrupted or invalid, " + e.toString(), Logger.types.error);
+		Logger.log("Oops! Can't restore from this backup file. The backup file is corrupted or invalid, " + e.toString(), Logger.types.error);
 		alert("\nOops! Can't restore from this backup file\n\nThe backup file is corrupted or invalid..");
 		return;
 	}

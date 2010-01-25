@@ -70,8 +70,6 @@ function initDiagnose() {
 						Logger.log("Plugin error: " + pluginCheckResult, Logger.types.error);
 						$("#test3 .icon").addClass("error");
 						$("#test3 .description").text("(Plugin error: " + pluginCheckResult + ")");
-						// TODO: (Your Linux distribution isn't supported yet. 
-						// Currently only Gnome and KDE based distributions are supported)
 					}
 				} catch (e) {
 					Logger.log("Error checking the environment!", Logger.types.error);
