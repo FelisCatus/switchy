@@ -1,4 +1,4 @@
-#summary To be written.
+#summary Linux support issues
 
 == About Linux Support ==
 Current version of Switchy! supports Linux platform in general, but there are some limitations which make Switchy! not work as expected in some cases.
