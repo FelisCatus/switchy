@@ -32,8 +32,12 @@ To work well, Switchy should pass all these tests.
   Otherwise
     # Install `gconftool-2`.<br>
     # Set this system environment variable: `GNOME_DESKTOP_SESSION_ID=Default`, and restart the computer.
-  If the problem isn't solved, please file an issue about it in the [http://code.google.com/p/switchy/issues/list issue tracker] (it's also preferred to do the Extra Tests _(see below)_ and send the results in your issue).
+  If the problem isn't solved, please do the Extra Tests _(see below)_ and file an issue in the [http://code.google.com/p/switchy/issues/list issue tracker] and send the test results.
 
 == Extra Tests ==
-To help us diagnosing your problem, please do the following tests before filing an issue:
-  # 
+To help us diagnosing your problem, please run the following commands and send the result with your error report:
+{{{
+> echo $DESKTOP_SESSION + $GNOME_DESKTOP_SESSION_ID + $KDE_FULL_SESSION
+> gconftool-2 -g /system/http_proxy/host
+> kreadconfig --file kioslaverc --group 'Proxy Settings' --key httpProxy
+}}} 
