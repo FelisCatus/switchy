@@ -3,7 +3,7 @@
 
 ===1.5.0===
 (2010-01-25)
-  * New: Online Rule List support.
+  * New: Online Rule List support (AutoProxy Compatible).
   * New: Export Switch Rules as a PAC file.
   * New: Export Switch Rules as a Rule List file.
   * New: Backup Switchy options and restore them from local file or URL.
