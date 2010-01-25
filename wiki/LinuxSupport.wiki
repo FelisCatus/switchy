@@ -1,3 +1,39 @@
 #summary To be written.
 
-= To Be Written =
+== About Linux Support ==
+Current version of Switchy! supports Linux platform in general, but there are some limitations which make Switchy! not work as expected in some cases.
+
+== Supported Linux Distributions ==
+Currently, only Gnome and KDE based distributions are supported, though, I hope other distributions will be supported in future (if it's at all possible).
+
+== Error Diagnostics ==
+Follow these steps to diagnose the problem that prevents Switchy from working well:
+
+1. Open Switchy Options page and click `Error Log` button, the Error Log page will open.
+
+2. At the top of the page you'll see the test summary, which summarizes the results of 3 tests done by Switchy.
+To work well, Switchy should pass all these tests.
+  * *Loading Switchy Plugin*
+  Failure means that the Switchy plugin wasn't loaded successfully for some reason.<br>
+  To help us diagnose the problem, please do the following:<br>
+    # [http://dev.chromium.org/for-testers/enable-logging Enable Chrome logging].<br>
+    # File an issue in the [http://code.google.com/p/switchy/issues/list issue tracker] and attach the output log file.
+
+  * *Plugin Functionality*
+  Failure means that Switchy doesn't work properly, you will see a description of the problem beside this item.<br>
+  To solve this problem try the solution described bellow for the third test.
+
+  * *System Environment*
+  Failure means that the system environment isn't supported (e.g. the desktop environment isn't a Gnome nor KDE).<br>
+  To solve this problem try the following:<br>
+  If you think your system is KDE based
+    # Install `kreadconfig` and `kwriteconfig`.<br>
+    # Set this system environment variable: `KDE_FULL_SESSION=true`, and restart the computer.
+  Otherwise
+    # Install `gconftool-2`.<br>
+    # Set this system environment variable: `GNOME_DESKTOP_SESSION_ID=Default`, and restart the computer.
+  If the problem isn't solved, please file an issue about it in the [http://code.google.com/p/switchy/issues/list issue tracker] (it's also preferred to do the Extra Tests _(see below)_ and send the results in your issue).
+
+== Extra Tests ==
+To help us diagnosing your problem, please do the following tests before filing an issue:
+  # 
