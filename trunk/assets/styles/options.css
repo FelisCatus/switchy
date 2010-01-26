@@ -26,6 +26,10 @@ hr {
 	margin: 15px 0;
 }
 
+.link {
+	text-decoration: none;
+}
+
 .button {
 	width: 120px;
 	color: #567;

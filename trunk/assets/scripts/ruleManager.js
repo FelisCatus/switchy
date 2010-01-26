@@ -646,7 +646,7 @@ RuleManager.parseSwitchyRuleList = function parseSwitchyRuleList(data) {
 		}
 		
 		if (line.toLowerCase() == "[regexp]") {
-			patternType = RuleManager.patternTypes.regex;
+			patternType = RuleManager.patternTypes.regexp;
 			continue;
 		}
 
@@ -743,6 +743,9 @@ RuleManager.normalizeRule = function normalizeRule(rule) {
 };
 
 RuleManager.fixRule = function fixRule(rule) {
+	if (rule.patternType == "regex") // backward compatibility
+		rule.patternType = RuleManager.patternTypes.regexp;
+
 	return rule;
 };
 
