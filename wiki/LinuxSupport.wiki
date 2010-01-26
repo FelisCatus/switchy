@@ -29,7 +29,7 @@ To work well, Switchy should pass all these tests.
   If you think your system is KDE based
     # Install `kreadconfig` and `kwriteconfig`.<br>
     # Set this system environment variable: `KDE_FULL_SESSION=true`, and restart the computer.
-    # Run this command [`echo $KDE_HOME`], if it returns "~/.kde4", then run this command and restart Chrome: [`ln -s ~/.kde4 ~/.kde`].
+    # Run this command [`echo $KDE_HOME`], if it returns "~/.kde4", then run this command: [`ln -s ~/.kde4 ~/.kde`] and restart Chrome.
   Otherwise
     # Install `gconftool-2`.<br>
     # Set this system environment variable: `GNOME_DESKTOP_SESSION_ID=Default`, and restart the computer.
