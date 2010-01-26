@@ -433,7 +433,12 @@ function saveOptions() {
 	RuleManager.setRules(rules);
 	RuleManager.setDefaultRule(defaultRule);
 
-	RuleManager.setRuleListEnabled($("#chkRuleList").is(":checked"));
+	var ruleListEnabled = $("#chkRuleList").is(":checked");
+	if (RuleManager.isEnabled() && (!RuleManager.isRuleListEnabled() && ruleListEnabled)) {
+		RuleManager.setRuleListEnabled(true);
+		RuleManager.reloadRuleList(false);
+	}
+	RuleManager.setRuleListEnabled(ruleListEnabled);
 	Settings.setValue("ruleListUrl", $("#txtRuleListUrl").val());
 	Settings.setValue("ruleListReload", $("#cmbRuleListReload option:selected").val());
 	Settings.setValue("ruleListProfileId", $("#cmbRuleListProfile option:selected")[0].profile.id);

@@ -14,7 +14,7 @@ var iconErrorPath = "assets/images/icon-error.png";
 var refreshInterval = 10000;
 var refreshTimer = undefined;
 var newVersion = false;
-var notifyOnNewVersion = true;
+var notifyOnNewVersion = false;
 var currentProfile = undefined;
 var diagnosedError = false;
 var plugin;

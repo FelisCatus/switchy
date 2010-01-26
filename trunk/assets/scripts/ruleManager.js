@@ -64,7 +64,7 @@ RuleManager.isEnabled = function isEnabled() {
 };
 
 RuleManager.setEnabled = function setEnabled(enabled) {
-	RuleManager.enabled = (enabled == true);
+	RuleManager.enabled = (enabled == true ? true : false);
 };
 
 RuleManager.isRuleListEnabled = function isRuleListEnabled() {
@@ -72,7 +72,7 @@ RuleManager.isRuleListEnabled = function isRuleListEnabled() {
 };
 
 RuleManager.setRuleListEnabled = function setRuleListEnabled(enabled) {
-	RuleManager.ruleListEnabled = (enabled == true);
+	RuleManager.ruleListEnabled = (enabled == true ? true : false);
 };
 
 RuleManager.getDefaultRule = function getDefaultRule() {
@@ -267,12 +267,20 @@ RuleManager.ruleToScript = function ruleToScript(rule) {
 		proxy = RuleManager.getPacRuleProxy(rule.profileId);
 	}
 	
+	var urlPattern = rule.urlPattern || "";
+	if (rule.patternType == RuleManager.patternTypes.wildcard) {
+		if (urlPattern.substr(0, 1) != "*")
+			urlPattern = "*" + urlPattern;
+		
+		if (urlPattern.substr(urlPattern.length - 1, 1) != "*")
+			urlPattern += "*";
+	}
 	var matchFunc = (rule.patternType == RuleManager.patternTypes.regexp ? "regExpMatch" : "shExpMatch");
 	var script = "if (";
-	script += matchFunc + "(url, '" + rule.urlPattern + "')";
+	script += matchFunc + "(url, '" + urlPattern + "')";
 	if (rule.patternType != RuleManager.patternTypes.regexp
-		&& (rule.urlPattern.indexOf("://*.") > 0 || rule.urlPattern.indexOf("*.") == 0))
-		script += " || shExpMatch(url, '" + rule.urlPattern.replace("*.", "") + "')";
+		&& (urlPattern.indexOf("://*.") > 0 || urlPattern.indexOf("*.") == 0))
+		script += " || shExpMatch(url, '" + urlPattern.replace("*.", "") + "')";
 
 	return script + ") return '" + proxy + "';";
 };
@@ -337,7 +345,7 @@ RuleManager.generatePacScript = function generatePacScript(rules, defaultProfile
 RuleManager.generateRuleList = function generateRuleList() {
 	var rules = RuleManager.getRules();
 	var allRules = undefined;
-	if (RuleManager.isRuleListEnabled())
+	if (RuleManager.isEnabled() && RuleManager.isRuleListEnabled())
 		allRules = Settings.getObject("ruleListRules");
 	
 	if (!allRules) {
@@ -434,7 +442,7 @@ RuleManager.generateAutoPacScript = function generateAutoPacScript() {
 	var defaultProfile = RuleManager.getAutomaticModeProfile(false);	
 	var defaultProxy = RuleManager.getPacDefaultProxy(defaultProfile);
 
-	if (RuleManager.isRuleListEnabled()) {
+	if (RuleManager.isEnabled() && RuleManager.isRuleListEnabled()) {
 		var ruleListRules = Settings.getObject("ruleListRules");
 		var ruleListProfileId = Settings.getValue("ruleListProfileId");
 		var ruleListProxy = RuleManager.getPacRuleProxy(ruleListProfileId);
@@ -570,7 +578,7 @@ RuleManager.isModifiedSocksProfile = function isModifiedSocksProfile(profile) {
 };
 
 RuleManager.reloadRuleList = function reloadRuleList(scheduleNextReload) {
-	if (!RuleManager.isRuleListEnabled())
+	if (!RuleManager.isEnabled() || !RuleManager.isRuleListEnabled())
 		return;
 	
 	if (scheduleNextReload) {
