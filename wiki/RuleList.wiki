@@ -8,10 +8,6 @@ The Rule List file is a normal text file contains the rules grouped by their typ
 and enclosed by `#BEGIN` and `#END` marks.<br>
 The file format is similar to [http://en.wikipedia.org/wiki/INI_file ini files format].
 
-== Notes ==
-If the rule pattern is preceded by *!* (_exclamation mark_), then the rule is considered an exclusive rule,<br>
-which means that every URL matches this rule pattern will be requested using the default proxy not the rule list proxy.
-
 == Example ==
 {{{
 ; Summary: Example Rule List
@@ -31,3 +27,7 @@ youtube
 
 #END
 }}}
+
+== Notes ==
+If the rule pattern is preceded by *!* (_exclamation mark_), then the rule is considered an exclusive rule,<br>
+which means that every URL matches this rule pattern will be requested using the default proxy not the rule list proxy.
