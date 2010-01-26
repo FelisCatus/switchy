@@ -26,11 +26,11 @@ To work well, Switchy should pass all these tests.
   * *System Environment*
   Failure means that the system environment isn't supported (e.g. the desktop environment isn't a Gnome nor KDE).<br>
   To solve this problem try the following:<br>
-  If you think your system is KDE based
+  If you think your system is KDE based:
     # Install `kreadconfig` and `kwriteconfig`.<br>
     # Set this system environment variable: `KDE_FULL_SESSION=true`, and restart the computer.
     # Run this command [`echo $KDE_HOME`], if it returns "~/.kde4", then run this command: [`ln -s ~/.kde4 ~/.kde`] and restart Chrome.
-  Otherwise
+  Otherwise:
     # Install `gconftool-2`.<br>
     # Set this system environment variable: `GNOME_DESKTOP_SESSION_ID=Default`, and restart the computer.
   If the problem isn't solved, please do the Extra Tests _(see below)_ and file an issue in the [http://code.google.com/p/switchy/issues/list issue tracker] and send the test results.
