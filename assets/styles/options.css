@@ -684,3 +684,13 @@ hr {
 #logSummary .inactive {
 	opacity: 0.4;
 }
+
+#logger .note {
+	border: solid 1px #eec;
+	border-left: none;
+	border-right: none;
+	background-color: #ffd;
+	padding: 6px;
+	margin-bottom: 10px;
+	display: none;
+}

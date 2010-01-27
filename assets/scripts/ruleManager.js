@@ -438,7 +438,7 @@ RuleManager.ruleListToScript = function ruleListToScript() {
 };
 
 RuleManager.generateAutoPacScript = function generateAutoPacScript() {
-	var rules = RuleManager.rules;
+	var rules = RuleManager.getRules();
 	var defaultProfile = RuleManager.getAutomaticModeProfile(false);	
 	var defaultProxy = RuleManager.getPacDefaultProxy(defaultProfile);
 
@@ -476,7 +476,6 @@ RuleManager.generateAutoPacScript = function generateAutoPacScript() {
 			for (var i = 0; i < ruleListRules.wildcard.length; i++) {
 				var urlPattern = ruleListRules.wildcard[i];
 				if (urlPattern[0] != '!') {
-					urlPattern = urlPattern.substr(1);
 					rules["__ruleW" + i] = {
 						urlPattern: urlPattern,
 						patternType: RuleManager.patternTypes.wildcard,
@@ -488,7 +487,6 @@ RuleManager.generateAutoPacScript = function generateAutoPacScript() {
 			for (var i = 0; i < ruleListRules.regexp.length; i++) {
 				var urlPattern = ruleListRules.regexp[i];
 				if (urlPattern[0] != '!') {
-					urlPattern = urlPattern.substr(1);
 					rules["__ruleR" + i] = {
 						urlPattern: urlPattern,
 						patternType: RuleManager.patternTypes.regexp,

@@ -45,6 +45,7 @@ function clearLog() {
 
 function initDiagnose() {
 	var plugin = extension.plugin;
+	var success = false;
 	
 	// Test #1
 	$("#test1 .title").removeClass("inactive");
@@ -65,6 +66,7 @@ function initDiagnose() {
 					if (pluginCheckResult == "OK") {
 						Logger.log("Everything is OK", Logger.types.success);
 						$("#test3 .icon").addClass("success");
+						success = true;
 					}
 					else {
 						Logger.log("Plugin error: " + pluginCheckResult, Logger.types.error);
@@ -101,6 +103,9 @@ function initDiagnose() {
 					"<a href='http://code.google.com/p/switchy/issues/list'>" +
 					"file an issue</a> about this problem)");
 	}
+	
+	if (!success)
+		$("#logger .note").show();
 }
 
 function diagnose() {
