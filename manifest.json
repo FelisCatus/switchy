@@ -21,6 +21,7 @@
 	"plugins": [
 		{ "path": "plugins/npSwitchy.dll" },
 		{ "path": "plugins/npSwitchy.so" },
-		{ "path": "plugins/npSwitchy64.so" }
+		{ "path": "plugins/npSwitchy64.so" },
+		{ "path": "plugins/iSwitchy.bundle" }
 	]
 }
