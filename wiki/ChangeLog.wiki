@@ -1,6 +1,15 @@
 #summary Switchy Change Log
 #labels Featured
 
+===1.6.0===
+(2010-02-13)
+  * New: Support for Mac OS X.
+  * New: Default rule and custom rules support PAC files now.
+  * General: Better support for Linux.
+  * General: Detects if current website is loaded via proxy.
+  * Options: Disable VPN/Dial-up options under Linux and Mac OS X.
+  * General: Some improvements and bug fixes.
+
 ===1.5.0===
 (2010-01-25)
   * New: Online Rule List support (AutoProxy Compatible).
