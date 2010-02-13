@@ -347,7 +347,7 @@ RuleManager.ruleToScript = function ruleToScript(rule) {
 	script += matchFunc + "(url, '" + urlPattern + "')";
 	if (rule.patternType != RuleManager.PatternTypes.regexp
 		&& (urlPattern.indexOf("://*.") > 0 || urlPattern.indexOf("*.") == 0))
-		script += " || shExpMatch(url, '" + urlPattern.replace("*.", "") + "')";
+		script += " || shExpMatch(url, '" + urlPattern.replace("*.", "*") + "')";
 
 	return script + ") return " + proxy + ";";
 };
