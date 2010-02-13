@@ -14,7 +14,7 @@ var iconErrorPath = "assets/images/icon-error.png";
 var refreshInterval = 10000;
 var refreshTimer = undefined;
 var newVersion = false;
-var notifyOnNewVersion = false;
+var notifyOnNewVersion = true;
 var currentProfile = undefined;
 var diagnosedError = false;
 var plugin;
@@ -112,7 +112,7 @@ function openOptions(firstTime) {
 }
 
 function applySavedOptions() {
-	if (!Settings.getValue("reapplySelectedProfile", true))
+	if (!Settings.getValue("reapplySelectedProfile", false))
 		return;
 	
 	var selectedProfile = ProfileManager.getSelectedProfile();
@@ -124,7 +124,8 @@ function setIconBadge(text) {
 	if (text == undefined)
 		text = "";
 	
-	chrome.browserAction.setBadgeBackgroundColor({ color: [75, 125, 255, 255] });
+	//chrome.browserAction.setBadgeBackgroundColor({ color: [75, 125, 255, 255] });
+	chrome.browserAction.setBadgeBackgroundColor({ color: [125, 215, 75, 255] });
 	chrome.browserAction.setBadgeText({ text: text });
 }
 
@@ -161,7 +162,7 @@ function setIconInfo(profile, preventProxyChanges) {
 	}
 	
 	var title = appName + "\n";	
-	if (profile.proxyMode == ProfileManager.proxyModes.direct) {
+	if (profile.proxyMode == ProfileManager.ProxyModes.direct) {
 		chrome.browserAction.setIcon({ path: iconInactivePath });
 		title += profile.name;
 	} else {
@@ -188,7 +189,7 @@ function setAutoSwitchIcon(url) {
 	}
 	
 	var color = undefined;
-	if (!RuleManager.isRuleListEnabled()) {
+//	if (!RuleManager.isRuleListEnabled()) {
 		var rule = RuleManager.getAssociatedRule(url) || RuleManager.getDefaultRule();
 		var profileName = ProfileManager.directConnectionProfile.name;
 		if (rule != undefined) {
@@ -196,7 +197,7 @@ function setAutoSwitchIcon(url) {
 			color = profile.color;
 			profileName = profile.name;
 		}
-	}
+//	}
 	var iconPath = iconDir + "icon-auto-" + (color || "blue") + ".png";
 //	if (diagnosedError)
 //		iconPath = iconErrorPath;
@@ -204,7 +205,7 @@ function setAutoSwitchIcon(url) {
 	chrome.browserAction.setIcon({ path: iconPath });
 
 	var title = appName + "\nAuto Switch Mode";
-	if (!RuleManager.isRuleListEnabled())
+//	if (!RuleManager.isRuleListEnabled())
 		title += "\nActive Page Proxy: " + profileName;	
 	
 	setIconTitle(title);
@@ -230,41 +231,6 @@ function diagnose() {
 	Logger.log("Extension Info: v" + appVersion, Logger.types.info);
 	Logger.log("Browser Info: " + navigator.appVersion, Logger.types.info);
 	
-//	if (document.plugins.length > 0 && plugin == document.plugins[0])
-//		Logger.log("Plugin loaded successfully..", Logger.types.success);
-//	else {
-//		Logger.log("Plugin not loaded!", Logger.types.error);
-//		result = false;
-//	}
-	
-//	if (typeof plugin.setProxy == "function") {
-//		var pluginDiagnoseResult = plugin.diagnose(0);
-//		if (pluginDiagnoseResult == "OK")
-//			Logger.log("Plugin loaded successfully..", Logger.types.success);
-//		else {
-//			Logger.log("Plugin not working properly! Internal error: " + pluginDiagnoseResult, Logger.types.error);
-//			result = false;
-//		}
-//	}
-//	else {
-//		Logger.log("Error loading plugin!", Logger.types.error);
-//		result = false;
-//	}
-	
-//	if (localStorage && localStorage.constructor.toString().indexOf("Storage()") >= 0)
-//		Logger.log("'localStorage' supported..", Logger.types.success);
-//	else {
-//		Logger.log("'localStorage' not supported!", Logger.types.error);
-//		result = false;
-//	}
-//	
-//	if (localStorage.config != undefined)
-//		Logger.log("Wrote to local storage successfully..", Logger.types.success);
-//	else {
-//		Logger.log("Can't write to local storage!", Logger.types.error);
-//		result = false;
-//	}
-
 	if (typeof plugin.setProxy == "function") {
 		try {
 			var pluginDiagnoseResult = plugin.diagnose(0);

@@ -9,6 +9,12 @@
 
 var Utils = {};
 
+Utils.OS = {
+	isMac: (/mac/i).test(navigator.userAgent), // maybe should test |navigator.platform| instead?
+	isWindows: (/win/i).test(navigator.userAgent),
+	isLinux: (/linux/i).test(navigator.userAgent)
+};
+
 Utils.compareStrings = function compareStrings(s1, s2) {
 	s1 = s1.toLowerCase();
 	s2 = s2.toLowerCase();

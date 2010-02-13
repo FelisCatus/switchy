@@ -31,7 +31,7 @@ var i18nTemplate = (function() {
 		 * This handler sets the textContent of the element.
 		 */
 		'i18n-content' : function(element, attributeValue) {
-			element.textContent = chrome.i18n.getMessage(attributeValue);
+			element.innerHTML/*textContent*/ = chrome.i18n.getMessage(attributeValue);
 		},
 
 		/**
@@ -95,5 +95,3 @@ var i18nTemplate = (function() {
 		process : process
 	};
 })();
-
-i18nTemplate.process(document);
