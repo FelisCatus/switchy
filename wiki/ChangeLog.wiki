@@ -5,6 +5,7 @@
 (2010-02-13)
   * New: Support for Mac OS X.
   * New: Default rule and custom rules support PAC files now.
+  * New: Support for localization.
   * General: Better support for Linux.
   * General: Detects if current website is loaded via proxy.
   * Options: Disable VPN/Dial-up options under Linux and Mac OS X.
