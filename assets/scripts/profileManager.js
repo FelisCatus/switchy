@@ -8,18 +8,18 @@
 
 var ProfileManager = {};
 
-ProfileManager.profiles = {};
-
-ProfileManager.proxyModes = {
+ProfileManager.ProxyModes = {
 	direct: "direct",
 	manual: "manual",
 	auto: "auto"
 };
 
+ProfileManager.profiles = {};
+
 ProfileManager.directConnectionProfile = {
 	id: "direct",
 	name: "[Direct Connection]",
-	proxyMode: ProfileManager.proxyModes.direct,
+	proxyMode: ProfileManager.ProxyModes.direct,
 	color: "inactive"
 };
 
@@ -115,7 +115,7 @@ ProfileManager.getCurrentProfile = function getCurrentProfile() {
 		return {};
 	}
 	
-	if (proxyMode == ProfileManager.proxyModes.direct)
+	if (proxyMode == ProfileManager.ProxyModes.direct)
 		return ProfileManager.directConnectionProfile;
 	
 	var profile = ProfileManager.parseProxyString(proxyString);
@@ -125,7 +125,7 @@ ProfileManager.getCurrentProfile = function getCurrentProfile() {
 	profile = ProfileManager.normalizeProfile(profile);
 	
 	if (RuleManager.isModifiedSocksProfile(profile)) {
-		profile.proxyMode = ProfileManager.proxyModes.manual;
+		profile.proxyMode = ProfileManager.ProxyModes.manual;
 	}
 	
 	var foundProfile = ProfileManager.contains(profile);
@@ -140,7 +140,7 @@ ProfileManager.getCurrentProfile = function getCurrentProfile() {
 
 ProfileManager.applyProfile = function applyProfile(profile) {
 	var plugin = chrome.extension.getBackgroundPage().plugin;
-	var direct = (profile.proxyMode == ProfileManager.proxyModes.direct);
+	var direct = (profile.proxyMode == ProfileManager.ProxyModes.direct);
 	
 	Settings.setObject("selectedProfile", profile);
 	
@@ -176,10 +176,10 @@ ProfileManager.applyProfile = function applyProfile(profile) {
 
 ProfileManager.handleSocksProfile = function handleSocksProfile(profile) {
 	// TODO if (windows || gnome) only handle SOCKS5
-	if (profile.proxyMode == ProfileManager.proxyModes.manual && profile.proxySocks.trim().length > 0) {
+	if (profile.proxyMode == ProfileManager.ProxyModes.manual && profile.proxySocks.trim().length > 0) {
 		RuleManager.saveSocksPacScript(profile);
 		profile = $.extend(true, {}, profile);
-		profile.proxyMode = ProfileManager.proxyModes.auto;
+		profile.proxyMode = ProfileManager.ProxyModes.auto;
 		profile.proxyConfigUrl = RuleManager.getSocksPacScriptPath(true);
 	}
 	
@@ -209,7 +209,7 @@ ProfileManager.profileToString = function profileToString(profile, prettyPrint) 
 	if (profile.name != undefined)
 		result.push(profile.name); 
 	
-	if (profile.proxyMode == ProfileManager.proxyModes.manual) {
+	if (profile.proxyMode == ProfileManager.ProxyModes.manual) {
 		if (profile.proxyHttp != undefined && profile.proxyHttp.trim().length > 0)
 			result.push("HTTP: " + profile.proxyHttp); 
 		
@@ -291,7 +291,7 @@ ProfileManager.buildProxyString = function buildProxyString(profile) {
 ProfileManager.normalizeProfile = function normalizeProfile(profile) {
 	var newProfile = {
 		name: "",
-		proxyMode: ProfileManager.proxyModes.direct,
+		proxyMode: ProfileManager.ProxyModes.direct,
 		proxyHttp : "",
 		useSameProxy : true,
 		proxyHttps : "",
@@ -321,9 +321,9 @@ ProfileManager.fixProfile = function fixProfile(profile) {
 	}
 	if (profile.proxyMode == undefined) {
 		if (profile.proxyConfigUrl != undefined && profile.proxyConfigUrl.trim().length > 0)
-			profile.proxyMode = ProfileManager.proxyModes.auto;
+			profile.proxyMode = ProfileManager.ProxyModes.auto;
 		else
-			profile.proxyMode = ProfileManager.proxyModes.manual;
+			profile.proxyMode = ProfileManager.ProxyModes.manual;
 	}
 	
 	return profile;
@@ -343,10 +343,10 @@ ProfileManager.equals = function equals(profile1, profile2) {
 	if (profile1.proxyMode != profile2.proxyMode)
 		return false;
 	
-	if (profile1.proxyMode == ProfileManager.proxyModes.direct)
+	if (profile1.proxyMode == ProfileManager.ProxyModes.direct)
 		return true;
 	
-	if (profile1.proxyMode == ProfileManager.proxyModes.manual) {
+	if (profile1.proxyMode == ProfileManager.ProxyModes.manual) {
 		if (profile1.proxyHttp != profile2.proxyHttp || profile1.useSameProxy != profile2.useSameProxy)
 			return false;
 
@@ -359,7 +359,7 @@ ProfileManager.equals = function equals(profile1, profile2) {
 				/*&& profile1.socksVersion == profile2.socksVersion*/);
 	}
 	
-	if (profile1.proxyMode == ProfileManager.proxyModes.auto)
+	if (profile1.proxyMode == ProfileManager.ProxyModes.auto)
 		return (profile1.proxyConfigUrl == profile2.proxyConfigUrl);
 };
 

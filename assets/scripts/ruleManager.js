@@ -9,12 +9,14 @@
 
 var RuleManager = {};
 
-RuleManager.rules = {};
-
-RuleManager.patternTypes = {
+RuleManager.PatternTypes = {
 	wildcard: "wildcard",
 	regexp: "regexp"
 };
+
+RuleManager.rules = {};
+
+RuleManager.allRules = {};
 
 RuleManager.enabled = true;
 
@@ -24,11 +26,13 @@ RuleManager.autoPacScriptPath = undefined;
 
 RuleManager.socksPacScriptPath = undefined;
 
+RuleManager.profilesScripts = {};
+
 RuleManager.defaultRule = {
 	id: "defaultRule",
 	name: "Default Rule",
 	urlPattern: "",
-	patternType: RuleManager.patternTypes.wildcard,
+	patternType: RuleManager.PatternTypes.wildcard,
 	profileId : ProfileManager.directConnectionProfile.id
 };
 
@@ -118,7 +122,7 @@ RuleManager.getSortedRuleArray = function getSortedRuleArray() {
 };
 
 RuleManager.getAssociatedRule = function getAssociatedRule(url) {
-	var rules = RuleManager.rules;
+	var rules = RuleManager.allRules;
 	for (var i in rules) {
 		var rule = rules[i];
 		if (RuleManager.matchPattern(url, rule.urlPattern, rule.patternType))
@@ -128,14 +132,14 @@ RuleManager.getAssociatedRule = function getAssociatedRule(url) {
 };
 
 RuleManager.ruleExists = function ruleExists(urlPattern, patternType) {
-	if (patternType == RuleManager.patternTypes.wildcard)
+	if (patternType == RuleManager.PatternTypes.wildcard)
 		urlPattern = RuleManager.wildcardToRegexp(urlPattern);
 	
 	var rules = RuleManager.rules;
 	for (var i in rules) {
 		var rule = rules[i];
 		var ruleUrlPattern = rule.urlPattern;
-		if (rule.patternType == RuleManager.patternTypes.wildcard)
+		if (rule.patternType == RuleManager.PatternTypes.wildcard)
 			ruleUrlPattern = RuleManager.wildcardToRegexp(ruleUrlPattern);
 		
 		if (ruleUrlPattern == urlPattern)
@@ -154,7 +158,70 @@ RuleManager.ruleExistsForUrl = function ruleExistsForUrl(url) {
 	return false;
 };
 
+RuleManager.downloadPacScript = function downloadPacScript(url) {
+	console.log(url);
+	var result = "";
+//	var request = new XMLHttpRequest();
+//	request.open("GET", url, false);
+//	request.onreadystatechange = function() {
+//		if (this.readyState == XMLHttpRequest.DONE) {
+//			result = this.responseText;
+//		}
+//	};
+//	try {
+//		request.send();
+//	} catch (e) {
+//		Logger.log("Error downloading PAC file! Exception: " + e.message, Logger.types.warning);;
+//	}
+	
+	$.ajax({
+		url: url,
+		success: function(data, textStatus){
+			result = data;
+		},
+		error: function(request, textStatus, thrownError){
+			Logger.log("Error downloading PAC file!", Logger.types.warning);
+		},
+		dataType: "text",
+		cache: true,
+		timeout: 10000,
+		async: false
+	});
+	
+	return result;
+};
+
+RuleManager.downloadProfilesPacScripts = function downloadProfilesPacScripts() {
+	var scripts = {};
+	var rules = RuleManager.getRules();
+	var counter = 1;
+	for (var i in rules) {
+		var rule = rules[i];
+		var profile = ProfileManager.getProfile(rule.profileId);
+		if (profile == undefined)
+			continue;
+		
+		if (profile.proxyMode != ProfileManager.ProxyModes.auto)
+			continue;
+		
+		var script = RuleManager.downloadPacScript(profile.proxyConfigUrl);
+		if (!script || script.length == 0) {
+			scripts[profile.id] = { functionName: "", script: "" };
+			continue;
+		}
+		
+		var functionName = "Proxy" + counter++;
+		script = "var " + functionName + " = (function(){\r\n\t" + 
+				 script.replace(/([\r\n]+)/g, "\r\n\t") + "\r\n\treturn FindProxyForURL;\r\n})();\r\n";
+		scripts[profile.id] = { functionName: functionName, script: script };
+	}
+	
+	return scripts;
+};
+
 RuleManager.saveAutoPacScript = function saveAutoPacScript() {
+	RuleManager.profilesScripts = RuleManager.downloadProfilesPacScripts();
+
 	var plugin = chrome.extension.getBackgroundPage().plugin;
 	var script = RuleManager.generateAutoPacScript();
 	try {
@@ -206,7 +273,7 @@ RuleManager.regExpMatch = function regExpMatch(url, pattern) {
 };
 
 RuleManager.matchPattern = function matchPattern(url, pattern, patternType) {
-	if (patternType == RuleManager.patternTypes.regexp)
+	if (patternType == RuleManager.PatternTypes.regexp)
 		return RuleManager.regExpMatch(url, pattern);
 	
 	return RuleManager.shExpMatch(url, pattern);
@@ -219,7 +286,7 @@ RuleManager.urlToRule = function urlToRule(url, patternType) {
 	var rule = {
 		id: nameId,
 		name: nameId,
-		urlPattern: (patternType == RuleManager.patternTypes.regexp ? RuleManager.wildcardToRegexp(pattern) : pattern),
+		urlPattern: (patternType == RuleManager.PatternTypes.regexp ? RuleManager.wildcardToRegexp(pattern) : pattern),
 		patternType: patternType,
 		profileId : ProfileManager.directConnectionProfile.id
 	};
@@ -255,7 +322,7 @@ RuleManager.ruleToString = function ruleToString(rule, prettyPrint) {
 	if (rule.profileId != undefined && rule.profileId.trim().length > 0)
 		result.push("Proxy Profile: " + ProfileManager.getProfiles()[rule.profileId]);
 	
-	return result.join("\n");
+	return result.join("\r\n");
 };
 
 RuleManager.ruleToScript = function ruleToScript(rule) {
@@ -268,28 +335,28 @@ RuleManager.ruleToScript = function ruleToScript(rule) {
 	}
 	
 	var urlPattern = rule.urlPattern || "";
-	if (rule.patternType == RuleManager.patternTypes.wildcard) {
+	if (rule.patternType == RuleManager.PatternTypes.wildcard) {
 		if (urlPattern.substr(0, 1) != "*")
 			urlPattern = "*" + urlPattern;
 		
 		if (urlPattern.substr(urlPattern.length - 1, 1) != "*")
 			urlPattern += "*";
 	}
-	var matchFunc = (rule.patternType == RuleManager.patternTypes.regexp ? "regExpMatch" : "shExpMatch");
+	var matchFunc = (rule.patternType == RuleManager.PatternTypes.regexp ? "regExpMatch" : "shExpMatch");
 	var script = "if (";
 	script += matchFunc + "(url, '" + urlPattern + "')";
-	if (rule.patternType != RuleManager.patternTypes.regexp
+	if (rule.patternType != RuleManager.PatternTypes.regexp
 		&& (urlPattern.indexOf("://*.") > 0 || urlPattern.indexOf("*.") == 0))
 		script += " || shExpMatch(url, '" + urlPattern.replace("*.", "") + "')";
 
-	return script + ") return '" + proxy + "';";
+	return script + ") return " + proxy + ";";
 };
 
-RuleManager.getPacRuleProxy = function getPacRuleProxy(profileId) {
+RuleManager._getPacRuleProxy = function getPacRuleProxy(profileId) {
 	var proxy = "DIRECT";
 	if (profileId != ProfileManager.directConnectionProfile.id) {
 		var profile = ProfileManager.getProfile(profileId);
-		if (profile != undefined && profile.proxyMode == ProfileManager.proxyModes.manual) {
+		if (profile != undefined && profile.proxyMode == ProfileManager.ProxyModes.manual) {
 			if (profile.proxyHttp && profile.proxyHttp.length > 0)
 				proxy = "PROXY " + profile.proxyHttp;
 			
@@ -305,11 +372,67 @@ RuleManager.getPacRuleProxy = function getPacRuleProxy(profileId) {
 	return proxy;
 };
 
+RuleManager.getPacRuleProxy = function getPacRuleProxy(profileId) {	
+	var proxy = "'DIRECT'";
+	if (profileId != ProfileManager.directConnectionProfile.id) {
+		var profile = ProfileManager.getProfile(profileId);
+		if (profile != undefined && profile.proxyMode != ProfileManager.ProxyModes.direct) {
+			if (profile.proxyMode == ProfileManager.ProxyModes.manual) {
+				if (profile.proxyHttp && profile.proxyHttp.length > 0)
+					proxy = "PROXY " + profile.proxyHttp;
+				
+				if (profile.proxySocks && profile.proxySocks.length > 0
+					&& !profile.useSameProxy && profile.proxySocks != profile.proxyHttp) { // workaround for Gnome
+					if (profile.socksVersion == 5)
+						proxy = "SOCKS5 " + profile.proxySocks + (proxy != "'DIRECT'" ? "; DIRECT" : "");
+					else
+						proxy = "SOCKS " + profile.proxySocks + (proxy != "'DIRECT'" ? "; DIRECT" : "");
+				}
+				proxy = "'" + proxy + "'";
+				
+			} else if (profile.proxyMode == ProfileManager.ProxyModes.auto) {
+				var script = RuleManager.profilesScripts[profile.id];
+				if (script) {
+					proxy = script.functionName + "(url, host)";
+				}
+			}
+		}
+	}
+	return proxy;
+};
+
 RuleManager.getPacDefaultProxy = function getPacDefaultProxy(defaultProfile) {
+    // TODO: merge RuleManager.getPacDefaultProxy and RuleManager.getPacRuleProxy in one function
+	var proxy = "'DIRECT'";
+    var profile = defaultProfile;
+    if (profile != undefined && profile.proxyMode != ProfileManager.ProxyModes.direct) {
+        if (profile.proxyMode == ProfileManager.ProxyModes.manual) {
+            if (profile.proxyHttp && profile.proxyHttp.length > 0)
+                proxy = "PROXY " + profile.proxyHttp;
+            
+            if (profile.proxySocks && profile.proxySocks.length > 0
+                && !profile.useSameProxy && profile.proxySocks != profile.proxyHttp) { // workaround for Gnome
+                if (profile.socksVersion == 5)
+                    proxy = "SOCKS5 " + profile.proxySocks + (proxy != "'DIRECT'" ? "; DIRECT" : "");
+                else
+                    proxy = "SOCKS " + profile.proxySocks + (proxy != "'DIRECT'" ? "; DIRECT" : "");
+            }
+            proxy = "'" + proxy + "'";
+            
+        } else if (profile.proxyMode == ProfileManager.ProxyModes.auto) {
+            var script = RuleManager.profilesScripts[profile.id];
+            if (script) {
+                proxy = script.functionName + "(url, host)";
+            }
+        }
+    }
+	return proxy;
+
+
+	
 	var proxy = "DIRECT";
 	var profile = defaultProfile;
-	if (profile != undefined && 
-		(profile.isAutomaticModeProfile || profile.proxyMode == ProfileManager.proxyModes.manual)) {
+	if (profile != undefined && (profile.isAutomaticModeProfile || profile.proxyMode == ProfileManager.ProxyModes.manual)) {
 		if (profile.proxyHttp && profile.proxyHttp.length > 0)
 			proxy = "PROXY " + profile.proxyHttp;
 		
@@ -321,14 +444,20 @@ RuleManager.getPacDefaultProxy = function getPacDefaultProxy(defaultProfile) {
 				proxy = "SOCKS " + profile.proxySocks + (proxy != "DIRECT" ? "; " + proxy : "");
 		} 
 	}
-	return proxy;
+	return "'" + proxy + "'";
 };
 
 RuleManager.generatePacScript = function generatePacScript(rules, defaultProfile) {
-	var script = [];	
+	var script = [];
+	
+	for (var i in RuleManager.profilesScripts) {
+		var profileScript = RuleManager.profilesScripts[i];
+		script.push(profileScript.script);
+	}
+	
 	script.push("function regExpMatch(url, pattern) {");
 	script.push("\ttry { return new RegExp(pattern).test(url); } catch(ex) { return false; }");
-	script.push("}\n");
+	script.push("}\r\n");
 	script.push("function FindProxyForURL(url, host) {");
 	for (var i in rules) {
 		var rule = rules[i];
@@ -336,7 +465,7 @@ RuleManager.generatePacScript = function generatePacScript(rules, defaultProfile
 	}
 	
 	var proxy = RuleManager.getPacDefaultProxy(defaultProfile);
-	script.push("\t" + "return '" + proxy + "';");
+	script.push("\t" + "return " + proxy + ";");
 	script.push("}");
 	
 	return script.join("\r\n");
@@ -356,18 +485,18 @@ RuleManager.generateRuleList = function generateRuleList() {
 	}
 	for (var i in rules) {
 		var rule = rules[i];
-		if (rule.patternType == RuleManager.patternTypes.regexp)
+		if (rule.patternType == RuleManager.PatternTypes.regexp)
 			allRules.regexp.push(rule.urlPattern);
 		else
 			allRules.wildcard.push(rule.urlPattern);
 	}
-	var wildcardRules = "[wildcard]\n" + allRules.wildcard.join("\n");
-	var regexpRules = "[regexp]\n" + allRules.regexp.join("\n");
-	var header = "; Summary: Proxy Switchy! Exported Rule List\n"
-		+ "; Date: " + new Date().toLocaleDateString() + "\n"
+	var wildcardRules = "[wildcard]\r\n" + allRules.wildcard.join("\r\n");
+	var regexpRules = "[regexp]\r\n" + allRules.regexp.join("\r\n");
+	var header = "; Summary: Proxy Switchy! Exported Rule List\r\n"
+		+ "; Date: " + new Date().toLocaleDateString() + "\r\n"
 		+ "; Website: http://bit.ly/proxyswitchy";
 		
-	var ruleListData = header + "\n\n#BEGIN\n\n" + wildcardRules + "\n\n" + regexpRules + "\n\n#END";
+	var ruleListData = header + "\r\n\r\n#BEGIN\r\n\r\n" + wildcardRules + "\r\n\r\n" + regexpRules + "\r\n\r\n#END";
 	
 	return ruleListData;
 };
@@ -391,7 +520,7 @@ RuleManager.ruleListToScript = function ruleListToScript() {
 //			urlPattern = urlPattern.substr(1);
 //			rules["__ruleW" + i] = {
 //				urlPattern: urlPattern,
-//				patternType: RuleManager.patternTypes.wildcard,
+//				patternType: RuleManager.PatternTypes.wildcard,
 //				profileId : ruleListProfileId,
 //				proxy: defaultProxy
 //			};
@@ -403,7 +532,7 @@ RuleManager.ruleListToScript = function ruleListToScript() {
 //			urlPattern = urlPattern.substr(1);
 //			rules["__ruleR" + i] = {
 //				urlPattern: urlPattern,
-//				patternType: RuleManager.patternTypes.regexp,
+//				patternType: RuleManager.PatternTypes.regexp,
 //				profileId : ruleListProfileId,
 //				proxy: defaultProxy
 //			};
@@ -417,7 +546,7 @@ RuleManager.ruleListToScript = function ruleListToScript() {
 //			urlPattern = urlPattern.substr(1);
 //			rules["__ruleW" + i] = {
 //				urlPattern: urlPattern,
-//				patternType: RuleManager.patternTypes.wildcard,
+//				patternType: RuleManager.PatternTypes.wildcard,
 //				profileId : ruleListProfileId,
 //				proxy: ruleListProxy
 //			};
@@ -429,7 +558,7 @@ RuleManager.ruleListToScript = function ruleListToScript() {
 //			urlPattern = urlPattern.substr(1);
 //			rules["__ruleR" + i] = {
 //				urlPattern: urlPattern,
-//				patternType: RuleManager.patternTypes.regexp,
+//				patternType: RuleManager.PatternTypes.regexp,
 //				profileId : ruleListProfileId,
 //				proxy: ruleListProxy
 //			};
@@ -439,7 +568,8 @@ RuleManager.ruleListToScript = function ruleListToScript() {
 
 RuleManager.generateAutoPacScript = function generateAutoPacScript() {
 	var rules = RuleManager.getRules();
-	var defaultProfile = RuleManager.getAutomaticModeProfile(false);	
+//	var defaultProfile = RuleManager.getAutomaticModeProfile(false);	
+	var defaultProfile = ProfileManager.getProfile(RuleManager.getDefaultRule().profileId);
 	var defaultProxy = RuleManager.getPacDefaultProxy(defaultProfile);
 
 	if (RuleManager.isEnabled() && RuleManager.isRuleListEnabled()) {
@@ -454,7 +584,7 @@ RuleManager.generateAutoPacScript = function generateAutoPacScript() {
 					urlPattern = urlPattern.substr(1);
 					rules["__ruleW" + i] = {
 						urlPattern: urlPattern,
-						patternType: RuleManager.patternTypes.wildcard,
+						patternType: RuleManager.PatternTypes.wildcard,
 						profileId : ruleListProfileId,
 						proxy: defaultProxy
 					};
@@ -466,7 +596,7 @@ RuleManager.generateAutoPacScript = function generateAutoPacScript() {
 					urlPattern = urlPattern.substr(1);
 					rules["__ruleR" + i] = {
 						urlPattern: urlPattern,
-						patternType: RuleManager.patternTypes.regexp,
+						patternType: RuleManager.PatternTypes.regexp,
 						profileId : ruleListProfileId,
 						proxy: defaultProxy
 					};
@@ -478,7 +608,7 @@ RuleManager.generateAutoPacScript = function generateAutoPacScript() {
 				if (urlPattern[0] != '!') {
 					rules["__ruleW" + i] = {
 						urlPattern: urlPattern,
-						patternType: RuleManager.patternTypes.wildcard,
+						patternType: RuleManager.PatternTypes.wildcard,
 						profileId : ruleListProfileId,
 						proxy: ruleListProxy
 					};
@@ -489,7 +619,7 @@ RuleManager.generateAutoPacScript = function generateAutoPacScript() {
 				if (urlPattern[0] != '!') {
 					rules["__ruleR" + i] = {
 						urlPattern: urlPattern,
-						patternType: RuleManager.patternTypes.regexp,
+						patternType: RuleManager.PatternTypes.regexp,
 						profileId : ruleListProfileId,
 						proxy: ruleListProxy
 					};
@@ -497,6 +627,8 @@ RuleManager.generateAutoPacScript = function generateAutoPacScript() {
 			}
 		}
 	}
+	
+	RuleManager.allRules = rules;
 	
 	return RuleManager.generatePacScript(rules, defaultProfile);
 };
@@ -540,7 +672,7 @@ RuleManager.getAutomaticModeProfile = function getAutomaticModeProfile(withSalt)
 		return undefined;
 	
 	profile.id = "";
-	profile.proxyMode = ProfileManager.proxyModes.auto;
+	profile.proxyMode = ProfileManager.ProxyModes.auto;
 	profile.proxyConfigUrl = RuleManager.getAutoPacScriptPath(withSalt);
 	profile.color = "auto-blue";
 	profile.name = "Auto Swtich Mode";
@@ -552,7 +684,7 @@ RuleManager.isAutomaticModeEnabled = function isAutomaticModeEnabled(currentProf
 	if (currentProfile == undefined)
 		currentProfile = ProfileManager.getCurrentProfile();
 	
-	if (currentProfile.proxyMode != ProfileManager.proxyModes.auto)
+	if (currentProfile.proxyMode != ProfileManager.ProxyModes.auto)
 		return false;
 	
 	var autoProfile = RuleManager.getAutomaticModeProfile(false);
@@ -564,7 +696,7 @@ RuleManager.isAutomaticModeEnabled = function isAutomaticModeEnabled(currentProf
 };
 
 RuleManager.isModifiedSocksProfile = function isModifiedSocksProfile(profile) {
-	if (profile.proxyMode != ProfileManager.proxyModes.auto)
+	if (profile.proxyMode != ProfileManager.ProxyModes.auto)
 		return false;
 	
 	var scriptPath = RuleManager.getSocksPacScriptPath(false);
@@ -605,7 +737,7 @@ RuleManager.reloadRuleList = function reloadRuleList(scheduleNextReload) {
 			Logger.log("Error downloading rule list file!", Logger.types.warning);
 		},
 		dataType: "text",
-		cache: false,
+		cache: true,
 		timeout: 10000
 	});
 };
@@ -631,7 +763,7 @@ RuleManager.parseSwitchyRuleList = function parseSwitchyRuleList(data) {
 		wildcard: [],
 		regexp: []
 	};
-	var patternType = RuleManager.patternTypes.wildcard;
+	var patternType = RuleManager.PatternTypes.wildcard;
 	for (var index = 0; index < lines.length; index++) {
 		var line = lines[index].trim();
 		
@@ -639,12 +771,12 @@ RuleManager.parseSwitchyRuleList = function parseSwitchyRuleList(data) {
 			continue;
 		
 		if (line.toLowerCase() == "[wildcard]") {
-			patternType = RuleManager.patternTypes.wildcard;
+			patternType = RuleManager.PatternTypes.wildcard;
 			continue;
 		}
 		
 		if (line.toLowerCase() == "[regexp]") {
-			patternType = RuleManager.patternTypes.regexp;
+			patternType = RuleManager.PatternTypes.regexp;
 			continue;
 		}
 
@@ -692,26 +824,26 @@ RuleManager.parseAutoProxyRuleList = function parseAutoProxyRuleList(data) {
 		}
 		
 		if (line[0] == '/' && line[line.length - 1] == '/') { // regexp pattern
-			patternType = RuleManager.patternTypes.regexp;
+			patternType = RuleManager.PatternTypes.regexp;
 			line = line.substring(1, line.length - 1);
 		}
 		else if (line.indexOf('^') > -1) {
-			patternType = RuleManager.patternTypes.regexp;
+			patternType = RuleManager.PatternTypes.regexp;
 			line = RuleManager.wildcardToRegexp(line);
 			line = line.replace(/\\\^/g, "(?:[^\\w\\-.%\\u0080-\\uFFFF]|$)");
 		}
 		else if (line.substr(0, 2) == "||") {
-			patternType = RuleManager.patternTypes.regexp;
+			patternType = RuleManager.PatternTypes.regexp;
 			line = "^[\\w\\-]+:\\/+(?!\\/)(?:[^\\/]+\\.)?" + RuleManager.wildcardToRegexp(line.substring(2));
 		}
 		else if (line[0] == "|" || line[line.length - 1] == "|") {
-			patternType = RuleManager.patternTypes.regexp;
+			patternType = RuleManager.PatternTypes.regexp;
 			line = RuleManager.wildcardToRegexp(line);
 			line = line.replace(/^\\\|/, "^");
 			line = line.replace(/\\\|$/, "$");
 		}
 		else {
-			patternType = RuleManager.patternTypes.wildcard;
+			patternType = RuleManager.PatternTypes.wildcard;
 		}
 
 		if (exclude)
@@ -733,7 +865,7 @@ RuleManager.normalizeRule = function normalizeRule(rule) {
 	var newRule = {
 		name: "",
 		urlPattern: "",
-		patternType: RuleManager.patternTypes.wildcard,
+		patternType: RuleManager.PatternTypes.wildcard,
 		profileId : ProfileManager.directConnectionProfile.id
 	};
 	$.extend(newRule, rule);
@@ -742,7 +874,7 @@ RuleManager.normalizeRule = function normalizeRule(rule) {
 
 RuleManager.fixRule = function fixRule(rule) {
 	if (rule.patternType == "regex") // backward compatibility
-		rule.patternType = RuleManager.patternTypes.regexp;
+		rule.patternType = RuleManager.PatternTypes.regexp;
 
 	return rule;
 };

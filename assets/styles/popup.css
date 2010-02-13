@@ -48,7 +48,7 @@ hr {
 }
 
 #menu .item:hover {
-	padding: 3px 14px 3px 5px;
+	padding: 3px 24px 3px 5px;
 	border: solid 1px #bcd;
 	border-radius: 3px;
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f0f5fc), color-stop(1, #e0e9f4));
@@ -60,7 +60,7 @@ hr {
 }
 
 #menu .item:active {
-	padding: 3px 14px 3px 5px;
+	padding: 3px 24px 3px 5px;
 	border: solid 1px #abc;
 	border-radius: 3px;
 	background: #dde7f2 none;
@@ -101,6 +101,10 @@ hr {
 
 #menu .checked .icon {
 	background: url(../images/checked.png) !important;
+}
+
+#menu .loading {
+	background: url(../images/loading.gif) !important;
 }
 
 #menu #automaticMode .icon {

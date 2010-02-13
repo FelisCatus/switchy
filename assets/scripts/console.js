@@ -6,18 +6,14 @@
 //                                                                       //
 /////////////////////////////////////////////////////////////////////////*/
 
-var os = {
-	isMac: (/mac/i).test(navigator.userAgent), // maybe should test |navigator.platform| instead?
-	isWindows: (/win/i).test(navigator.userAgent),
-	isLinux: (/linux/i).test(navigator.userAgent)
-};
-
 var extension;
 var Logger;
+var Utils;
 
 function init() {
 	extension = chrome.extension.getBackgroundPage();
 	Logger = extension.Logger;
+	Utils = extension.Utils;
 	
 	initLog();
 	initDiagnose();
@@ -93,7 +89,7 @@ function initDiagnose() {
 	else {
 		Logger.log("Plugin not loaded!", Logger.types.error);
 		$("#test1 .icon").addClass("error");
-		if (os.isMac)
+		if (Utils.OS.isMac)
 			$("#test1 .description").html("(Sorry, Mac OS X isn't supported yet, you can star this " +
 					"<a href='http://code.google.com/p/switchy/issues/detail?id=4'>issue</a> " +
 					"to keep track of changes)");

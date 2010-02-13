@@ -131,9 +131,9 @@ function showAbout() {
 
 function showAddRule() {
 	var lastProfileId = Settings.getValue("quickRuleProfileId");
-	var lastPatternType = Settings.getValue("quickRulePatternType", RuleManager.patternTypes.wildcard);
+	var lastPatternType = Settings.getValue("quickRulePatternType", RuleManager.PatternTypes.wildcard);
 	if (lastPatternType == "regex") // backward compatibility
-		lastPatternType = RuleManager.patternTypes.regexp;
+		lastPatternType = RuleManager.PatternTypes.regexp;
 
 	var combobox = $("#cmbProfileId");
 	var profiles = ProfileManager.getSortedProfileArray();
@@ -155,10 +155,10 @@ function showAddRule() {
 		var patternTypeField = $("#cmbPatternType option:selected");
 		if (this.id == "cmbPatternType") {
 			var previousPatternType;
-			if (patternTypeField.val() == RuleManager.patternTypes.regexp)
-				previousPatternType = RuleManager.patternTypes.wildcard;
+			if (patternTypeField.val() == RuleManager.PatternTypes.regexp)
+				previousPatternType = RuleManager.PatternTypes.wildcard;
 			else
-				previousPatternType = RuleManager.patternTypes.regexp;
+				previousPatternType = RuleManager.PatternTypes.regexp;
 			
 			if (patternField.val() == RuleManager.urlToRule(activeTabUrl, previousPatternType).urlPattern)
 				patternField.val(RuleManager.urlToRule(activeTabUrl, patternTypeField.val()).urlPattern);
@@ -242,7 +242,7 @@ function buildMenuProxyItems(currentProfile) {
 	
 	$("#separatorProxies").show();
 	
-	if (currentProfile.unknown && currentProfile.proxyMode != ProfileManager.proxyModes.direct) {
+	if (currentProfile.unknown && currentProfile.proxyMode != ProfileManager.ProxyModes.direct) {
 		var item = templateItem.clone().attr({
 			"id": currentProfile.id,
 			"name": currentProfile.name,
@@ -264,7 +264,7 @@ function buildMenuDirectConnectionItem(currentProfile) {
 	var item = $("#directConnection");
 	item.click(onSelectProxyItem);
 	item[0].profile = ProfileManager.directConnectionProfile;
-	if (currentProfile.proxyMode == ProfileManager.proxyModes.direct)
+	if (currentProfile.proxyMode == ProfileManager.ProxyModes.direct)
 		item.addClass("checked");
 }
 

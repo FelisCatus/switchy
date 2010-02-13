@@ -11,6 +11,7 @@ var extension;
 //var RuleManager;
 //var Settings;
 //var Logger;
+//var Utils;
 var anyValueModified = false;
 var ignoreFieldsChanges = false;
 var selectedRow;
@@ -23,12 +24,33 @@ function init() {
 	RuleManager = extension.RuleManager;
 	Settings = extension.Settings;
 	Logger = extension.Logger;
+	Utils = extension.Utils;
+	
+	i18nTemplate.process(document);
 	
 	initUI();
 	loadOptions();
 	checkPageParams();
 	
 	HelpToolTip.enableTooltips();
+}
+
+function extractI18nElements() {
+	var result = "\n";
+	$("*[i18n-content]").each(function(i, item) {
+		result += '"' + item.getAttribute("i18n-content") + '"' +
+				  ': { "message": "' + item.innerHTML.replace(/[ \r\n\t]+/g, " ") + '" },\n';
+	});
+	$("*[i18n-values]").each(function(i, item) {
+		$(item.getAttribute("i18n-values").split(";")).each(function(i, subItem) {
+			var subItemParts = subItem.split(":");
+			if (subItemParts.length == 2 && subItemParts[0].charAt(0) != ".") {	
+				result += '"' + subItemParts[1] + '"' +
+						  ': { "message": "' + item.getAttribute(subItemParts[0]) + '" },\n';
+			}
+		});
+	});
+	return result;
 }
 
 function initUI() {
@@ -52,14 +74,14 @@ function initUI() {
 	});
 	$("#modeManual, #modeAuto").change(function() {
 		if ($("#modeManual").is(":checked")) {
-			selectedRow[0].profile.proxyMode = ProfileManager.proxyModes.manual;
+			selectedRow[0].profile.proxyMode = ProfileManager.ProxyModes.manual;
 			$("#httpRow, #sameProxyRow, #httpsRow, #ftpRow, #socksRow, #socksVersionRow").removeClass("disabled");
 			$("#httpRow input, #sameProxyRow input, #httpsRow input, #ftpRow input, #socksRow input, #socksVersionRow input").removeAttr("disabled");
 			$("#configUrlRow").addClass("disabled");
 			$("#configUrlRow input").attr("disabled", "disabled");
 			$("#useSameProxy").change();
 		} else {
-			selectedRow[0].profile.proxyMode = ProfileManager.proxyModes.auto;
+			selectedRow[0].profile.proxyMode = ProfileManager.ProxyModes.auto;
 			$("#httpRow, #sameProxyRow, #httpsRow, #ftpRow, #socksRow, #socksVersionRow").addClass("disabled");
 			$("#httpRow input, #sameProxyRow input, #httpsRow input, #ftpRow input, #socksRow input, #socksVersionRow input").attr("disabled", "disabled");
 			$("#configUrlRow").removeClass("disabled");
@@ -229,7 +251,7 @@ function loadOptions() {
 
 	if (currentProfile.unknown) {
 		if (!RuleManager.isAutomaticModeEnabled(currentProfile)
-			&& currentProfile.proxyMode != ProfileManager.proxyModes.direct) {
+			&& currentProfile.proxyMode != ProfileManager.ProxyModes.direct) {
 			currentProfile.name = ProfileManager.currentProfileName;
 			var row = newRow(currentProfile);
 //			if (!selectedRow)
@@ -286,6 +308,10 @@ function loadOptions() {
 		$("#chkConnections").attr("checked", "checked");
 	
 	$("#chkConnections").change();
+	if (!Utils.OS.isWindows) {
+		$("#connectionsTable *, #connectionsTitle *").addClass("disabled");
+		$("#connectionsTable select, #connectionsTitle input").attr("disabled", "disabled");		
+	}
 	
 	$("#cmbConnection").empty();
 	var connections = ProfileManager.getConnections();	
@@ -395,8 +421,8 @@ function saveOptions() {
 			&& profile.proxyFtp == profile.proxySocks)
 			profile.useSameProxy = true;
 		
-		if (profile.proxyMode == ProfileManager.proxyModes.auto && profile.proxyConfigUrl.length == 0)
-			profile.proxyMode = ProfileManager.proxyModes.manual;
+		if (profile.proxyMode == ProfileManager.ProxyModes.auto && profile.proxyConfigUrl.length == 0)
+			profile.proxyMode = ProfileManager.ProxyModes.manual;
 		
 		if (!profile.id || profile.id.length == 0 || profile.id == "unknown") {
 			generateProfileId(oldProfiles, profile);
@@ -581,7 +607,7 @@ function newRow(profile) {
 		var profileName = $("#proxyProfiles .templateRow td:first").text(); // template name
 		row[0].profile = {
 			name : profileName,
-			proxyMode: ProfileManager.proxyModes.manual,
+			proxyMode: ProfileManager.ProxyModes.manual,
 			proxyHttp : "",
 			useSameProxy : false,
 			proxyHttps : "",
@@ -671,7 +697,7 @@ function onSelectRow(e) {
 	}
 	$("#useSameProxy").change();
 
-	if (profile.proxyMode == ProfileManager.proxyModes.manual) {
+	if (profile.proxyMode == ProfileManager.ProxyModes.manual) {
 		$("#modeManual").attr("checked", "checked");
 		$("#modeAuto").removeAttr("checked");
 	}
@@ -812,7 +838,7 @@ function newRuleRow(rule, activate) {
 		row[0].rule = {
 			name: ruleName,
 			urlPattern: "",
-			patternType: RuleManager.patternTypes.wildcard,
+			patternType: RuleManager.PatternTypes.wildcard,
 			profileId: ProfileManager.directConnectionProfile.id
 		};
 	}
