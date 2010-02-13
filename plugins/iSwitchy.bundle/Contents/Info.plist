@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>iSwitchy</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.mozilla.basicPlugin</string>
+	<string>com.samabox.chrome.switchy</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -15,18 +15,18 @@
 	<key>CFBundlePackageType</key>
 	<string>BRPL</string>
 	<key>CFBundleVersion</key>
-	<string>1.0</string>
+	<string>1.6.0</string>
 	<key>WebPluginDescription</key>
-	<string>Switchy! Chrome Extension (OSX) 1.5</string>
+	<string>Switchy! Chrome Extension 1.6</string>
 	<key>WebPluginMIMETypes</key>
 	<dict>
-		<key>application/x-mhdhejazi-switchy-1.5</key>
+		<key>application/x-mhdhejazi-switchy-1.6</key>
 		<dict>
 			<key>WebPluginTypeDescription</key>
-			<string>Switchy! Chrome Extension (OSX) 1.5</string>
+			<string>Switchy! Chrome Extension 1.6</string>
 		</dict>
 	</dict>
 	<key>WebPluginName</key>
-	<string>Switchy! Chrome Extension (OSX) 1.5</string>
+	<string>Switchy! Chrome Extension 1.6</string>
 </dict>
 </plist>
