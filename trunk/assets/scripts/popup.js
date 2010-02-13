@@ -97,7 +97,7 @@ function openErrorLog() {
 function openContactEmail() {
 	closePopup();
 	chrome.tabs.create({
-		url: 'mailto:Mhd Hejazi <mohammadhi+switchy@gmail.com>?subject=[Switchy!] Contact'
+		url: 'mailto:Proxy Switchy! <chromeswitchy@gmail.com>?subject=[Switchy!] Contact'
 	});
 }
 
