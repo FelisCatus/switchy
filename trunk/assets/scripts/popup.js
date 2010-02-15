@@ -13,13 +13,15 @@ var extension;
 var activeTabUrl = undefined;
 
 function init() {
+	i18nTemplate.process(document);
+	document.body.style.visibility = "visible";
+	
 	buildMenuItems();
 	
 	$("#about, #addRule .close").click(closePopup);
 	$("#about .versionNumber").text(extension.appVersion);
 	
 	checkNewVersionBadge();
-	
 	
 //	showAbout();
 }
@@ -123,13 +125,20 @@ function openExtensionGalleryWebsite() {
 }
 
 function showAbout() {
+	var currentBodyDirection = document.body.style.direction;	// ....workaround for a Chrome bug
+	document.body.style.direction = "ltr";						// ....prevents resizing the popup
+	$("#about").css("visibility", "hidden");					// ....
+
 	$("#menu").hide();
 	$("#about").show();
 	$(document.body).height($("#about").height());
 	$(window).height($("#about").height());
+
+	document.body.style.direction = currentBodyDirection;		// ....if the body's direction is "rtl"
+	$("#about").css("visibility", "visible");					// ....
 }
 
-function showAddRule() {
+function showAddRule() {	
 	var lastProfileId = Settings.getValue("quickRuleProfileId");
 	var lastPatternType = Settings.getValue("quickRulePatternType", RuleManager.PatternTypes.wildcard);
 	if (lastPatternType == "regex") // backward compatibility
@@ -185,10 +194,17 @@ function showAddRule() {
 		$("#txtRuleName").focus().select();
 	});
 	
+	var currentBodyDirection = document.body.style.direction;	// ....workaround for a Chrome bug
+	document.body.style.direction = "ltr";						// ....prevents resizing the popup
+	$("#addRule").css("visibility", "hidden");					// ....
+
 	$("#menu").hide();
 	$("#addRule").show();
 	$(document.body).height($("#addRule").height());
-	$(window).height($("#addRule").height());	
+	$(window).height($("#addRule").height());
+
+	document.body.style.direction = currentBodyDirection;		// ....if the body's direction is "rtl"
+	$("#addRule").css("visibility", "visible");					// ....
 }
 
 function addSwitchRule() {

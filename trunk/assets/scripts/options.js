@@ -19,6 +19,9 @@ var selectedRuleRow;
 var switchRulesEnabled;
 
 function init() {
+	i18nTemplate.process(document);
+	document.body.style.visibility = "visible";
+	
 	extension = chrome.extension.getBackgroundPage();
 	ProfileManager = extension.ProfileManager;
 	RuleManager = extension.RuleManager;
@@ -26,31 +29,11 @@ function init() {
 	Logger = extension.Logger;
 	Utils = extension.Utils;
 	
-	i18nTemplate.process(document);
-	
 	initUI();
 	loadOptions();
 	checkPageParams();
 	
 	HelpToolTip.enableTooltips();
-}
-
-function extractI18nElements() {
-	var result = "\n";
-	$("*[i18n-content]").each(function(i, item) {
-		result += '"' + item.getAttribute("i18n-content") + '"' +
-				  ': { "message": "' + item.innerHTML.replace(/[ \r\n\t]+/g, " ") + '" },\n';
-	});
-	$("*[i18n-values]").each(function(i, item) {
-		$(item.getAttribute("i18n-values").split(";")).each(function(i, subItem) {
-			var subItemParts = subItem.split(":");
-			if (subItemParts.length == 2 && subItemParts[0].charAt(0) != ".") {	
-				result += '"' + subItemParts[1] + '"' +
-						  ': { "message": "' + item.getAttribute(subItemParts[0]) + '" },\n';
-			}
-		});
-	});
-	return result;
 }
 
 function initUI() {
@@ -498,13 +481,13 @@ function saveOptions() {
 		extension.monitorProxyChanges(true);
 	
 	extension.setIconInfo();
-	InfoTip.showMessage("Options Saved..", InfoTip.types.success);
+	InfoTip.showMessageI18n("message_optionsSaved", InfoTip.types.success);
 	loadOptions();
 	anyValueModified = false;
 }
 
 function closeWindow() {
-	if (anyValueModified && confirm("\nSave changed values?"))
+	if (anyValueModified && InfoTip.confirmI18n("message_saveChangedValues"))
 		saveOptions();
 	
 	window.close();
@@ -628,8 +611,7 @@ function newRow(profile) {
 function deleteRow() {
 	var row = event.target.parentNode.parentNode;
 	if (!Settings.getValue("confirmDeletion", true)
-		|| confirm("\nAre you sure you want to delete selected profile?" + 
-					"\n\nSelected Profile: (" + row.children[0].innerText + ")")) {
+		|| InfoTip.confirmI18n("message_deleteSelectedProfile", row.children[0].innerText)) {
 		
 		if (selectedRow != undefined && selectedRow[0] == row)
 			onSelectRow({}); // to clear fields.
@@ -639,7 +621,7 @@ function deleteRow() {
 		saveOptions();
 		loadOptions();
 		extension.setIconInfo();
-		InfoTip.showMessage("Profile Deleted..", InfoTip.types.info);
+		InfoTip.showMessageI18n("message_profileDeleted", InfoTip.types.info);
 	}
 }
 
@@ -852,13 +834,12 @@ function deleteRuleRow() {
 	var row = event.target.parentNode.parentNode;
 	if (switchRulesEnabled
 		&& (!Settings.getValue("confirmDeletion", true) 
-			|| confirm("\nAre you sure you want to delete selected rule?" + 
-						"\n\nSelected Rule: (" + row.children[0].innerText + ")"))) {
+			|| InfoTip.confirmI18n("message_deleteSelectedRule", row.children[0].innerText))) {
 		$(row).remove();
 		saveOptions();
 		loadOptions();
 		extension.setIconInfo();
-		InfoTip.showMessage("Rule Deleted..", InfoTip.types.info);
+		InfoTip.showMessageI18n("message_ruleDeleted", InfoTip.types.info);
 	}
 }
 
@@ -870,7 +851,7 @@ function saveFileAs(fileName, fileData) {
 			throw "Error";
 	} catch (e) {
 		Logger.log("Oops! Can't save generated file, " + e.toString(), Logger.types.error);
-		alert("\nOops! Can't save generated file..");
+		InfoTip.alertI18n("message_cannotSaveFile");
 		return;
 	}
 	
@@ -909,7 +890,7 @@ function makeBackup() {
 function restoreBackup() {
 	var txtBackupFilePath = $("#txtBackupFilePath");
 	if (txtBackupFilePath.hasClass("initial") || txtBackupFilePath.val().trim().length == 0) {
-		alert("\nYou should set the backup file path first..");
+		InfoTip.alertI18n("message_selectBackupFile");
 		txtBackupFilePath.focus();
 		return;
 	}
@@ -939,13 +920,13 @@ function restoreBackup() {
 			backupData = extension.plugin.readFile(backupFilePath);
 		} catch (e) {
 			Logger.log("Oops! Can't read the backup file, " + e.toString(), Logger.types.error);
-			alert("\nOops! Can't read the backup file..");
+			InfoTip.alertI18n("message_cannotReadOptionsBackup");
 			return;
 		}
 	}
 	
 	if (!backupData || backupData.trim().length == 0) {
-		alert("\nOops! Can't restore from this backup file\n\nThe backup file is corrupted or invalid..");
+		InfoTip.alertI18n("message_cannotRestoreOptionsBackup");
 		return;
 	}
 	
@@ -955,12 +936,11 @@ function restoreBackup() {
 		options = JSON.parse(backupData);
 	} catch (e) {
 		Logger.log("Oops! Can't restore from this backup file. The backup file is corrupted or invalid, " + e.toString(), Logger.types.error);
-		alert("\nOops! Can't restore from this backup file\n\nThe backup file is corrupted or invalid..");
+		InfoTip.alertI18n("message_cannotRestoreOptionsBackup");
 		return;
 	}
 	
-	if (!confirm("\nAre you sure you want to restore Switchy options from this backup?" + 
-			"\n\nCurrent Switchy! options will be overwritten."))
+	if (!InfoTip.confirmI18n("message_restoreOptionsBackup"))
 		return;
 	
 //	for (var optionName in options)
@@ -968,8 +948,7 @@ function restoreBackup() {
 //	
 //	Settings.setValue("ruleListEnabled", false); // for security concerns
 
-	alert("\nSwitchy! options restored successfully.." +
-			"\n\nYou should restart Switchy! (disable it and then reenable it) for the new options to take effect.");
+	InfoTip.alertI18n("message_successRestoreOptionsBackup");
 
 //	window.location.reload();
 }
@@ -992,24 +971,13 @@ function getQueryParams() {
 
 function checkPageParams() {
 	var params = getQueryParams();
-	if (params["firstTime"] == "true") {
-		InfoTip.showMessage(
-			"Welcome first time user!<br>" +
-			"To start using Switchy set up some proxy profiles below and then press 'Save'.", 
-			InfoTip.types.note, -1);
-	}
-	if (params["rulesFirstTime"] == "true") {
-		InfoTip.showMessage(
-			"This is the first time you use Auto Switch Mode. Here is how to start:<br><ol>" +
-			"<li>Set up the 'Default Rule' below, this rule will be applied if no other rule is matched.</li>" +
-			"<li>Add some rules (press 'New Rule' button), for each rule you should specify a " +
-				"URL Pattern and a Proxy Profile.</li>" +
-			"<li>Press 'Save' and 'Close' to close this tab.</li></ol>", 
-			InfoTip.types.note, -1);
-	}
-//	if (params["tab"] != undefined) {
-		switchTab(params["tab"]);
-//	}
+	if (params["firstTime"] == "true")
+		InfoTip.showMessageI18n("message_firstTimeWelcome", InfoTip.types.note, -1);
+	
+	if (params["rulesFirstTime"] == "true")
+		InfoTip.showMessageI18n("message_rulesFirstTimeWelcome", InfoTip.types.note, -1);
+
+	switchTab(params["tab"]);
 }
 
 function parseProxy(proxy, port) {

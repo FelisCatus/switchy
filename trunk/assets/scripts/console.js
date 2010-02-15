@@ -11,6 +11,9 @@ var Logger;
 var Utils;
 
 function init() {
+//	i18nTemplate.process(document);
+	document.body.style.visibility = "visible";
+
 	extension = chrome.extension.getBackgroundPage();
 	Logger = extension.Logger;
 	Utils = extension.Utils;

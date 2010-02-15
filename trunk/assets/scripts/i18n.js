@@ -1,31 +1,31 @@
-/*
- * Original Script: http://src.chromium.org/viewvc/chrome/trunk/src/chrome/browser/resources/i18n_template.js
- */
+
+function extractI18nElements() {
+	var result = "\n";
+	
+	$("*[i18n-content]").each(function(i, item) {
+		result += '"' + item.getAttribute("i18n-content") + '"' +
+				  ': { "message": "' + item.innerHTML.replace(/[ \r\n\t]+/g, " ") + '" },\n';
+	});
+	
+	$("*[i18n-values]").each(function(i, item) {
+		$(item.getAttribute("i18n-values").split(";")).each(function(i, subItem) {
+			var subItemParts = subItem.split(":");
+			if (subItemParts.length == 2 && subItemParts[0].charAt(0) != ".") {	
+				result += '"' + subItemParts[1] + '"' +
+						  ': { "message": "' + item.getAttribute(subItemParts[0]).replace(/[\r\n]/g, "\\n") + '" },\n';
+			}
+		});
+	});
+	
+	return result;
+}
+
+//======================================================================
 
 /**
- * @fileoverview This is a simple template engine inspired by JsTemplates
- *               optimized for i18n.
- * 
- * It currently supports two handlers:
- *  * i18n-content which sets the textContent of the element
- * 
- * <span i18n-content="myContent"></span> i18nTemplate.process(element,
- * {'myContent': 'Content'});
- *  * i18n-values is a list of attribute-value or property-value pairs.
- * Properties are prefixed with a '.' and can contain nested properties.
- * 
- * <span i18n-values="title:myTitle;.style.fontSize:fontSize"></span>
- * i18nTemplate.process(element, { 'myTitle': 'Title', 'fontSize': '13px' });
+ * i18nTemplate: http://src.chromium.org/viewvc/chrome/trunk/src/chrome/browser/resources/i18n_template.js
  */
-
 var i18nTemplate = (function() {
-	/**
-	 * This provides the handlers for the templating engine. The key is used as
-	 * the attribute name and the value is the function that gets called for
-	 * every single node that has this attribute.
-	 * 
-	 * @type {Object}
-	 */
 	var handlers = {
 		/**
 		 * This handler sets the textContent of the element.
@@ -75,9 +75,6 @@ var i18nTemplate = (function() {
 	}
 	var selector = '[' + attributeNames.join('],[') + ']';
 
-	/**
-	 * Processes a DOM tree with the {@code obj} map.
-	 */
 	function process(node) {
 		var elements = node.querySelectorAll(selector);
 		for (var element, i = 0; element = elements[i]; i++) {
