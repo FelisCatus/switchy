@@ -29,34 +29,77 @@
 	"options_noProxyFor": { "message": "No Proxy for" },
 	"options_noProxyFor_help": { "message": "Use semicolons ( ; ) to seperate entries." },
 	"options_switchRulesEnable": { "message": "Enable Switch Rules" },
-	"options_switchRulesEnable_help01": { "message": "Switch Rules specify which proxy should be used for each URL." },
-	"options_switchRulesEnable_help02": { "message": "When this option is enabled you'll see two more items in main menu:" },
-	"options_switchRulesEnable_help03": { "message": "clicking this item will activate Switch Rules." },
-	"options_switchRulesEnable_help04": { "message": "quickly add a new Switch Rule for the current website." },
+	"options_switchRulesEnable_help": { "message": 
+"<p>Switch Rules specify which proxy should be used for each URL.</p><hr />
+<p>When this option is enabled you'll see two more items in main menu:</p>
+<table>
+	<tr>
+		<td><i>Auto Switch Mode</i></td>
+		<td>clicking this item will activate Switch Rules.</td>
+	</tr>
+	<tr>
+		<td><i>New Rule</i></td>
+		<td>quickly add a new Switch Rule for the current website.</td>
+	</tr>
+</table>" },
 	"options_ruleName": { "message": "Rule Name" },
 	"options_urlPattern": { "message": "URL Pattern" },
-	"options_urlPattern_help01": { "message": "Pattern of the page url." },
-	"options_urlPattern_help02": { "message": "Wildcard Reference" },
-	"options_urlPattern_help03": { "message": "The asterisk (*) " },
-	"options_urlPattern_help04": { "message": "matches zero or more characters." },
-	"options_urlPattern_help05": { "message": "The question mark (?) " },
-	"options_urlPattern_help06": { "message": "matches exactly one character." },
-	"options_urlPattern_help07": { "message": "Examples" },
-	"options_urlPattern_help08": { "message": "Matches any URL that is on 'www.google.com' host and uses any scheme (http, https ...)." },
-	"options_urlPattern_help09": { "message": "Matches any URL that is on a 'google.com' host and uses the https scheme (such as 'www.google.com', 'docs.google.com', or 'google.com'), as long as the path starts with '/foo' and ends with 'bar'." },
-	"options_urlPattern_help10": { "message": "Matches exactly the specified URL." },
+	"options_urlPattern_help": { "message": 
+"<p>Pattern of the page url.</p><hr />
+<table>
+	<tr>
+		<td colspan='2'><b>Wildcard Reference</b></td>
+	</tr>
+	<tr>
+		<td><i>The asterisk (*) </i></td>
+		<td>matches zero or more characters.</td>
+	</tr>
+	<tr>
+		<td><i>The question mark (?) </i></td>
+		<td>matches exactly one character.</td>
+	</tr>
+	<tr>
+		<td colspan='2'><br /><b>Examples</b></td>
+	</tr>
+	<tr>
+		<td><i>*://www.google.com/* </i></td>
+		<td>Matches any URL that is on 'www.google.com' host and 
+		uses any scheme (http, https ...).</td>
+	</tr>
+	<tr>
+		<td><i>https://*.google.com/foo*bar </i></td>
+		<td>Matches any URL that is on a 'google.com' host and
+		uses the https scheme (such as 'www.google.com', 
+		'docs.google.com', or 'google.com'), as long as the path 
+		starts with '/foo' and ends with 'bar'.</td>
+	</tr>
+	<tr>
+		<td><i>http://example.org/foo/bar.html </i></td>
+		<td>Matches exactly the specified URL.</td>
+	</tr>
+</table>" },
 	"options_patternType": { "message": "Pattern Type" },
-	"options_patternType_help01": { "message": "The type of URL Pattern." },
-	"options_patternType_help02": { "message": "for Wildcard matching." },
-	"options_patternType_help03": { "message": "for Regular Expression matching." },
+	"options_patternType_help": { "message": 
+"<p>The type of URL Pattern.</p><hr />
+<table>
+	<tr>
+		<td><i>Wildcard</i></td>
+		<td>for Wildcard matching.</td>
+	</tr>
+	<tr>
+		<td><i>RegExp</i></td>
+		<td>for Regular Expression matching.</td>
+	</tr>
+</table>" },
 	"options_patternTypeWildcard": { "message": "Wildcard" },
 	"options_patternTypeRegExp": { "message": "RegExp" },
 	"options_proxyProfile": { "message": "Proxy Profile" },
 	"options_proxyProfile_help": { "message": "The proxy profile to be applied when this rule is matched." },
 	"options_newRule": { "message": "New Rule" },
 	"options_defaultRule": { "message": "Default Rule" },
-	"options_defaultRule_help01": { "message": "This rule will be applied if no other rule is matched." },
-	"options_defaultRule_help02": { "message": "<b>Note:</b> This rule can't be deleted." },
+	"options_defaultRule_help": { "message": 
+"<p>This rule will be applied if no other rule is matched.</p>
+<p><b>Note:</b> This rule can't be deleted.</p>" },
 	"options_defaultRuleUrlPattern": { "message": "All URLs that doesn't match any other pattern" },
 	"options_ruleList": { "message": "Online Rule List" },
 	"options_ruleList_help": { "message": "Import predefined Switch Rules from online repository." },
@@ -66,13 +109,13 @@
 	"options_reloadEvery": { "message": "Reload Every" },
 	"options_reloadEvery_help": { "message": "Auto reload the Rule List every..." },
 	"options_ruleListProxyProfile_help": { "message": "The proxy profile to be applied when any rule of this list is matched." },
-	"options_15Minutes": { "message": "15 &nbsp; Minutes" },
-	"options_30Minutes": { "message": "30 &nbsp; Minutes" },
-	"options_45Minutes": { "message": "45 &nbsp; Minutes" },
-	"options_1Hour": { "message": "1 &nbsp;&nbsp;&nbsp; Hour" },
-	"options_3Hours": { "message": "3 &nbsp;&nbsp;&nbsp; Hours" },
-	"options_6Hours": { "message": "6 &nbsp;&nbsp;&nbsp; Hours" },
-	"options_12Hours": { "message": "12 &nbsp; Hours" },
+	"options_15Minutes": { "message": "15 Minutes" },
+	"options_30Minutes": { "message": "30 Minutes" },
+	"options_45Minutes": { "message": "45 Minutes" },
+	"options_1Hour": { "message": "1 Hour" },
+	"options_3Hours": { "message": "3 Hours" },
+	"options_6Hours": { "message": "6 Hours" },
+	"options_12Hours": { "message": "12 Hours" },
 	"options_everyday": { "message": "Everyday" },
 	"options_autoProxyCompatible": { "message": "AutoProxy Compatible List" },
 	"options_autoProxyCompatible_help": { "message": "Check this option if the url points to an AutoProxy rule list (like 'gfwlist')." },
@@ -94,8 +137,12 @@
 	"options_restoreBackup": { "message": "Restore Backup" },
 	"options_restoreBackup_help": { "message": "Backup file full path (e.g. 'c:\\switchy.bak', 'http://example.com/switchy.bak')" },
 	"options_quickSwitch": { "message": "Quick Switch" },
-	"options_quickSwitch_help01": { "message": "Allows you to switch between two proxy profiles in one click (by clicking on Switchy icon)." },
-	"options_quickSwitch_help02": { "message": "<b>Note:</b> After enabling this feature you won't be able to see Switchy main menu when clicking on Switchy icon, and so to open this Options page again you should go to Chrome Extensions page (Chrome Menu &gt; Extensions)." },
+	"options_quickSwitch_help": { "message": 
+"<p>Allows you to switch between two proxy profiles in one click (by clicking on Switchy icon).</p><hr />
+<p><b>Note:</b> After enabling this feature you won't be able to see Switchy
+  main menu when clicking on Switchy icon, and so to open this Options page again 
+  you should go to Chrome Extensions page (Chrome Menu > Extensions).
+</p>" },
 	"options_binarySwitch": { "message": "Binary Switch" },
 	"options_profile1": { "message": "Profile 1" },
 	"options_profile2": { "message": "Profile 2" },
@@ -114,5 +161,59 @@
 	"options_deleteRule": { "message": "Delete Rule" },
 
 	"popup_autoSwitchMode": { "message": "Auto Switch Mode" },
-	"popup_newRule": { "message": "New Rule" }
+	"popup_autoSwitchMode_help": { "message": "Automatically choose the proper proxy profile \nfor each URL, based on Switch Rules." },
+	"popup_newRule": { "message": "New Rule" },
+	"popup_newRule_help": { "message": "Quickly add a new Switch Rule \nfor the current website." },
+	"popup_options": { "message": "Options" },
+	"popup_aboutSwitchy": { "message": "About Switchy!" },
+	"popup_diagnoseError": { "message": "Not Working Properly" },
+	"popup_diagnoseError_help": { "message": "Switchy! isn't working properly. \nClick to open the error log." },
+	"popup_version": { "message": "version" },
+	"popup_developedBy": { "message": "Developed by" },	
+	"popup_chromeExtensionGallery": { "message": "Chrome Extension Gallery" },
+	"popup_switchyWebPage": { "message": "Switchy! web page" },
+	"popup_supportAndBugReports": { "message": "Support &amp; Bug reports" },
+	"popup_copyright": { "message": "Copyright © 2009 Samabox. Some rights reserved." },
+	"popup_duplicateRules": { "message": "* There is already a rule for this URL Pattern." },
+	"popup_add": { "message": "Add" },
+	"popup_or": { "message": "or" },
+	"popup_cancel": { "message": "Cancel" },
+	
+	"proxy_directConnection": { "message": "Direct Connection" },
+	"proxy_directConnection_help": { "message": "Disable Proxy" },
+
+	"message_optionsSaved": { "message": "Options Saved.." },
+	"message_profileDeleted": { "message": "Profile Deleted.." },
+	"message_ruleDeleted": { "message": "Rule Deleted.." },
+	"message_firstTimeWelcome": { "message": 
+"Welcome first time user!<br>
+To start using Switchy set up some proxy profiles below and then press 'Save'." },
+	"message_rulesFirstTimeWelcome": { "message": 
+"This is the first time you use Auto Switch Mode. Here is how to start:<br>
+<ol>
+	<li>Set up the 'Default Rule' below, this rule will be applied if no other rule is matched.</li>
+	<li>Add some rules (press 'New Rule' button), for each rule you should 
+	    specify a URL Pattern and a Proxy Profile.</li>
+	<li>Press 'Save' and 'Close' to close this tab.</li>
+</ol>" },
+	"message_saveChangedValues": { "message": "Save changed values?" },
+	"message_deleteSelectedProfile": { "message": 
+"Are you sure you want to delete selected profile?\n
+Selected Profile: ($1)" },
+	"message_deleteSelectedRule": { "message": 
+"Are you sure you want to delete selected rule?\n 
+Selected Rule: ($1)" },
+	"message_restoreOptionsBackup": { "message": 
+"Are you sure you want to restore Switchy options from this backup?\n
+Current Switchy! options will be overwritten." },
+	"message_cannotSaveFile": { "message": "Oops! Can't save generated file!" },
+	"message_selectBackupFile": { "message": "You should set the backup file path first.." },
+	"message_cannotReadOptionsBackup": { "message": "Oops! Can't read the backup file!" },
+	"message_cannotRestoreOptionsBackup": { "message": 
+"Oops! Can't restore from this backup file!\n
+The backup file is corrupted or invalid." },
+	"message_successRestoreOptionsBackup": { "message": 
+"Switchy! options restored successfully..\n
+You should restart Chrome for the new options to take effect." }
+
 }

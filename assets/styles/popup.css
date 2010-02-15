@@ -12,6 +12,8 @@ body {
 	font: menu;
 	font-size: 9pt;
 	-webkit-user-select: none;
+	
+	visibility: hidden;
 }
 
 body, td, th, input, select, textarea, button {
@@ -31,6 +33,11 @@ hr {
 	border-top: solid 1px #eef;
 }
 
+.ltr, .ltr * {
+	direction: ltr !important;
+	text-align: left !important;
+}
+
 #menu {
 	margin: 2px 0px;
 }
@@ -40,7 +47,9 @@ hr {
 }
 
 #menu .item {
-	padding: 4px 25px 4px 6px;
+	?padding: 4px 25px 4px 6px;
+	padding: 4px 25px;
+	-webkit-padding-start: 6px;
 	margin: 0px 2px;
 	white-space: nowrap;
 	cursor: pointer;
@@ -48,7 +57,9 @@ hr {
 }
 
 #menu .item:hover {
-	padding: 3px 24px 3px 5px;
+	?padding: 3px 24px 3px 5px;
+	padding: 3px 24px;
+	-webkit-padding-start: 5px;
 	border: solid 1px #bcd;
 	border-radius: 3px;
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #f0f5fc), color-stop(1, #e0e9f4));
@@ -60,7 +71,9 @@ hr {
 }
 
 #menu .item:active {
-	padding: 3px 24px 3px 5px;
+	?padding: 3px 24px 3px 5px;
+	padding: 3px 24px;
+	-webkit-padding-start: 5px;
 	border: solid 1px #abc;
 	border-radius: 3px;
 	background: #dde7f2 none;
@@ -116,7 +129,7 @@ hr {
 }
 
 #menu .item span {
-	padding-left: 3px;
+	-webkit-padding-start: 4px;
 }
 
 #menu .separator {
@@ -150,26 +163,38 @@ hr {
 }
 
 #about .header td {
-	padding: 0;
-	padding-right: 10px;
+	padding: 0px 10px;
+	-webkit-padding-start: 0px;
 }
 
 #about .header .title {
 	font-size: 26pt;
 	margin-top: -6px;
+	direction: ltr;
+}
+
+#about .header .titleTable {
+	border-collapse: collapse;
+	border-spacing: 0px;
+}
+
+#about .header .titleTable td {
+	padding: 0px;
 }
 
 #about .header .version {
 	font-size: 11pt;
-	margin-top: -6px;
-	margin-left: 3px;
+	?margin-top: -6px;
+	padding: 0px;
 	text-shadow: #ddd 1px 1px 2px;
+	-webkit-padding-start: 3px !important;
 	-webkit-user-select: text;
 }
 
 #about .header .versionNumber {
 	font-weight: bold;
 	?font-size: 80%;
+	-webkit-padding-start: 5px;
 }
 
 #about .header img {
@@ -219,6 +244,7 @@ hr {
 }
 
 #about .important {
+	direction: ltr;
 	color: #080;
 	padding: 5px;
 	padding-left: 28px;
@@ -243,6 +269,10 @@ hr {
 	padding: 5px 0px;
 }
 
+#developer .name * {
+	font-size: 10pt;
+}
+
 #changeLog {
 	display: none;
 	padding: 5px;
@@ -258,6 +288,8 @@ hr {
 }
 
 #changeLog * {
+	direction: ltr;
+	text-align: start;
 	color: #080 !important;
 }
 
@@ -290,12 +322,14 @@ hr {
 }
 
 #addRule table th {
-	text-align: left;
+	text-align: start;
 }
 
 #addRule table th {
 	height: 28px;
+	padding-left: 8px;
 	padding-right: 8px;
+	-webkit-padding-start: 0px;
 	font-size: 9pt;
 	font-weight: normal;
 	?border: solid 1px #e0e4e6;
@@ -316,7 +350,7 @@ hr {
 	width: 250px;
 	min-height: 24px;
 	height: 100%;
-	padding-left: 3px;
+	-webkit-padding-start: 3px;
 }
 
 #addRule .button {
@@ -373,6 +407,10 @@ hr {
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fafcff), color-stop(1, #eff3fe));
 }
 
+#addRule .header.title {
+	-webkit-padding-start: 14px;
+}
+
 #addRule .note {
 	display: none;
 }
@@ -380,6 +418,16 @@ hr {
 #addRule .note > * {
 	height: auto !important;
 	padding-bottom: 6px;
+}
+
+#addRule .control {
+	border-collapse: collapse;
+	border-spacing: 0px;
+	padding: 0px;
+}
+
+#addRule .control td {
+	padding: 0px;
 }
 
 #addRule input.invalid {

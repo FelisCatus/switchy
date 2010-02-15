@@ -201,17 +201,17 @@
 						<label>
 							<div class="title"><input id="chkSwitchRules" type="checkbox"> 
 								<span i18n-content="options_switchRulesEnable">Enable Switch Rules</span>
-								<span class="help">
-									<p i18n-content="options_switchRulesEnable_help01">Switch Rules specify which proxy should be used for each URL.</p><hr />
-									<p i18n-content="options_switchRulesEnable_help02">When this option is enabled you'll see two more items in main menu:</p>
+								<span class="help" i18n-content="options_switchRulesEnable_help">
+									<p>Switch Rules specify which proxy should be used for each URL.</p><hr />
+									<p>When this option is enabled you'll see two more items in main menu:</p>
 									<table>
 										<tr>
-											<td><i i18n-content="popup_autoSwitchMode">Auto Switch Mode</i></td>
-											<td i18n-content="options_switchRulesEnable_help03">clicking this item will activate Switch Rules.</td>
+											<td><i>Auto Switch Mode</i></td>
+											<td>clicking this item will activate Switch Rules.</td>
 										</tr>
 										<tr>
-											<td><i i18n-content="popup_newRule">New Rule</i></td>
-											<td i18n-content="options_switchRulesEnable_help04">quickly add a new Switch Rule for the current website.</td>
+											<td><i>New Rule</i></td>
+											<td>quickly add a new Switch Rule for the current website.</td>
 										</tr>
 									</table>
 								</span>							
@@ -222,53 +222,53 @@
 							<tr class="tableHeader">
 								<th width="18%" i18n-content="options_ruleName">Rule Name</th>
 								<th width="45%"><span i18n-content="options_urlPattern">URL Pattern</span>
-									<span class="help">
-										<p i18n-content="options_urlPattern_help01">Pattern of the page url.</p><hr />
+									<span class="help" i18n-content="options_urlPattern_help">
+										<p>Pattern of the page url.</p><hr />
 										<table>
 											<tr>
-												<td colspan="2"><b i18n-content="options_urlPattern_help02">Wildcard Reference</b></td>
+												<td colspan="2"><b>Wildcard Reference</b></td>
 											</tr>
 											<tr>
-												<td><i i18n-content="options_urlPattern_help03">The asterisk (*) </i></td>
-												<td i18n-content="options_urlPattern_help04">matches zero or more characters.</td>
+												<td><i>The asterisk (*) </i></td>
+												<td>matches zero or more characters.</td>
 											</tr>
 											<tr>
-												<td><i i18n-content="options_urlPattern_help05">The question mark (?) </i></td>
-												<td i18n-content="options_urlPattern_help06">matches exactly one character.</td>
+												<td><i>The question mark (?) </i></td>
+												<td>matches exactly one character.</td>
 											</tr>
 											<tr>
-												<td colspan="2"><br /><b i18n-content="options_urlPattern_help07">Examples</b></td>
+												<td colspan="2"><br /><b>Examples</b></td>
 											</tr>
 											<tr>
 												<td><i>*://www.google.com/* </i></td>
-												<td i18n-content="options_urlPattern_help08">Matches any URL that is on 'www.google.com' host and 
+												<td>Matches any URL that is on 'www.google.com' host and 
 												uses any scheme (http, https ...).</td>
 											</tr>
 											<tr>
 												<td><i>https://*.google.com/foo*bar </i></td>
-												<td i18n-content="options_urlPattern_help09">Matches any URL that is on a 'google.com' host and
+												<td>Matches any URL that is on a 'google.com' host and
 												uses the https scheme (such as 'www.google.com', 
 												'docs.google.com', or 'google.com'), as long as the path 
 												starts with '/foo' and ends with 'bar'.</td>
 											</tr>
 											<tr>
 												<td><i>http://example.org/foo/bar.html </i></td>
-												<td i18n-content="options_urlPattern_help10">Matches exactly the specified URL.</td>
+												<td>Matches exactly the specified URL.</td>
 											</tr>
 										</table>
 									</span>
 								</th>
 								<th width="16%"><span i18n-content="options_patternType">Pattern Type</span>
-									<span class="help">
-										<p i18n-content="options_patternType_help01">The type of URL Pattern.</p><hr />
+									<span class="help" i18n-content="options_patternType_help">
+										<p>The type of URL Pattern.</p><hr />
 										<table>
 											<tr>
-												<td><i i18n-content="options_patternTypeWildcard">Wildcard</i></td>
-												<td i18n-content="options_patternType_help02">for Wildcard matching.</td>
+												<td><i>Wildcard</i></td>
+												<td>for Wildcard matching.</td>
 											</tr>
 											<tr>
-												<td><i i18n-content="options_patternTypeRegExp">RegExp</i></td>
-												<td i18n-content="options_patternType_help03">for Regular Expression matching.</td>
+												<td><i>RegExp</i></td>
+												<td>for Regular Expression matching.</td>
 											</tr>
 										</table>
 									</span>								
@@ -299,9 +299,9 @@
 							<tr class="defaultRow">
 								<td><div>
 									<span class="ruleName" i18n-content="options_defaultRule">Default Rule</span>
-									<span class="help">
-										<p i18n-content="options_defaultRule_help01">This rule will be applied if no other rule is matched.</p>
-										<p i18n-content="options_defaultRule_help02"><b>Note:</b> This rule can't be deleted.</p>
+									<span class="help" i18n-content="options_defaultRule_help">
+										<p>This rule will be applied if no other rule is matched.</p>
+										<p><b>Note:</b> This rule can't be deleted.</p>
 									</span>
 								</div></td>
 								<td colspan="2"><div><span class="urlPattern" i18n-content="options_defaultRuleUrlPattern">All URLs that doesn't match any other pattern</span></div></td>
@@ -469,10 +469,10 @@
 						<label>
 							<div class="title"><input id="chkQuickSwitch" type="checkbox"> 
 								<span i18n-content="options_quickSwitch">Quick Switch</span>
-								<span class="help">
-									<p i18n-content="options_quickSwitch_help01">Allows you to switch between two proxy profiles in one click 
+								<span class="help" i18n-content="options_quickSwitch_help">
+									<p>Allows you to switch between two proxy profiles in one click 
 									(by clicking on Switchy icon).</p><hr />
-									<p i18n-content="options_quickSwitch_help02"><b>Note:</b> After enabling this feature you won't be able to see Switchy
+									<p><b>Note:</b> After enabling this feature you won't be able to see Switchy
 									main menu when clicking on Switchy icon, and so to open this Options page again 
 									you should go to Chrome Extensions page (Chrome Menu > Extensions).</p>
 								</span>

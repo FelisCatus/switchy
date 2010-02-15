@@ -18,7 +18,7 @@ ProfileManager.profiles = {};
 
 ProfileManager.directConnectionProfile = {
 	id: "direct",
-	name: "[Direct Connection]",
+	name: "[" + chrome.i18n.getMessage("proxy_directConnection") + "]",
 	proxyMode: ProfileManager.ProxyModes.direct,
 	color: "inactive"
 };

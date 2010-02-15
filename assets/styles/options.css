@@ -16,6 +16,8 @@ body {
 	text-align: right;
 	direction: ltr;
 	text-align: left;
+	
+	visibility: hidden;
 }
 
 body, td, input, select, textarea, button {
@@ -33,6 +35,7 @@ hr {
 
 small {
 	font-size: 7.5pt;
+	font-weight: normal;
 }
 
 .ltr, .ltr * {
