@@ -15,7 +15,7 @@ var refreshInterval = 10000;
 var refreshTimer;
 var currentProfile;
 var newVersion = false;
-var notifyOnNewVersion = true;
+var notifyOnNewVersion = false;
 var diagnosedError = false;
 var plugin;
 
@@ -106,7 +106,7 @@ function setIconBadge(text) {
 		text = "";
 	
 	//chrome.browserAction.setBadgeBackgroundColor({ color: [75, 125, 255, 255] });
-	chrome.browserAction.setBadgeBackgroundColor({ color: [125, 215, 75, 255] });
+	chrome.browserAction.setBadgeBackgroundColor({ color: [90, 180, 50, 255] });
 	chrome.browserAction.setBadgeText({ text: text });
 }
 

@@ -208,6 +208,13 @@ function initUI() {
 	$("#chkReapplySelectedProfile, #chkConfirmDeletion").change(function() {
 		onFieldModified(false);
 	});
+	
+	// Reverse buttons order on Linux and Mac OS X
+	if (!Utils.OS.isWindows) {
+		var btnSaveContainer = $("#btnSave").parent();
+		btnSaveContainer.next().next().insertBefore(btnSaveContainer);
+		btnSaveContainer.next().insertBefore(btnSaveContainer);
+	}
 }
 
 function loadOptions() {
