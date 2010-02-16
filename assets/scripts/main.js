@@ -6,48 +6,29 @@
 //                                                                       //
 /////////////////////////////////////////////////////////////////////////*/
 
-var appName = "";
-var appVersion = "";
+var appName;
+var appVersion;
 var iconDir = "assets/images/";
 var iconInactivePath = "assets/images/inactive.png";
 var iconErrorPath = "assets/images/icon-error.png";
 var refreshInterval = 10000;
-var refreshTimer = undefined;
+var refreshTimer;
+var currentProfile;
 var newVersion = false;
 var notifyOnNewVersion = true;
-var currentProfile = undefined;
 var diagnosedError = false;
 var plugin;
 
 function init() {
 	plugin = document.getElementById("plugin");
 	loadManifestInfo();
-	ProfileManager.load();
-	RuleManager.load();
-	RuleManager.reloadRuleList(true);
-
 	applySavedOptions();
-
-	if (!checkFirstTime())
-		checkNewVersion();
+	checkFirstTime() || checkNewVersion();
 	
 	diagnosedError = !diagnose();
 	setIconInfo(undefined);
 	monitorProxyChanges(false);
-	
-	chrome.tabs.onSelectionChanged.addListener(function(tabId, selectInfo) {
-		chrome.tabs.get(tabId, function(tab) {
-			setAutoSwitchIcon(tab.url);
-		});
-	});
-	chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
-		if (changeInfo.status == "complete") {
-			chrome.tabs.getSelected(null, function(selectedTab) {
-				if (selectedTab.id == tab.id)
-					setAutoSwitchIcon(tab.url);
-			});
-		}
-	});
+	monitorTabChanges();
 }
 
 function loadManifestInfo() {
@@ -225,11 +206,27 @@ function monitorProxyChanges(checkIfMonitorRunning) {
 		refreshTimer = undefined;
 }
 
+function monitorTabChanges() {
+	chrome.tabs.onSelectionChanged.addListener(function(tabId, selectInfo) {
+		chrome.tabs.get(tabId, function(tab) {
+			setAutoSwitchIcon(tab.url);
+		});
+	});
+	chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+		if (changeInfo.status == "complete") {
+			chrome.tabs.getSelected(null, function(selectedTab) {
+				if (selectedTab.id == tab.id)
+					setAutoSwitchIcon(tab.url);
+			});
+		}
+	});
+}
+
 function diagnose() {
 	var result = false;
 	
-	Logger.log("Extension Info: v" + appVersion, Logger.types.info);
-	Logger.log("Browser Info: " + navigator.appVersion, Logger.types.info);
+	Logger.log("Extension Info: v" + appVersion, Logger.Types.info);
+	Logger.log("Browser Info: " + navigator.appVersion, Logger.Types.info);
 	
 	if (typeof plugin.setProxy == "function") {
 		try {

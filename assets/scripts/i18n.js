@@ -1,5 +1,22 @@
+/*/////////////////////////////////////////////////////////////////////////
+//                                                                       //
+//   Switchy! Chrome Proxy Manager and Switcher                          //
+//   Copyright (c) 2009 Mohammad Hejazi (mohammadhi at gmail d0t com)    //
+//   Dual licensed under the MIT and GPL licenses.                       //
+//                                                                       //
+/////////////////////////////////////////////////////////////////////////*/
 
-function extractI18nElements() {
+var I18n = {};
+
+I18n.messages = null;
+
+I18n.init = function init() {
+	I18n.readMessages(function(messages) {
+		I18n.messages = messages;
+	});
+};
+
+I18n.buildMessages = function buildMessages() {
 	var result = "\n";
 	
 	$("*[i18n-content]").each(function(i, item) {
@@ -18,14 +35,51 @@ function extractI18nElements() {
 	});
 	
 	return result;
-}
+};
 
-//======================================================================
+I18n.readMessages = function readMessages(callback) {
+	var async = (callback != undefined);
+	var data = null;
+	var request = new XMLHttpRequest();
+	request.open("GET", chrome.extension.getURL("_locales/en/messages.json"), async);
+	request.onreadystatechange = function() {
+		if (this.readyState == XMLHttpRequest.DONE) {
+			data = this.responseText;
+			data = JSON.parse(data.replace(/[\r\n\t]+/g, " "));
+			if (async)
+				callback(data);
+		}
+	};
+	request.send();
+	
+	return data;
+};
+
+I18n.getMessage = function getMessage(messageName, substitution) {
+	var result = chrome.i18n.getMessage(messageName, substitution);
+	if (result == undefined || result.length == 0) {
+		var messageObject = I18n.messages[messageName];
+		if (messageObject != undefined) {
+			result = messageObject.message;
+			if (result != undefined)
+				result = result.replace("$1", substitution);
+		}
+	}
+	return result;
+};
+
+I18n.process = function process(node) {
+	return I18nTemplate.process(node);
+};
+
+I18n.init();
+
+//-------------------------------------------------------
 
 /**
  * i18nTemplate: http://src.chromium.org/viewvc/chrome/trunk/src/chrome/browser/resources/i18n_template.js
  */
-var i18nTemplate = (function() {
+var I18nTemplate = (function() {
 	var handlers = {
 		/**
 		 * This handler sets the textContent of the element.

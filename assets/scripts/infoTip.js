@@ -55,7 +55,7 @@ InfoTip.showMessage = function showMessage(message, type, timeout) {
 };
 
 InfoTip.showMessageI18n = function showMessageI18n(messageId, type, timeout) {
-	var message = chrome.i18n.getMessage(messageId);
+	var message = I18n.getMessage(messageId);
 	return InfoTip.showMessage(message, type, timeout);
 };
 
@@ -63,8 +63,8 @@ InfoTip.confirm = function confirm(message) {
 	return window.confirm("\n" + message);
 };
 
-InfoTip.confirmI18n = function confirmI18n(messageId, sub1, sub2, sub3, sub4, sub5) {
-	var message = chrome.i18n.getMessage(messageId, sub1, sub2, sub3, sub4, sub5);
+InfoTip.confirmI18n = function confirmI18n(messageId, substitution) {
+	var message = I18n.getMessage(messageId, substitution);
 	return InfoTip.confirm(message);
 };
 
@@ -72,7 +72,7 @@ InfoTip.alert = function alert(message) {
 	return window.alert("\n" + message);
 };
 
-InfoTip.alertI18n = function alertI18n(messageId, sub1, sub2, sub3, sub4, sub5) {
-	var message = chrome.i18n.getMessage(messageId, sub1, sub2, sub3, sub4, sub5);
+InfoTip.alertI18n = function alertI18n(messageId, substitution) {
+	var message = I18n.getMessage(messageId, substitution);
 	return InfoTip.alert(message);
 };

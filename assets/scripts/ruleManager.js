@@ -36,7 +36,12 @@ RuleManager.defaultRule = {
 	profileId : ProfileManager.directConnectionProfile.id
 };
 
-RuleManager.load = function loadRules() {
+RuleManager.init = function init() {
+	RuleManager.loadRules();
+	RuleManager.loadRuleList(true);
+};
+
+RuleManager.loadRules = function loadRules() {
 	var rules = Settings.getObject("rules");
 	if (rules != undefined) {
 		for (var i in rules) {
@@ -171,7 +176,7 @@ RuleManager.downloadPacScript = function downloadPacScript(url) {
 //	try {
 //		request.send();
 //	} catch (e) {
-//		Logger.log("Error downloading PAC file! Exception: " + e.message, Logger.types.warning);;
+//		Logger.log("Error downloading PAC file! Exception: " + e.message, Logger.Types.warning);;
 //	}
 	
 	$.ajax({
@@ -180,7 +185,7 @@ RuleManager.downloadPacScript = function downloadPacScript(url) {
 			result = data;
 		},
 		error: function(request, textStatus, thrownError){
-			Logger.log("Error downloading PAC file!", Logger.types.warning);
+			Logger.log("Error downloading PAC file!", Logger.Types.warning);
 		},
 		dataType: "text",
 		cache: true,
@@ -230,7 +235,7 @@ RuleManager.saveAutoPacScript = function saveAutoPacScript() {
 			throw "Error Code (" + result + ")";
 		
 	} catch(ex) {
-		Logger.log("Plugin Error @RuleManager.saveAutoPacScript() > " + ex.toString(), Logger.types.error);		
+		Logger.log("Plugin Error @RuleManager.saveAutoPacScript() > " + ex.toString(), Logger.Types.error);		
 		return false;
 	}
 };
@@ -244,7 +249,7 @@ RuleManager.saveSocksPacScript = function saveSocksPacScript(profile) {
 			throw "Error Code (" + result + ")";
 		
 	} catch(ex) {
-		Logger.log("Plugin Error @RuleManager.saveSocksPacScript() > " + ex.toString(), Logger.types.error);		
+		Logger.log("Plugin Error @RuleManager.saveSocksPacScript() > " + ex.toString(), Logger.Types.error);		
 		return false;
 	}
 };
@@ -643,7 +648,7 @@ RuleManager.getAutoPacScriptPath = function getAutoPacScriptPath(withSalt) {
 		try {
 			RuleManager.autoPacScriptPath = plugin.autoPacScriptPath;
 		} catch(ex) {
-			Logger.log("Plugin Error @RuleManager.getAutoPacScriptPath() > " + ex.toString(), Logger.types.error);
+			Logger.log("Plugin Error @RuleManager.getAutoPacScriptPath() > " + ex.toString(), Logger.Types.error);
 			return undefined;
 		}
 	}
@@ -657,7 +662,7 @@ RuleManager.getSocksPacScriptPath = function getSocksPacScriptPath(withSalt) {
 		try {
 			RuleManager.socksPacScriptPath = plugin.socksPacScriptPath;
 		} catch(ex) {
-			Logger.log("Plugin Error @RuleManager.getSocksPacScriptPath() > " + ex.toString(), Logger.types.error);
+			Logger.log("Plugin Error @RuleManager.getSocksPacScriptPath() > " + ex.toString(), Logger.Types.error);
 			return undefined;
 		}
 	}
@@ -707,20 +712,20 @@ RuleManager.isModifiedSocksProfile = function isModifiedSocksProfile(profile) {
 	return (profile.proxyConfigUrl.substr(0, length) == scriptPath);
 };
 
-RuleManager.reloadRuleList = function reloadRuleList(scheduleNextReload) {
+RuleManager.loadRuleList = function loadRuleList(scheduleNextReload) {
 	if (!RuleManager.isEnabled() || !RuleManager.isRuleListEnabled())
 		return;
 	
 	if (scheduleNextReload) {
 		var interval = Settings.getValue("ruleListReload", 1) * 1000 * 60;
 		setTimeout(function() {
-			RuleManager.reloadRuleList(true);
+			RuleManager.loadRuleList(true);
 		}, interval);
 	}
 	
 	var ruleListUrl = Settings.getValue("ruleListUrl");
 	if (!(/^https?:\/\//).test(ruleListUrl)) {
-		Logger.log("Invalid rule list url: (" + ruleListUrl + ")", Logger.types.error);
+		Logger.log("Invalid rule list url: (" + ruleListUrl + ")", Logger.Types.error);
 		return;
 	}
 
@@ -730,11 +735,11 @@ RuleManager.reloadRuleList = function reloadRuleList(scheduleNextReload) {
 			if (data.length <= 1024 * 1024) // bigger than 1 megabyte
 				RuleManager.parseRuleList(data);
 			else {
-				Logger.log("Too big rule list file!", Logger.types.error);
+				Logger.log("Too big rule list file!", Logger.Types.error);
 			}
 		},
 		error: function(request, textStatus, thrownError){
-			Logger.log("Error downloading rule list file!", Logger.types.warning);
+			Logger.log("Error downloading rule list file!", Logger.Types.warning);
 		},
 		dataType: "text",
 		cache: true,
@@ -797,12 +802,12 @@ RuleManager.parseSwitchyRuleList = function parseSwitchyRuleList(data) {
 
 RuleManager.parseAutoProxyRuleList = function parseAutoProxyRuleList(data) {
 	if (data == null || data.length < 2) {
-		Logger.log("Too small AutoProxy rules file!", Logger.types.warning);
+		Logger.log("Too small AutoProxy rules file!", Logger.Types.warning);
 		return;
 	}
 	data = $.base64Decode(data);
 	if (data.substr(0, 10) != "[AutoProxy") {
-		Logger.log("Invalid AutoProxy rules file!", Logger.types.warning);
+		Logger.log("Invalid AutoProxy rules file!", Logger.Types.warning);
 		return;
 	}
 	var lines = data.split(/[\r\n]+/);
@@ -903,6 +908,8 @@ RuleManager.contains = function contains(rule) {
 	}
 	return undefined;
 };
+
+RuleManager.init();
 
 ///////////////////////////////////////////////////////////////////////////
 //   parseUri 1.2.2                                                      //
