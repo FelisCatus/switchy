@@ -11,9 +11,10 @@ var I18n = {};
 I18n.messages = null;
 
 I18n.init = function init() {
-	I18n.readMessages(function(messages) {
-		I18n.messages = messages;
-	});
+	I18n.messages = I18n.readMessages();
+//	I18n.readMessages(function(messages) {
+//		I18n.messages = messages;
+//	});
 };
 
 I18n.buildMessages = function buildMessages() {
@@ -85,7 +86,7 @@ var I18nTemplate = (function() {
 		 * This handler sets the textContent of the element.
 		 */
 		'i18n-content' : function(element, attributeValue) {
-			element.innerHTML/*textContent*/ = chrome.i18n.getMessage(attributeValue);
+			element.innerHTML/*textContent*/ = I18n.getMessage(attributeValue);
 		},
 
 		/**
@@ -100,7 +101,7 @@ var I18nTemplate = (function() {
 					var propName = a[1];
 					var propExpr = a[2];
 
-					var value = chrome.i18n.getMessage(propExpr);
+					var value = I18n.getMessage(propExpr);
 					if (propName.charAt(0) == '.') {
 						var path = propName.slice(1).split('.');
 						var object = element;

@@ -10,6 +10,7 @@ var extension;
 //var ProfileManager;
 //var RuleManager;
 //var Settings;
+//var Utils;
 //var I18n;
 var activeTabUrl = undefined;
 
@@ -18,6 +19,7 @@ function init() {
 	ProfileManager = extension.ProfileManager;
 	RuleManager = extension.RuleManager;
 	Settings = extension.Settings;
+	Utils = extension.Utils;
 	I18n = extension.I18n;
 
 	I18n.process(document);
@@ -34,6 +36,13 @@ function init() {
 function initUI() {
 	$("#about, #addRule .close").click(closePopup);
 	$("#about .versionNumber").text(extension.appVersion);
+	
+	// Reverse buttons order on Linux and Mac OS X
+	if (!Utils.OS.isWindows) {
+		var btnSaveContainer = $("#btnSave").parent();
+		btnSaveContainer.next().next().insertBefore(btnSaveContainer);
+		btnSaveContainer.next().insertBefore(btnSaveContainer);
+	}
 }
 
 function quickSwitchProxy() {
