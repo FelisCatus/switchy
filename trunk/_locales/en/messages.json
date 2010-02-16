@@ -197,23 +197,13 @@ To start using Switchy set up some proxy profiles below and then press 'Save'." 
 	<li>Press 'Save' and 'Close' to close this tab.</li>
 </ol>" },
 	"message_saveChangedValues": { "message": "Save changed values?" },
-	"message_deleteSelectedProfile": { "message": 
-"Are you sure you want to delete selected profile?\n
-Selected Profile: ($1)" },
-	"message_deleteSelectedRule": { "message": 
-"Are you sure you want to delete selected rule?\n 
-Selected Rule: ($1)" },
-	"message_restoreOptionsBackup": { "message": 
-"Are you sure you want to restore Switchy options from this backup?\n
-Current Switchy! options will be overwritten." },
+	"message_deleteSelectedProfile": { "message": "Are you sure you want to delete selected profile?\n\nSelected Profile: ($1)" },
+	"message_deleteSelectedRule": { "message": "Are you sure you want to delete selected rule?\n\nSelected Rule: ($1)" },
+	"message_restoreOptionsBackup": { "message": "Are you sure you want to restore Switchy options from this backup?\n\nCurrent Switchy! options will be overwritten." },
 	"message_cannotSaveFile": { "message": "Oops! Can't save generated file!" },
 	"message_selectBackupFile": { "message": "You should set the backup file path first.." },
 	"message_cannotReadOptionsBackup": { "message": "Oops! Can't read the backup file!" },
-	"message_cannotRestoreOptionsBackup": { "message": 
-"Oops! Can't restore from this backup file!\n
-The backup file is corrupted or invalid." },
-	"message_successRestoreOptionsBackup": { "message": 
-"Switchy! options restored successfully..\n
-You should restart Chrome for the new options to take effect." }
+	"message_cannotRestoreOptionsBackup": { "message": "Oops! Can't restore from this backup file!\n\nThe backup file is corrupted or invalid." },
+	"message_successRestoreOptionsBackup": { "message": "Switchy! options restored successfully..\n\nYou should restart Chrome for the new options to take effect." }
 
 }

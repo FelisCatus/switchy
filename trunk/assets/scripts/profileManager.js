@@ -18,14 +18,18 @@ ProfileManager.profiles = {};
 
 ProfileManager.directConnectionProfile = {
 	id: "direct",
-	name: "[" + chrome.i18n.getMessage("proxy_directConnection") + "]",
+	name: "[" + I18n.getMessage("proxy_directConnection") + "]",
 	proxyMode: ProfileManager.ProxyModes.direct,
 	color: "inactive"
 };
 
 ProfileManager.currentProfileName = "<Current Profile>";
 
-ProfileManager.load = function loadProfiles() {
+ProfileManager.init = function init() {
+	ProfileManager.loadProfiles();
+};
+
+ProfileManager.loadProfiles = function loadProfiles() {
 	var profiles = Settings.getObject("profiles");
 	if (profiles != undefined) {
 		for (var i in profiles) {
@@ -110,7 +114,7 @@ ProfileManager.getCurrentProfile = function getCurrentProfile() {
 		proxyConfigUrl = plugin.proxyConfigUrl;
 	} catch(ex) {
 		Logger.log("Plugin Error @ProfileManager.getCurrentProfile() > " +
-			ex.toString(), Logger.types.error);
+			ex.toString(), Logger.Types.error);
 		
 		return {};
 	}
@@ -170,7 +174,7 @@ ProfileManager.applyProfile = function applyProfile(profile) {
 		plugin.notifyChanges(0);
 	} catch(ex) {
 		Logger.log("Plugin Error @ProfileManager.applyProfile(" + ProfileManager.profileToString(profile, false) + ") > " +
-			ex.toString(), Logger.types.error);
+			ex.toString(), Logger.Types.error);
 	}
 };
 
@@ -194,7 +198,7 @@ ProfileManager.getConnections = function getConnections() {
 		connections = plugin.getConnections(0);
 	} catch(ex) {
 		Logger.log("Plugin Error @ProfileManager.getConnections() > " +
-			ex.toString(), Logger.types.error);
+			ex.toString(), Logger.Types.error);
 		
 		return [];
 	}
@@ -364,9 +368,9 @@ ProfileManager.equals = function equals(profile1, profile2) {
 };
 
 /**
- * Checks if the given profile exists in profiles array.
+ * Checks if |ProfileManager.profiles| contains a profile identical to the given one.
  * @param profile
- * @return the found profile, undefined otherwise.
+ * @return if the profile found returns it, otherwise returns |undefined|.
  */
 ProfileManager.contains = function contains(profile) {
 	var profiles = ProfileManager.getProfiles();
@@ -376,3 +380,5 @@ ProfileManager.contains = function contains(profile) {
 	}
 	return undefined;
 };
+
+ProfileManager.init();

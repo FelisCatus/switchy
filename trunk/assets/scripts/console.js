@@ -63,34 +63,34 @@ function initDiagnose() {
 				try {
 					var pluginCheckResult = plugin.checkEnvironment(0);
 					if (pluginCheckResult == "OK") {
-						Logger.log("Everything is OK", Logger.types.success);
+						Logger.log("Everything is OK", Logger.Types.success);
 						$("#test3 .icon").addClass("success");
 						success = true;
 					}
 					else {
-						Logger.log("Plugin error: " + pluginCheckResult, Logger.types.error);
+						Logger.log("Plugin error: " + pluginCheckResult, Logger.Types.error);
 						$("#test3 .icon").addClass("error");
 						$("#test3 .description").text("(Plugin error: " + pluginCheckResult + ")");
 					}
 				} catch (e) {
-					Logger.log("Error checking the environment!", Logger.types.error);
+					Logger.log("Error checking the environment!", Logger.Types.error);
 					$("#test3 .icon").addClass("error");
 					$("#test3 .description").text("(Error checking the environment!)");
 				}			
 			}
 			else {
-				Logger.log("Plugin error: " + pluginDiagnoseResult, Logger.types.error);
+				Logger.log("Plugin error: " + pluginDiagnoseResult, Logger.Types.error);
 				$("#test2 .icon").addClass("error");
 				$("#test2 .description").text("(Plugin error: " + pluginDiagnoseResult + ")");
 			}
 		} catch (e) {
-			Logger.log("Error diagnosing the plugin!", Logger.types.error);
+			Logger.log("Error diagnosing the plugin!", Logger.Types.error);
 			$("#test2 .icon").addClass("error");
 			$("#test2 .description").text("(Error diagnosing the plugin!)");
 		}
 	}
 	else {
-		Logger.log("Plugin not loaded!", Logger.types.error);
+		Logger.log("Plugin not loaded!", Logger.Types.error);
 		$("#test1 .icon").addClass("error");
 //		if (Utils.OS.isMac)
 //			$("#test1 .description").html("(Sorry, Mac OS X isn't supported yet, you can star this " +

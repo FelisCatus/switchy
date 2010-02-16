@@ -9,7 +9,7 @@
 var Logger = {};
 
 ///// Log Types //////
-Logger.types = {
+Logger.Types = {
 	debug: "debug",
 	info: "info",
 	success: "success",
@@ -35,7 +35,7 @@ Logger.log = function log(message, type, logStackTrace) {
 		return;
 	
 	if (!type)
-		type = Logger.types.debug;
+		type = Logger.Types.debug;
 	
 	if (logStackTrace == undefined)
 		logStackTrace = Logger.logStackTrace;
@@ -61,20 +61,20 @@ Logger.log = function log(message, type, logStackTrace) {
 	
 	if (Logger.logToConsole) {
 		switch (type) {
-		case Logger.types.debug:
+		case Logger.Types.debug:
 			console.debug(formattedMessage);
 			break;
 
-		case Logger.types.info:
-		case Logger.types.success:
+		case Logger.Types.info:
+		case Logger.Types.success:
 			console.info(formattedMessage);
 			break;
 
-		case Logger.types.warning:
+		case Logger.Types.warning:
 			console.warn(formattedMessage);
 			break;
 
-		case Logger.types.error:
+		case Logger.Types.error:
 			console.error(formattedMessage);
 			break;
 
@@ -132,7 +132,7 @@ Logger.format = function format(message, type, time) {
 	if (!time)
 		time = new Date().toLocaleTimeString();
 	
-	if (type && type != Logger.types.debug)
+	if (type && type != Logger.Types.debug)
 		message = "[" + type + "] - " + message;
 	
 	message = "[" + time + "] " + message;
@@ -166,7 +166,7 @@ Logger.haveEntryOfType = function haveEntryOfType(type) {
 };
 
 Logger.haveErrorEntries = function haveErrorEntries() {
-	return Logger.haveEntryOfType(Logger.types.error);
+	return Logger.haveEntryOfType(Logger.Types.error);
 };
 
 Logger.addEventListener = function addEventListener(event, fn) {

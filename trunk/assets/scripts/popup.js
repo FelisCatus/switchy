@@ -10,33 +10,41 @@ var extension;
 //var ProfileManager;
 //var RuleManager;
 //var Settings;
+//var I18n;
 var activeTabUrl = undefined;
 
 function init() {
-	i18nTemplate.process(document);
+	extension = chrome.extension.getBackgroundPage();
+	ProfileManager = extension.ProfileManager;
+	RuleManager = extension.RuleManager;
+	Settings = extension.Settings;
+	I18n = extension.I18n;
+
+	I18n.process(document);
 	document.body.style.visibility = "visible";
 	
 	buildMenuItems();
-	
-	$("#about, #addRule .close").click(closePopup);
-	$("#about .versionNumber").text(extension.appVersion);
+	initUI();
 	
 	checkNewVersionBadge();
 	
 //	showAbout();
 }
 
+function initUI() {
+	$("#about, #addRule .close").click(closePopup);
+	$("#about .versionNumber").text(extension.appVersion);
+}
+
 function quickSwitchProxy() {
 	extension = chrome.extension.getBackgroundPage();
 	ProfileManager = extension.ProfileManager;
-	RuleManager = extension.RuleManager;
 	Settings = extension.Settings;
 
 	if (extension.newVersion) // allow new version menu to appear.
 		return;
 	
-	var quickSwitch = Settings.getValue("quickSwitch", false);
-	if (!quickSwitch)
+	if (!Settings.getValue("quickSwitch", false))
 		return;
 	
 	var profile = undefined;

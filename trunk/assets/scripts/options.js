@@ -12,6 +12,7 @@ var extension;
 //var Settings;
 //var Logger;
 //var Utils;
+//var I18n;
 var anyValueModified = false;
 var ignoreFieldsChanges = false;
 var selectedRow;
@@ -19,15 +20,16 @@ var selectedRuleRow;
 var switchRulesEnabled;
 
 function init() {
-	i18nTemplate.process(document);
-	document.body.style.visibility = "visible";
-	
 	extension = chrome.extension.getBackgroundPage();
 	ProfileManager = extension.ProfileManager;
 	RuleManager = extension.RuleManager;
 	Settings = extension.Settings;
 	Logger = extension.Logger;
 	Utils = extension.Utils;
+	I18n = extension.I18n;
+	
+	I18n.process(document);
+	document.body.style.visibility = "visible";
 	
 	initUI();
 	loadOptions();
@@ -213,7 +215,7 @@ function loadOptions() {
 	// Proxy Profiles
 	$("#proxyProfiles .tableRow").remove();
 	var table = $("#proxyProfiles");
-	ProfileManager.load();
+	ProfileManager.loadProfiles();
 	var profiles = ProfileManager.getSortedProfileArray();
 	var profilesTemp = ProfileManager.getProfiles();
 	var currentProfile = ProfileManager.getCurrentProfile();
@@ -250,7 +252,7 @@ function loadOptions() {
 		$("#proxyProfiles .tableRow td:first").click();	
 	
 	// Switch Rules
-	RuleManager.load();
+	RuleManager.loadRules();
 	var defaultRule = RuleManager.getDefaultRule();
 	$("#rulesTable .defaultRow")[0].rule = defaultRule;
 	switchRulesEnabled = RuleManager.isEnabled();
@@ -445,7 +447,7 @@ function saveOptions() {
 	var ruleListEnabled = $("#chkRuleList").is(":checked");
 	if (RuleManager.isEnabled() && (!RuleManager.isRuleListEnabled() && ruleListEnabled)) {
 		RuleManager.setRuleListEnabled(true);
-		RuleManager.reloadRuleList(false);
+		RuleManager.loadRuleList(false);
 	}
 	RuleManager.setRuleListEnabled(ruleListEnabled);
 	Settings.setValue("ruleListUrl", $("#txtRuleListUrl").val());
@@ -850,7 +852,7 @@ function saveFileAs(fileName, fileData) {
 		if (!filePath || filePath.trim().length == 0)
 			throw "Error";
 	} catch (e) {
-		Logger.log("Oops! Can't save generated file, " + e.toString(), Logger.types.error);
+		Logger.log("Oops! Can't save generated file, " + e.toString(), Logger.Types.error);
 		InfoTip.alertI18n("message_cannotSaveFile");
 		return;
 	}
@@ -905,10 +907,10 @@ function restoreBackup() {
 				if (data.length <= 1024 * 50) // bigger than 50 KB
 					backupData = data;
 				else
-					Logger.log("Too big backup file!", Logger.types.error);
+					Logger.log("Too big backup file!", Logger.Types.error);
 			},
 			error: function(request, textStatus, thrownError){
-				Logger.log("Error downloading the backup file!", Logger.types.warning);
+				Logger.log("Error downloading the backup file!", Logger.Types.warning);
 			},
 			dataType: "text",
 			cache: false,
@@ -919,7 +921,7 @@ function restoreBackup() {
 		try {
 			backupData = extension.plugin.readFile(backupFilePath);
 		} catch (e) {
-			Logger.log("Oops! Can't read the backup file, " + e.toString(), Logger.types.error);
+			Logger.log("Oops! Can't read the backup file, " + e.toString(), Logger.Types.error);
 			InfoTip.alertI18n("message_cannotReadOptionsBackup");
 			return;
 		}
@@ -935,7 +937,7 @@ function restoreBackup() {
 		backupData = $.base64Decode(backupData);
 		options = JSON.parse(backupData);
 	} catch (e) {
-		Logger.log("Oops! Can't restore from this backup file. The backup file is corrupted or invalid, " + e.toString(), Logger.types.error);
+		Logger.log("Oops! Can't restore from this backup file. The backup file is corrupted or invalid, " + e.toString(), Logger.Types.error);
 		InfoTip.alertI18n("message_cannotRestoreOptionsBackup");
 		return;
 	}
