@@ -35,7 +35,7 @@ hr {
 
 small {
 	font-size: 7.5pt;
-	font-weight: normal;
+	font-weight: 500;
 }
 
 .ltr, .ltr * {
@@ -45,6 +45,10 @@ small {
 
 .link {
 	text-decoration: none;
+}
+
+.link:hover {
+	text-decoration: underline;
 }
 
 .button {
@@ -79,6 +83,17 @@ small {
 
 .button img {
 	vertical-align: text-bottom;;
+}
+
+.tip {
+	text-align: center;
+	font-size: 9pt;
+	text-shadow: none;
+	?font-style: italic;
+	?opacity: 0.7;
+	color: #889;
+	padding: 0px 8px;
+	-webkit-padding-end: 0px;
 }
 
 #optionsTable {
@@ -308,6 +323,27 @@ small {
 	color: #6e809d;
 	white-space: nowrap;
 	overflow: hidden;
+	-webkit-user-select: none;
+	background: -webkit-gradient(linear, left top, left bottom, 
+		color-stop(0, #fff), color-stop(0.48, hsl(217, 53%, 96%)), color-stop(0.51, hsl(217, 42%, 94%)));
+}
+
+#rulesTable th:hover {
+	background: url(/assets/images/sort.png) center -4 no-repeat,
+		-webkit-gradient(linear, left top, left bottom, 
+		color-stop(0, #fff), color-stop(0.48, hsl(217, 99%, 96%)), color-stop(0.51, hsl(217, 95%, 94%)));
+}
+
+#rulesTable th.sortedUp {
+	background: url(/assets/images/sortUp.png) center -4 no-repeat,
+		-webkit-gradient(linear, left top, left bottom, 
+		color-stop(0, #fff), color-stop(0.48, hsl(217, 99%, 96%)), color-stop(0.51, hsl(217, 95%, 94%)));
+}
+
+#rulesTable th.sortedDown {
+	background: url(/assets/images/sortDown.png) center -4 no-repeat,
+		-webkit-gradient(linear, left top, left bottom, 
+		color-stop(0, #fff), color-stop(0.48, hsl(217, 99%, 96%)), color-stop(0.51, hsl(217, 99%, 94%)));
 }
 
 .rulesTable td {

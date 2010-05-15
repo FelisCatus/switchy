@@ -1,8 +1,11 @@
 {
 	"name": "Proxy Switchy!",
-	"version": "1.6.3",
+	"version": "1.7.0",
 	"description": "Manage and switch between multiple proxies quickly and easily.",
-	"icons": { "128": "assets/images/icon-128.png" },
+	"icons": {
+		"128": "assets/images/icon-128.png",
+		"16": "assets/images/icon.png"
+	},
 	"default_locale": "en",
 	
 	"background_page": "main.html",

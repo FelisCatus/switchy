@@ -9,6 +9,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<title>Switchy! Options</title>
+	<link rel="shortcut icon" type="image/png" href="assets/images/icon.png"/> 
 	<link rel="stylesheet" href="assets/styles/options.css" type="text/css">
 	<link rel="stylesheet" href="assets/styles/infoTip.css" type="text/css">
 	<link rel="stylesheet" href="assets/styles/helpToolTip.css" type="text/css">
@@ -178,6 +179,14 @@
 											<td><label i18n-content="options_autoConfigUrl">Auto Config URL</label></td>
 											<td colspan="3"><input id="proxyConfigUrl" type="text" class="ltr"></td>
 										</tr>
+										<!--tr class="section">
+											<td colspan="4">
+												<label>
+													<input id="modeAutoDetect" type="radio" name="proxyMode">&nbsp;
+													<span><b xi18n-content="options_autoConfig">Auto-detect Proxy Settings</b></span>
+												</label>
+											</td>
+										</tr-->
 										<tr>
 											<td colspan="4"><hr /></td>
 										</tr>
@@ -219,8 +228,8 @@
 						<div id="switchRules">
 						<table id="rulesTable" class="rulesTable">
 							<tr class="tableHeader">
-								<th width="18%" i18n-content="options_ruleName">Rule Name</th>
-								<th width="45%"><span i18n-content="options_urlPattern">URL Pattern</span>
+								<th width="18%" colName="name" i18n-content="options_ruleName">Rule Name</th>
+								<th width="45%" colName="urlPattern"><span i18n-content="options_urlPattern">URL Pattern</span>
 									<span class="help" i18n-content="options_urlPattern_help">
 										<p>Pattern of the page url.</p><hr />
 										<table>
@@ -257,7 +266,7 @@
 										</table>
 									</span>
 								</th>
-								<th width="16%"><span i18n-content="options_patternType">Pattern Type</span>
+								<th width="16%" colName="patternType"><span i18n-content="options_patternType">Pattern Type</span>
 									<span class="help" i18n-content="options_patternType_help">
 										<p>The type of URL Pattern.</p><hr />
 										<table>
@@ -272,7 +281,7 @@
 										</table>
 									</span>								
 								</th>
-								<th width="21%"><span i18n-content="options_proxyProfile">Proxy Profile</span>
+								<th width="21%" colName="profileId"><span i18n-content="options_proxyProfile">Proxy Profile</span>
 									<span class="help">
 										<p i18n-content="options_proxyProfile_help">The proxy profile to be applied when this rule is matched.</p>
 									</span>								
@@ -313,6 +322,10 @@
 						<button class="button" id="btnNewRule" onclick="newRuleRow(undefined, true);">
 							<img src="assets/images/add.png"> 
 							<span i18n-content="options_newRule">New Rule</span>
+						</button>
+						<button class="button" id="btnDeleteAllRules" onclick="newRuleRow(undefined, true);">
+							<img src="assets/images/delete.png"> 
+							<span xi18n-content="options_deleteAllRules">Delete All</span>
 						</button>
 						
 						<hr />
@@ -426,18 +439,18 @@
 						<table id="exportRulesTable" class="optionGroup">
 							<tr class="section">
 								<td>
-									<button class="button" onclick="exportPacFile();" i18n-content="options_exportPacFile">Export PAC File</button>
-								</td>
-								<td i18n-content="options_exportPacFile_help">
-									Export Switch Rules as a PAC file, so you can use it in other browsers.
-								</td>
-							</tr>
-							<tr class="section">
-								<td>
 									<button class="button" onclick="exportRuleList();" i18n-content="options_exportRuleList">Export Rule List</button>
 								</td>
 								<td i18n-content="options_exportRuleList_help">
 									Export Switch Rules as a Switchy! Rule List file, so you can share it with friends.
+								</td>
+							</tr>
+							<tr class="section">
+								<td>
+									<button class="button" onclick="exportPacFile();" i18n-content="options_exportPacFile">Export PAC File</button>
+								</td>
+								<td i18n-content="options_exportPacFile_help">
+									Export Switch Rules as a PAC file, so you can use it in other browsers.
 								</td>
 							</tr>
 						</table>
@@ -554,5 +567,11 @@
 			</td>
 		</tr>
 	</table>
+	
+	<div id="tip" class="tip">
+		<br />
+		<b>Tip:</b>
+		<span class="text">To make Switchy! work with dial-up/VPN connections, see 'Network' tab.</span>
+	</div>
 </body>
 </html>

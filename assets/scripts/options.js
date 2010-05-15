@@ -18,6 +18,7 @@ var ignoreFieldsChanges = false;
 var selectedRow;
 var selectedRuleRow;
 var switchRulesEnabled;
+var colors = [ "blue", "green", "red", "yellow", "purple" ];
 
 function init() {
 	extension = chrome.extension.getBackgroundPage();
@@ -36,6 +37,7 @@ function init() {
 	checkPageParams();
 	
 	HelpToolTip.enableTooltips();
+	showTip();
 }
 
 function initUI() {
@@ -49,6 +51,11 @@ function initUI() {
 			$(".control").hide();
 		else
 			$(".control").show();
+		
+		var tabName = $(this).attr("id").toLowerCase().substring(3);
+		var url = document.location;
+		url = url.protocol + "//" + url.host + url.pathname + url.search + "#tab=" + tabName;
+		document.location.href = url;
 	});
 	
 	// Proxy Profiles
@@ -138,6 +145,28 @@ function initUI() {
 		onFieldModified(false);
 	});
 
+	$("#rulesTable > tbody > tr > th").click(function() {
+		var columnName = $(this).attr("colName");
+		if (!columnName)
+			return;
+		
+		this.reverseSorting = !$(this).hasClass("sortedUp");
+		$("#rulesTable > tbody > tr > th").removeClass("sortedUp sortedDown");
+		$(this).attr("class", this.reverseSorting ? "sortedUp" : "sortedDown");
+		
+		var rows = $("#rulesTable > tbody > tr:gt(2)");
+		rows = $.makeArray(rows);
+		
+		rows.sort(Utils.createComparer(function (obj) {
+			return obj.rule[columnName];
+		}, this.reverseSorting));
+		
+		$("#rulesTable").append(rows);
+		
+	}).dblclick(function() {
+		getSelection().collapse();
+	});
+	
 	$("#chkRuleList").change(function() {
 		if ($(this).is(":checked")) {
 			$("#ruleListsTable *, #autoProxy").removeClass("disabled");
@@ -403,6 +432,10 @@ function saveOptions() {
 		if (profile.unknown != undefined) // don't save unknown profiles
 			continue;
 		
+		for (var j in profile)
+			if (typeof profile[j] == "string")
+				profile[j] = profile[j].trim();
+		
 		profile.proxyHttp = fixProxyString(profile.proxyHttp, "80");
 		profile.proxyHttps = fixProxyString(profile.proxyHttps, "443");
 		profile.proxyFtp = fixProxyString(profile.proxyFtp, "21");
@@ -528,6 +561,17 @@ function switchTab(tab) {
 	$("#" + tabId).click();
 }
 
+function showTip() {
+	var tips = 
+		["To make Switchy! work with dial-up/VPN connections, see 'Network' tab.", 
+		 "The random number generator is seeded from the current time.", 
+		 "Returns a random integer between min and max.",
+		 "Using Math.round() will give you a uniform distribution!"];
+	
+	var index = Math.floor(Math.random() * tips.length);
+	$("#tip .text").text(tips[index]);
+}
+
 function showLog() {
 	var url = "console.html";
 //	window.location = url;
@@ -597,6 +641,7 @@ function newRow(profile) {
 		
 	} else {
 		var profileName = $("#proxyProfiles .templateRow td:first").text(); // template name
+		var color = colors[Math.floor(Math.random() * colors.length)];
 		row[0].profile = {
 			name : profileName,
 			proxyMode: ProfileManager.ProxyModes.manual,
@@ -606,12 +651,13 @@ function newRow(profile) {
 			proxyFtp : "",
 			proxySocks : "",
 			socksVersion: 4,
-			proxyExceptions : "localhost; 127.0.0.1; <local>",
-			proxyConfigUrl : ""
+			proxyExceptions : "127.0.0.1; *.local; localhost" + (Utils.OS.isWindows ? "; <local>" : ""),
+			proxyConfigUrl : "",
+			color: color
 		};
 		
 		$("td:first", row).click();
-		$("td:nth(1) div div", row).addClass("blue");
+		$("td:nth(1) div div", row).attr("class", color);
 		$("#profileName").focus().select();
 	}
 	return row;
@@ -635,24 +681,23 @@ function deleteRow() {
 }
 
 function changeColor() {
-	var target = event.target.onclick ? event.target.children[0] : event.target;
+	var target = event.target.title ? event.target.children[0] : event.target;
 	var cell = $(target);
 	var profile = target.parentNode.parentNode.parentNode.profile;
 	var color;
 	
-	if (cell.attr("class") == "" || cell.hasClass("blue"))
-		color = "green";
-	else if (cell.hasClass("green"))
-		color = "red";
-	else if (cell.hasClass("red"))
-		color = "yellow";
-	else if (cell.hasClass("yellow"))
-		color = "purple";
-	else if (cell.hasClass("purple"))
-		color = "blue";
+	for (var i = 0; i < colors.length; i++) {
+		color = colors[i];
+		if (cell.hasClass(color)) {
+			color = colors[i < colors.length - 1 ? i + 1 : 0];
+			break;
+		}
+	}
 	
 	cell.attr("class", color);
 	profile.color = color;
+	
+	return false;
 }
 
 function onSelectRow(e) {
@@ -963,6 +1008,7 @@ function restoreBackup() {
 }
 
 function getQueryParams() {
+	// parse query
 	var query = document.location.search || "";
 	if (query.indexOf("?") == 0)
 		query = query.substring(1);
@@ -970,6 +1016,18 @@ function getQueryParams() {
 	query = query.split("&");
 	
 	var params = [];
+	for (i in query) {
+		var pair = query[i].split("=");
+		params[pair[0]] = pair[1];
+	}
+	
+	// parse hash
+	query = document.location.hash || "";
+	if (query.indexOf("#") == 0)
+		query = query.substring(1);
+	
+	query = query.split("&");
+	
 	for (i in query) {
 		var pair = query[i].split("=");
 		params[pair[0]] = pair[1];
