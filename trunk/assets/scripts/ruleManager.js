@@ -268,13 +268,18 @@ RuleManager.shExpMatch = function shExpMatch(url, pattern) {
 	pattern = pattern.replace(/\./g, "\\.");
 	pattern = pattern.replace(/\*/g, ".*");
 	pattern = pattern.replace(/\?/g, ".");
-	var regexp = new RegExp("^" + pattern + "$");
-	return regexp.test(url);
+	pattern = "^" + pattern + "$";
+	
+	return RuleManager.regExpMatch(url, pattern);
 };
 
 RuleManager.regExpMatch = function regExpMatch(url, pattern) {
-	var regexp = new RegExp(pattern);
-	return regexp.test(url);
+	try {
+		var regexp = new RegExp(pattern);
+		return regexp.test(url);
+	} catch (e) {
+		return false;
+	}
 };
 
 RuleManager.matchPattern = function matchPattern(url, pattern, patternType) {

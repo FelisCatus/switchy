@@ -78,7 +78,7 @@ function openOptions(firstTime) {
 	chrome.tabs.getAllInWindow(null, function(tabs) {
 		for (var i in tabs) { // check if Options page is open already
 			var tab = tabs[i];
-			if (tab.url == fullUrl) {
+			if (tab.url == fullUrl || tab.url.substring(0, fullUrl.length) == fullUrl) {
 				chrome.tabs.update(tab.id, { selected: true }); // select the tab
 				return;
 			}

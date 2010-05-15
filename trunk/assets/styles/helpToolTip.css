@@ -27,7 +27,7 @@
 #helpTooltip {
 	z-index: 1000;
 	position: absolute;
-	background: #e6f0ff;
+	background-color: #e2f0ff;
 	padding: 0.6em 1.0em;
 	max-width: 40em;
 	-webkit-box-shadow: 3px 3px 4px rgba(0, 0, 0, 0.33);
@@ -36,6 +36,10 @@
 	line-height: 150%;
 	?font-size: 92%;
 	color: #456;
+}
+
+#helpTooltip table * {
+	color: #567;
 }
 
 #helpTooltip p {

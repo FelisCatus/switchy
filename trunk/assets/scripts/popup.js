@@ -113,17 +113,17 @@ function openErrorLog() {
 	});
 }
 
-function openContactEmail() {
+function openExtensionGalleryWebsite() {
 	closePopup();
 	chrome.tabs.create({
-		url: 'mailto:Proxy Switchy! <chromeswitchy@gmail.com>?subject=[Switchy!] Contact'
+		url: 'https://chrome.google.com/extensions/detail/caehdcpeofiiigpdhbabniblemipncjj'
 	});
 }
 
 function openMainWebsite() {
 	closePopup();
 	chrome.tabs.create({
-		url: 'http://www.samabox.com/projects/chrome/switchy'
+		url: 'http://switchy.samabox.com/'
 	});
 }
 
@@ -134,10 +134,17 @@ function openSupportWebsite() {
 	});
 }
 
-function openExtensionGalleryWebsite() {
+function openTwitterPage() {
 	closePopup();
 	chrome.tabs.create({
-		url: 'https://chrome.google.com/extensions/detail/caehdcpeofiiigpdhbabniblemipncjj'
+		url: 'http://twitter.com/ProxySwitchy'
+	});
+}
+
+function openContactEmail() {
+	closePopup();
+	chrome.tabs.create({
+		url: 'mailto:Proxy Switchy! <chromeswitchy@gmail.com>?subject=[Switchy!] Contact'
 	});
 }
 
@@ -222,6 +229,10 @@ function showAddRule() {
 
 	document.body.style.direction = currentBodyDirection;		// ....if the body's direction is "rtl"
 	$("#addRule").css("visibility", "visible");					// ....
+}
+
+function showDeleteRule() {
+	// TODO
 }
 
 function addSwitchRule() {

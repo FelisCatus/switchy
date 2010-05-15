@@ -36,6 +36,10 @@
 			i18n-values="title:popup_newRule_help">
 			<img src="assets/images/filter-add.png" /><span i18n-content="popup_newRule">New Rule</span>
 		</div>
+		<div id="menuDeleteRule" class="item" onclick="showDeleteRule();" title="Delete the Switch Rule associated &#13;with current website."
+			xi18n-values="title:popup_deleteRule_help">
+			<img src="assets/images/filter-delete.png" /><span xi18n-content="popup_deleteRule">Delete Rule</span>
+		</div>
 		<div id="separatorOptions" class="separator"></div>
 		<div id="menuOptions" class="item" onclick="openOptions();">
 			<img src="assets/images/options.png" /><span i18n-content="popup_options">Options</span>
@@ -85,13 +89,20 @@
 				<div><a href="" onclick="openExtensionGalleryWebsite();">full change log..</a></div>
 			</div>
 			<span><img src="assets/images/chrome.png" valign="middle" /> 
-				<a href="" onclick="openExtensionGalleryWebsite();" i18n-content="popup_chromeExtensionGallery">Chrome Extension Gallery</a></span><br />
+				<a href="" onclick="openExtensionGalleryWebsite();" i18n-content="popup_chromeExtensionGallery">Chrome Extension Gallery</a>
+			</span><br />
 			<span><img src="assets/images/web.png" valign="middle" /> 
-				<a href="" onclick="openMainWebsite();" i18n-content="popup_switchyWebPage">Switchy! web page</a></span><br />
+				<a href="" onclick="openMainWebsite();" i18n-content="popup_switchyWebPage">Switchy! web page</a>
+			</span><br />
 			<span><img src="assets/images/web.png" valign="middle" /> 
-				<a href="" onclick="openSupportWebsite();" i18n-content="popup_supportAndBugReports">Support & Bug reports</a></span><br />
+				<a href="" onclick="openSupportWebsite();" i18n-content="popup_supportAndBugReports">Support & Bug reports</a>
+			</span><br />
+			<span><img src="assets/images/twitter.png" valign="middle" /> 
+				<a href="" onclick="openTwitterPage();" xi18n-content="popup_followUsOnTwitter">Follow us on Twitter</a>
+			</span><br />
 			<span><img src="assets/images/mail.png" valign="middle" /> 
-				<a href="" onclick="openContactEmail();">chromeswitchy@gmail.com</a></span>
+				<a href="" onclick="openContactEmail();">chromeswitchy@gmail.com</a>
+			</span>
 		</div>
 		<div class="footer">
 			<div i18n-content="popup_copyright">Copyright &copy; 2009 Samabox. Some rights reserved.</div>
