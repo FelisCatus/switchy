@@ -22,13 +22,13 @@ Logger.events = {
 	onLog: "log"
 };
 
-Logger.entries = [];
 Logger.enabled = true;
-Logger.logToConsole = true;
-Logger.logAlert = false;
+Logger.logToConsoleEnabled = true;
+Logger.logToAlertEnabled = false;
 Logger.logStackTrace = false;
 Logger.maxCapacity = 25;
 Logger.listeners = [];
+Logger.entries = [];
 
 Logger.log = function log(message, type, logStackTrace) {
 	if (!Logger.enabled)
@@ -37,7 +37,7 @@ Logger.log = function log(message, type, logStackTrace) {
 	if (!type)
 		type = Logger.Types.debug;
 	
-	if (logStackTrace == undefined)
+	if (!logStackTrace)
 		logStackTrace = Logger.logStackTrace;
 	
 	var time = new Date().toLocaleTimeString();
@@ -48,6 +48,50 @@ Logger.log = function log(message, type, logStackTrace) {
 		formattedMessage += "\nStack Trace:\n" + stackTrace.join("\n");
 	}
 	
+	Logger.dispachEvent(message, formattedMessage, type);
+	
+	Logger.logToConsole(formattedMessage, type);
+	Logger.logToAlert(formattedMessage);
+	
+	if (Logger.entries.length >= Logger.maxCapacity)
+		Logger.entries.shift();
+	
+	Logger.entries.push({ message: message, type: type, time: time, stackTrace: stackTrace });
+};
+
+Logger.logToConsole = function logToConsole(message, type) {
+	if (Logger.logToConsoleEnabled) {
+		switch (type) {
+		case Logger.Types.debug:
+			console.debug(message);
+			break;
+
+		case Logger.Types.info:
+		case Logger.Types.success:
+			console.info(message);
+			break;
+
+		case Logger.Types.warning:
+			console.warn(message);
+			break;
+
+		case Logger.Types.error:
+			console.error(message);
+			break;
+
+		default:
+			console.log(message);
+			break;
+		}
+	}
+};
+
+Logger.logToAlert = function logToAlert(message) {
+	if (Logger.logToAlertEnabled)
+		alert(message);
+};
+
+Logger.dispachEvent = function dispachEvent(message, formattedMessage, type) {
 	var onLogListeners = Logger.listeners[Logger.events.onLog];
 	if (onLogListeners != undefined) {
 		for (var i in onLogListeners) {
@@ -58,39 +102,6 @@ Logger.log = function log(message, type, logStackTrace) {
 			catch (ex) {}
 		}
 	}
-	
-	if (Logger.logToConsole) {
-		switch (type) {
-		case Logger.Types.debug:
-			console.debug(formattedMessage);
-			break;
-
-		case Logger.Types.info:
-		case Logger.Types.success:
-			console.info(formattedMessage);
-			break;
-
-		case Logger.Types.warning:
-			console.warn(formattedMessage);
-			break;
-
-		case Logger.Types.error:
-			console.error(formattedMessage);
-			break;
-
-		default:
-			console.log(formattedMessage);
-			break;
-		}
-	}
-	
-	if (Logger.logAlert)
-		alert(formattedMessage);
-	
-	if (Logger.entries.length >= Logger.maxCapacity)
-		Logger.entries.shift();
-	
-	Logger.entries.push({ message: message, type: type, time: time, stackTrace: stackTrace });
 };
 
 Logger.getStackTrace = function getStackTrace() {
@@ -173,5 +184,6 @@ Logger.addEventListener = function addEventListener(event, fn) {
 	if (!Logger.listeners[event])
 		Logger.listeners[event] = [];
 	
-	Logger.listeners[event].push(fn);
+	if (!(fn in Logger.listeners[event]))
+		Logger.listeners[event].push(fn);
 };
