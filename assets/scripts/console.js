@@ -92,15 +92,10 @@ function initDiagnose() {
 	else {
 		Logger.log("Plugin not loaded!", Logger.Types.error);
 		$("#test1 .icon").addClass("error");
-//		if (Utils.OS.isMac)
-//			$("#test1 .description").html("(Sorry, Mac OS X isn't supported yet, you can star this " +
-//					"<a href='http://code.google.com/p/switchy/issues/detail?id=4'>issue</a> " +
-//					"to keep track of changes)");
-//		else
-			$("#test1 .description").html(
-					"(Can't load the plugin, please " +
-					"<a href='http://code.google.com/p/switchy/issues/list'>" +
-					"file an issue</a> about this problem)");
+		$("#test1 .description").html(
+				"(Can't load the plugin, please " +
+				"<a href='http://code.google.com/p/switchy/issues/list'>" +
+				"file an issue</a> about this problem)");
 	}
 	
 	if (!success)

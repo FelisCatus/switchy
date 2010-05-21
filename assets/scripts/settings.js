@@ -10,38 +10,35 @@ var Settings = {};
 
 Settings.configCache = {};
 
+Settings.init = function init() {
+	Settings.configCache = {};
+	if (localStorage.config) {
+		try {
+			Settings.configCache = JSON.parse(localStorage.config);
+		} catch (ex) {
+			Logger.log("Error @Settings.init() > " + ex.toString(), Logger.Types.error);
+		}
+	}
+};
+
+Settings.commit = function commit() {
+	localStorage.config = JSON.stringify(Settings.configCache);
+};
+
 Settings.setValue = function setValue(key, value) {
 	Settings.configCache[key] = value;
-
-	var config = {};
-	if (localStorage.config)
-		config = JSON.parse(localStorage.config);
-	
-	config[key] = value;
-	localStorage.config = JSON.stringify(config);	
+	Settings.commit();
 };
 
 Settings.getValue = function getValue(key, defaultValue) {
-	if (Settings.configCache[key] != undefined)
-		return Settings.configCache[key];
-	
-	if (!localStorage.config)
+	if (!Settings.keyExists(key))
 		return defaultValue;
-	
-	var config = JSON.parse(localStorage.config);
-	if (config[key] == undefined)
-		return defaultValue;
-	
-	Settings.configCache[key] = config[key];
-	return config[key];
+
+	return Settings.configCache[key];
 };
 
 Settings.keyExists = function keyExists(key) {
-	if (!localStorage.config)
-		return false;
-	
-	var config = JSON.parse(localStorage.config);
-	return (config[key] != undefined);
+	return (key in Settings.configCache);
 };
 
 Settings.setObject = function setObject(key, object) {
@@ -49,8 +46,13 @@ Settings.setObject = function setObject(key, object) {
 };
 
 Settings.getObject = function getObject(key) {
-	if (localStorage[key] == undefined)
+	if (key in localStorage)
 		return undefined;
-	
-	return JSON.parse(localStorage[key]);
+
+	try {
+		return JSON.parse(localStorage[key]);
+	} catch (ex) {
+		Logger.log("Error @Settings.getObject() > " + ex.toString(), Logger.Types.error);
+		return undefined;
+	}
 };

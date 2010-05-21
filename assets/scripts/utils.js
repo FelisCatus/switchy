@@ -10,7 +10,7 @@
 var Utils = {};
 
 Utils.OS = {
-	isMac: (/mac/i).test(navigator.userAgent), // maybe should test |navigator.platform| instead?
+	isMac: (/mac/i).test(navigator.userAgent),
 	isWindows: (/win/i).test(navigator.userAgent),
 	isLinux: (/linux/i).test(navigator.userAgent)
 };
