@@ -56,3 +56,5 @@ Settings.getObject = function getObject(key) {
 		return undefined;
 	}
 };
+
+Settings.init();
